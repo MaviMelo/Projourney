@@ -14,8 +14,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 });
 
-require __DIR__.'/settings.php';
-require __DIR__.'/auth.php';
-
-//criação da api do alunos (create,delite,edit e show)
-Route::resource('/alunos', AlunoController::class);
+require __DIR__ . '/settings.php';
+require __DIR__ . '/auth.php';
