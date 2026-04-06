@@ -38,15 +38,15 @@ export default function About() {
           <h2 className="textCard2">Mantenedores do Prejeto:</h2>
 
           <ul className="list-disc list-inside">
-            <li><a href="https://github.com/VSoares27" className="linkGreen2">Victor Soares</a></li>
-            <li><a href="https://github.com/crocodileBigger" className="linkGreen2">Gabriel Enrique</a></li>
-            <li><a href="github.com/Diego-jpeg-27" className="linkGreen2">Diego</a></li>
-            <li><a href="https://github.com/MaviMelo/" className="linkGreen2">Maviael Melo</a></li>
+            <li><a href="https://github.com/VSoares27" className="linkGreen2" target="_blank" rel="noopener noreferrer">Victor Soares</a></li>
+            <li><a href="https://github.com/crocodileBigger" className="linkGreen2" target="_blank" rel="noopener noreferrer">Gabriel Enrique</a></li>
+            <li><a href="https://github.com/Diego-jpeg-27" className="linkGreen2" target="_blank" rel="noopener noreferrer">José Diego</a></li>
+            <li><a href="https://github.com/MaviMelo/" className="linkGreen2" target="_blank" rel="noopener noreferrer">Maviael Melo</a></li>
 
             <h2 className="textCard2">Veja Também:</h2>
             <ul className="list-disc list-inside">
               <li>
-                <a href="https://github.com/MaviMelo/Projourney" className="linkGreen2"> Todos o desenvolvedores que já contribuiram para o projeto.</a>
+                <a href="https://github.com/MaviMelo/Projourney" className="linkGreen2" target="_blank" rel="noopener noreferrer"> Todos o desenvolvedores que já contribuiram para o projeto.</a>
               </li>
             </ul>
 

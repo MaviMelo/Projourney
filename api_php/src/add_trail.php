@@ -128,11 +128,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['trilha'])) {
         echo '<p class="messageError">' . $message . '</p>';
     }
     ?>
-    <lu>
+    <ul>
         <?php foreach ($trail_details as $trail_detail): ?>
             <li><?= $trail_detail['curso_nome']; ?></li>
-        <? endforeach ?>
-    </lu>
+        <?php endforeach; ?>
+    </ul>
     <br />
     <div>
         <main>
