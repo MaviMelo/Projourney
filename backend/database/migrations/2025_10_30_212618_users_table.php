@@ -19,6 +19,10 @@ return new class extends Migration
             $table->enum('tipo', ['admin', 'user'])->default('user');
             $table->date('data_nascimento')->nullable();
             $table->string('telefone', 30)->nullable();
+            $table->string('cidade', 100)->nullable();
+            $table->string('descricao', 500)->nullable();
+            $table->string('objetivos', 500)->nullable();
+            $table->string('areasInteresse', 500)->nullable();
             $table->timestamps();
         });
     }
