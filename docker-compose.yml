@@ -1,0 +1,50 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ../docker/php/Dockerfile
+    container_name: laravel_backend_app
+    volumes:
+      - ./backend:/var/www
+      - ./dadosAntigos:/var/www/dadosAntigos
+    networks:
+      - app
+
+  frontend:
+    build:
+      context: .
+      dockerfile: ./docker/vite/Dockerfile
+    container_name: vite_frontend_app
+    volumes:
+      - ./frontend:/app:Z
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    networks:
+      - app
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx_app
+    ports:
+      - "8000:80"
+    volumes:
+      - ./backend:/var/www
+    depends_on:
+      - backend
+    networks:
+      - app
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_app
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: laravel
+    ports:
+      - "3306:3306"
+    networks:
+      - app
+
+networks:
+  app:

@@ -1,23 +1,36 @@
-/*
- *
- * configuração Vite
- *
-*/
-
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import path from 'path'; // Importa o módulo 'path' do Node.js
+import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
-  root: './',  // define a raiz do projeto para o vite.
+
+  root: './',
+
   build: {
-    outDir: 'dist', // onde os arquivos de build serão gerados
+    outDir: 'dist',
   },
+
   publicDir: 'public',
-  resolve: { // Adicione esta seção
+
+  resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'), // Mapeia @/ para o diretório src
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
+
+  server: {
+    host: true,
+    port: 5173,
+    strictPort: true,
+    watch: {
+      usePolling: true,
+    },
+    proxy: {
+      '/api': {
+        target: 'http://backend:8000',
+        changeOrigin: true,
+      },
     },
   },
 });

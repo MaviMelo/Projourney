@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import type React from "react"
 import { Button } from "../components/ui/button"
@@ -36,7 +35,7 @@ export default function LoginPage(): JSX.Element {
         setError(null)
 
         try {
-            const response = await fetch('http://localhost:8080/login', {
+            const response = await fetch('http://localhost:8000/api/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type' : 'application/json',
@@ -64,6 +63,7 @@ export default function LoginPage(): JSX.Element {
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'falha na comunicação.';
             setError(errorMessage);
+            console.log(response);
 
         } finally {
             setIsLoading(false); // Desativa o estado de 'carregando'.

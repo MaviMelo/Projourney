@@ -63,7 +63,7 @@ export default function CadastrarAlunoPage(): JSX.Element {
         try {
             // Envia os dados para a API PHP
             // URL para ser usada com a API rodando no comando 'php -S localhost:8000'
-            const response = await fetch('http://localhost:8000/cadastrar_aluno.php', {
+            const response = await fetch('http://localhost:8000/api/cadastrar_aluno', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -81,7 +81,9 @@ export default function CadastrarAlunoPage(): JSX.Element {
                 }),
             });
 
+            console.log(response);
             const result = await response.json(); // Pega a resposta da API em JSON
+            console.log(result);
 
             if (!response.ok) {
                 // Se a resposta não for 2xx, lança um erro com a mensagem do PHP
