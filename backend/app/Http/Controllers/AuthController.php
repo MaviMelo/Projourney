@@ -58,9 +58,8 @@ class AuthController extends Controller
             'data_nascimento' => 'required|date_format:Y-m-d',
             'telefone' => 'required|string',
             'cidade' => 'nullable|string',
-            'descricao' => 'nullable|string',
             'objetivos' => 'nullable|string',
-            'areasInteresse' => 'nullable|string',
+            'areasInteresse' => 'nullable|array',
         ]);
 
         // 2. Tratamento dos dados
@@ -74,7 +73,6 @@ class AuthController extends Controller
             'data_nascimento' => $validated['data_nascimento'],
             'telefone' => $telefoneLimpo,
             'cidade' => $validated['cidade'] ?? null,
-            'descricao' => $validated['descricao'] ?? null,
             'objetivos' => $validated['objetivos'] ?? null,
             'areasInteresse' => $validated['areasInteresse'] ?? null,
         ]);
