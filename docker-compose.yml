@@ -2,18 +2,17 @@ services:
   backend:
     build:
       context: ./backend
-      dockerfile: ../docker/php/Dockerfile
+      dockerfile: ../docker/php/DockerfileLaravel
     container_name: laravel_backend_app
     volumes:
-      - ./backend:/var/www
-      - ./dadosAntigos:/var/www/dadosAntigos
+      - ./backend:/var/www:Z
     networks:
       - app
 
   frontend:
     build:
       context: .
-      dockerfile: ./docker/vite/Dockerfile
+      dockerfile: ./docker/vite/DockerfileVite
     container_name: vite_frontend_app
     volumes:
       - ./frontend:/app:Z
@@ -29,7 +28,8 @@ services:
     ports:
       - "8000:80"
     volumes:
-      - ./backend:/var/www
+      - ./backend:/var/www:Z
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:Z
     depends_on:
       - backend
     networks:
@@ -40,7 +40,7 @@ services:
     container_name: mysql_app
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: laravel
+      MYSQL_DATABASE: projourney_2 
     ports:
       - "3306:3306"
     networks:

@@ -1,0 +1,20 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Corrige ownership do diretório (ESSENCIAL)
+RUN chown -R node:node /app
+
+# Copia dependências
+COPY --chown=node:node frontend/package*.json ./
+
+USER node
+
+RUN npm install
+
+# Copia resto do projeto
+COPY --chown=node:node frontend/ .
+
+EXPOSE 5173
+
+CMD ["npm", "run", "dev", "--", "--host"]
