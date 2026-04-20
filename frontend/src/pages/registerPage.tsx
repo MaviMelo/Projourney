@@ -63,13 +63,13 @@ export default function CadastrarAlunoPage(): JSX.Element {
         try {
             // Envia os dados para a API PHP
             // URL para ser usada com a API rodando no comando 'php -S localhost:8000'
-            const response = await fetch('http://localhost:8000/api/cadastrar_aluno', {
+                const response = await fetch('http://localhost:8000/api/cadastrar_aluno', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json'
                 },
-                // Enviamos apenas os dados que o script PHP espera
-                body: JSON.stringify({ // Converte os dados do formulário para JSON
+                body: JSON.stringify({
                     nome: formData.nome,
                     email: formData.email,
                     senha: formData.senha,
@@ -77,7 +77,7 @@ export default function CadastrarAlunoPage(): JSX.Element {
                     telefone: formData.telefone,
                     cidade: formData.cidade,
                     objetivos: formData.objetivos,
-                    areasInteresse: formData.areasInteresse, // Você pode adicionar a seleção de áreas depois
+                    areasInteresse: formData.areasInteresse,
                 }),
             });
 
@@ -86,6 +86,8 @@ export default function CadastrarAlunoPage(): JSX.Element {
             console.log(result);
 
             if (!response.ok) {
+
+                console.log(result); // 👈 veja o erro real
                 // Se a resposta não for 2xx, lança um erro com a mensagem do PHP
                 throw new Error(result.mensagem || `Erro ${response.status}`);
             }
