@@ -18,7 +18,7 @@ $dotenv->load();
 </head>
 
 <body>
-    
+
     <div class="">
         <header>
             <h1><?= $_ENV['APP_NAME'] ?? "PROJOURNEY" ?></h1>

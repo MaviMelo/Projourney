@@ -106,7 +106,7 @@ Projourney
 ## Desenvolvedores que contribuíram e os que ainda contribuem para o projeto:
 
 * [Matheus Langendolf](https://github.com/MLangendolf)
-* [Cristiano Caldas](https://github.com/Criswxyz)
+* [Cristiano Caldas](https://github.com/Criscgarcia)
 * [Gabriel Saruba](https://github.com/gabrielsaruba)
 * [Arthur Pontes](https://github.com/apmrnh)
 * [Maviael Melo](https://github.com/MaviMelo)
@@ -118,4 +118,5 @@ Projourney
 * [Liliane](https://github.com/lilialnas)
 * [Emaur Florêncio](https://github.com/)
 * [Macone J. Silva](https://github.com/)
+
 

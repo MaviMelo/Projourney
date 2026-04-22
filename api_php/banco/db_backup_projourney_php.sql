@@ -16,6 +16,18 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 
+-- CONFIGURAÇÕES:
+--
+-- mysql -u <usuário> -p < db_backup_projourney_php.sql
+--
+-- CREATE USER '<userName>'@'localhost' IDENTIFIED WITH mysql_native_password BY '<password>';
+--
+-- ALTER USER '<userName>'@'localhost' IDENTIFIED WITH mysql_native_password BY '<password>'; 
+--
+--
+--
+
+
 CREATE DATABASE projourney_php;
 USE projourney_php;
 
