@@ -52,9 +52,12 @@ class UserController extends Controller
             'nome'            => 'required|string|max:60',
             'email'           => 'required|email|unique:users,email',
             'senha'           => 'required|string|min:6',
-            'tipo'            => 'required|in:admin,user',
+            'tipo'            => 'in:admin,user',
             'data_nascimento' => 'nullable|date_format:Y-m-d',
             'telefone'        => 'nullable|string|max:30',
+            'cidade'          => 'nullable|string|max:100',
+            'objetivos'       => 'nullable|string',
+            'areasInteresse'  => 'nullable|array', // ou string dependendo do formato
         ]);
 
         if ($validator->fails()) {
@@ -67,6 +70,7 @@ class UserController extends Controller
         $dados = $validator->validated();
         $dados['telefone'] = isset($dados['telefone']) ? preg_replace('/[^0-9]/', '', $dados['telefone']) : null;
         $dados['senha'] = Hash::make($dados['senha']);
+        $dados['tipo'] = $dados['tipo'] ?? 'user';
 
         $user = User::create($dados);
 

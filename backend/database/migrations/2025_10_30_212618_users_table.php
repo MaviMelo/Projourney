@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('telefone', 30)->nullable();
             $table->string('cidade', 100)->nullable();
             $table->string('objetivos', 500)->nullable();
-            $table->string('areasInteresse', 500)->nullable();
+            $table->json('areasInteresse')->nullable();
             $table->timestamps();
         });
     }

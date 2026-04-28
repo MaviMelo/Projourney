@@ -29,4 +29,8 @@ class User extends Authenticatable
         'descricao',
         'areasInteresse'
     ];
+
+    protected $casts = [
+        'areasInteresse' => 'array',
+    ];
 }
