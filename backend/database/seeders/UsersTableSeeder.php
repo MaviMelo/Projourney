@@ -20,7 +20,6 @@ class UsersTableSeeder extends Seeder
             'telefone' => '',
             'cidade' => '2 anos',
             'objetivos' => '34',
-            'areasInteresse' => 'dev',
             'created_at' => '2026-03-14 20:03:07',
             'updated_at' => '2026-03-14 20:03:07',
         ]);

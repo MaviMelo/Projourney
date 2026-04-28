@@ -14,7 +14,7 @@ class AuthController extends Controller
         // Validação (equivalente ao empty())
         $request->validate([
             'email' => 'required|email',
-            'senha' => 'required'
+            'password' => 'required'
         ]);
 
         try {
@@ -29,7 +29,13 @@ class AuthController extends Controller
                     "mensagem" => "Login realizado com sucesso!",
                     "dados_usuario" => [
                         "id" => $user->id,
-                        "name" => $user->name
+                        "nome" => $user->name,
+                        "email" => $user->email,
+                        "telefone" => $user->telefone,
+                        "data_nascimento" => $user->data_nascimento,
+                        "cidade" => $user->cidade,
+                        "objetivos" => $user->objetivos,
+                        "areasInteresse" => $user->areasInteresse
                     ]
                 ], 200);
             }
