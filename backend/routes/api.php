@@ -28,9 +28,3 @@ Route::get('/health', function () {
         'status' => 'ok'
     ]);
 });
-
-
-// ⚠️ CORS PRE-FLIGHT (resolve problema com fetch + JSON)
-Route::options('{any}', function () {
-    return response()->json([], 200);
-})->where('any', '.*');
