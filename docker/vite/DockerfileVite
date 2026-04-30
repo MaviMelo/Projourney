@@ -2,18 +2,17 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Corrige ownership do diretório (ESSENCIAL)
 RUN chown -R node:node /app
 
-# Copia dependências
-COPY --chown=node:node frontend/package*.json ./
+# Agora copia SEM o frontend_react/ na frente
+COPY --chown=node:node package*.json ./
 
 USER node
 
 RUN npm install
 
-# Copia resto do projeto
-COPY --chown=node:node frontend/ .
+# Copia tudo do contexto (que é frontend_react)
+COPY --chown=node:node . .
 
 EXPOSE 5173
 

@@ -10,14 +10,20 @@ services:
       - ./backend:/var/www:z
     networks:
       - app
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: projourney_2
+      DB_USERNAME: root
+      DB_PASSWORD: root
 
   frontend:
     build:
-      context: .
-      dockerfile: ./docker/vite/DockerfileVite
+      context: ./frontend_react
+      dockerfile: ../docker/vite/DockerfileVite
     container_name: vite_frontend_app
     volumes:
-      - ./frontend:/app:z
+      - ./frontend_react:/app:z
       - /app/node_modules
     ports:
       - "5173:5173"
@@ -42,13 +48,16 @@ services:
     container_name: mysql_app
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: projourney_2 
+      MYSQL_DATABASE: projourney_2
     ports:
       - "3306:3306"
     volumes:
-      - ./backend:/var/www:z
+      - mysql_data:/var/lib/mysql:z
     networks:
       - app
+
+volumes:
+  mysql_data:
 
 networks:
   app:

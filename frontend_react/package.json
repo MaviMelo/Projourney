@@ -1,0 +1,65 @@
+{
+  "name": "projourney",
+  "version": "1.0.0",
+  "description": "Projeto estudantil acadêmico. Curso de TSI (Tecnologia em Sistemas para Internet),instituição IFPE, campus Igarassu. Este projeto visa criar uma plataforma web que facilite a busca por cursos online gratuitos, dando maior ênfase em instituições confiáveis e cursos com certificação reconhecida pelos principais orgãos regulamentadores e ensino.O projeto usa TypeScripte como dependência de desenvolvimento.",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MLangendolf/Projourney.git"
+  },
+  "keywords": [
+    "Projeto",
+    "typescript",
+    "dependência",
+    "desenvolvimento",
+    "acadêmico",
+    "estudantil",
+    "IFPE",
+    "Igarassu",
+    "busca",
+    "curso",
+    "online",
+    "gratuito."
+  ],
+  "author": "Matheus, Cristiano, Gabriel, Guilherme, Maviael Melo, Arthur.",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MLangendolf/Projourney/issues"
+  },
+  "homepage": "https://github.com/MLangendolf/Projourney#readme",
+  "devDependencies": {
+    "@types/node": "^22.15.17",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@vitejs/plugin-react": "^4.6.0",
+    "autoprefixer": "^10.4.17",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5"
+  },
+  "dependencies": {
+    "@radix-ui/react-accordion": "^1.2.11",
+    "@radix-ui/react-label": "^2.1.7",
+    "@radix-ui/react-select": "^2.2.5",
+    "@radix-ui/react-slot": "^1.2.3",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "input-otp": "^1.4.2",
+    "lucide-react": "^0.523.0",
+    "next-themes": "^0.4.6",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-hook-form": "^7.58.1",
+    "react-router-dom": "^7.6.2",
+    "recharts": "^3.0.2",
+    "tailwind-merge": "^3.3.1"
+  }
+}

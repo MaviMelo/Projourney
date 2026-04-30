@@ -18,8 +18,6 @@ class UsersTableSeeder extends Seeder
             'tipo' => 'user',
             'data_nascimento' => null,
             'telefone' => '',
-            'cidade' => '2 anos',
-            'objetivos' => '34',
             'created_at' => '2026-03-14 20:03:07',
             'updated_at' => '2026-03-14 20:03:07',
         ]);

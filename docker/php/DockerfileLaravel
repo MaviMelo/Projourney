@@ -3,7 +3,8 @@ FROM php:8.2-fpm
 # Dependências
 RUN apt-get update && apt-get install -y \
     git curl zip unzip \
-    libpng-dev libonig-dev libxml2-dev
+    libpng-dev libonig-dev libxml2-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 # Extensões Laravel
 RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
@@ -11,11 +12,26 @@ RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 # Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# 👇 ESSENCIAL
+# Diretório de trabalho
 WORKDIR /var/www
 
-# 👇 importante para permissões em dev
+# Copiar projeto Laravel
+COPY . . 
+
+# Permissões (ANTES de instalar dependências)
 RUN chown -R www-data:www-data /var/www
-RUN chmod -R 777 -R /var/www
+RUN chmod -R 755 /var/www
+
+# Instalar dependências Composer
+RUN composer install --no-interaction --no-dev --prefer-dist
+
+# Permissão especial para storage e bootstrap
+RUN chmod -R 777 /var/www/storage
+RUN chmod -R 777 /var/www/bootstrap/cache
+
+# Gerar key da aplicação
+RUN php artisan key:generate
 
 EXPOSE 9000
+
+CMD ["php-fpm"]

@@ -1,0 +1,7 @@
+# comando para rodar a docker-compose 
+docker-compose up -d
+
+# comando para criar as tabel do banco de dados e popular com as informações
+docker exec -it laravel_backend_app sh -c "php artisan migrate:refresh --seed"
+
+

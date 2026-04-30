@@ -1,0 +1,275 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+
+
+body {
+  font-family: "Poppins", Arial, Helvetica, sans-serif;
+  margin: 0;
+}
+
+
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer base {
+  :root {
+    --teste: hsl(194, 94%, 25%);
+    --background: 0, 0%, 80%;
+    --foreground: 0 0% 3.9%;
+    --header: 209, 56%, 59%, 0.5;
+    --particle1: 214, 98%, 46%;
+    --particle2: 0, 0%, 0%;
+    --particle3: 0, 0%, 0%;
+    --particle4: 0, 0%, 0%;
+    --button-1: 194, 94%, 25%;
+    --button-1-foreground: 221, 83%, 53%;
+    --button-2: 229, 87%, 25%;
+    --button-2-foreground: 209, 94%, 44%;
+    --card: 221, 39%, 11%, 0.50;
+    --card-foreground: 215, 25%, 35%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+
+    --teste: #076e18;
+    --background: 0 100% 2%;
+    --foreground: 0 0% 98%;
+    --header: 224, 64%, 33%, 0.4;
+    --particle1: 61, 100%, 86%, 0.6;
+    --particle2: 0, 0%, 100%;
+    --particle3: 0, 0%, 100%;
+    --particle4: 0, 0%, 100%;
+    --button-1: 221, 83%, 53%;
+    --button-1-foreground: 200, 100%, 50%;
+    --button-2: 200, 100%, 50%;
+    --button-2-foreground: 200, 100%, 70%;
+    --card: 0, 0%, 0%, 0.3;
+    --card-foreground: 199, 57%, 22%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+
+@layer components {
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  .header {
+    background-color: hsl(var(--header));
+    @apply sticky top-0 left-0 min-w-full h-full z-50 backdrop-blur-md border-b border-blue-500/30 pl-[30px] pr-[30px] flex justify-between items-center;
+  }
+
+  /* buttons */
+  .buttonPrimary {
+    background-color: hsl(var(--button-1));
+    @apply text-white px-4 py-4 rounded-full font-semibold shadow-lg transition-all duration-300 ease-in-out flex items-center justify-center text-center;
+  }
+
+  .buttonPrimary:hover {
+    background-color: hsl(var(--button-1-foreground));
+    @apply px-5 shadow-[#177687];
+  }
+
+  .buttonLink {
+    color: hsl(var(--button-2));
+    @apply m-4 font-semibold border-b-2 border-transparent gap-1 flex items-center justify-center text-center;
+  }
+
+  .buttonLink:hover {
+    color: hsl(var(--button-2-foreground));
+    border-bottom-color: hsl(var(--button-2-foreground));
+    @apply transition-colors
+  }
+
+  .buttonOutline {
+    border: 2px solid hsl(var(--button-2));
+    color: hsl(var(--button-2));
+    @apply font-semibold px-9 py-4 rounded-full flex items-center justify-center text-center;
+  }
+
+  .buttonOutline:hover {
+    background-color: hsl(var(--button-2));
+    color: white;
+    @apply transition-colors
+  }
+
+  .buttonNav {
+    background-color: hsl(var(--button-1));
+    @apply flex items-center gap-1 text-white px-4 py-2 rounded-md font-semibold m-4 flex items-center justify-center text-center;
+  }
+
+  .buttonNav:hover {
+    background-color: hsl(var(--button-1-foreground));
+    @apply transition-colors
+  }
+
+  /* links */
+  .linkGreen {
+    @apply m-4 font-semibold gap-1 flex items-center justify-center text-center hover:text-[#36b936];
+  }
+
+  .linkGreen2 {
+    @apply m-1 font-semibold border-b  gap-1  hover:text-[#36b936];
+  }
+  
+  .linkRed {
+    @apply m-4 font-semibold gap-1 flex items-center justify-center text-center hover:text-[#d32828];
+  }
+
+.linkRed2 {
+    @apply m-1 font-semibold border-b gap-1  hover:text-[#d32828];
+  }
+
+  /* texts */
+  .textBanner {
+    @apply text-5xl md:text-6xl font-bold mb-6 max-w-4xl;
+  }
+
+  .title {
+    @apply text-3xl font-bold m-2;
+    color: hsl(var(--button-2));
+  }
+
+  .textCard {
+    @apply text-3xl font-semibold my-2 max-w-2xl leading-relaxed;
+  }
+
+  .textCard2 {
+    @apply text-2xl font-semibold my-2 max-w-2xl leading-relaxed;
+  }
+
+  .textCard3 {
+    @apply text-xl font-semibold my-2 max-w-2xl leading-relaxed;
+  }
+
+  .textLink {
+    @apply hover:text-[hsl(var(--button-2))];
+  }
+
+  /* card */
+  .card1 {
+    background-color: hsl(var(--card));
+    @apply p-2 border-2 border-gray-700 m-4 text-white rounded-lg space-y-4
+  }
+
+  .card2 {
+    @apply border-2 border-dashed border-gray-700 rounded-lg p-12;
+  }
+
+  .elementeCard1 {
+    background-color: hsl(var(--card-foreground));
+    @apply border border-blue-500/20 rounded-lg p-4;
+  }
+
+  .elementeCard2 {
+    @apply border-cyan-400 p-4 rounded-lg bg-cyan-400/20 text-cyan-300 ring-2 ring-cyan-400
+  }
+
+  .warningError {
+    color:#ffffff;
+    @apply flex items-center justify-center gap-2 p-3 m-2 bg-red-900/50 rounded-md
+  }
+
+  .warningSuccess {
+    color:#ffffff;
+    @apply flex items-center justify-center gap-2  p-3 m-2 bg-green-900/50 rounded-md
+  }
+
+  .dropDown {
+    @apply absolute right-0 mb-2 w-48 bg-gray-700 border border-gray-600 rounded-lg shadow-lg z-10 hidden group-open:block
+  }
+
+
+  /* Indentation */
+  .inputCard {
+    background-color: hsl(var(--card-foreground)) !important;
+    @apply m-2 focus:border-blue-400;
+    @apply pl-10 !important;
+    @apply pr-10 !important;
+  }
+
+  .itemsJustify {
+    @apply relative flex items-center gap-2 p-2 justify-between !important;
+  }
+
+  .itemsJustify2 {
+    @apply flex items-center space-x-2 gap-1;
+  }
+
+  .centralize {
+    @apply m-[5%] p-[2%] flex flex-col items-center justify-center gap-3 px-8 py-24 text-center;
+  }
+
+  .centralize2 {
+    @apply flex flex-col items-center justify-center p-2 text-center;
+  }
+
+
+  .containerGrid {
+    @apply mx-auto px-10 py-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8
+  }
+}

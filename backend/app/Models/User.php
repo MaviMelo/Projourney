@@ -25,12 +25,5 @@ class User extends Authenticatable
         'tipo',
         'data_nascimento',
         'telefone',
-        'cidade',
-        'descricao',
-        'areasInteresse'
-    ];
-
-    protected $casts = [
-        'areasInteresse' => 'array',
     ];
 }

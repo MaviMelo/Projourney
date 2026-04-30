@@ -30,16 +30,9 @@ class AuthController extends Controller
                     "dados_usuario" => [
                         "id" => $user->id,
                         "nome" => $user->name,
-                        "email" => $user->email,
-                        "telefone" => $user->telefone,
-                        "data_nascimento" => $user->data_nascimento,
-                        "cidade" => $user->cidade,
-                        "objetivos" => $user->objetivos,
-                        "areasInteresse" => $user->areasInteresse
                     ]
                 ], 200);
             }
-
             return response()->json([
                 "status" => "erro",
                 "mensagem" => "Credenciais inválidas. Verifique email e senha."
@@ -63,9 +56,6 @@ class AuthController extends Controller
             'senha' => 'required|string',
             'data_nascimento' => 'required|date_format:Y-m-d',
             'telefone' => 'required|string',
-            'cidade' => 'nullable|string',
-            'objetivos' => 'nullable|string',
-            'areasInteresse' => 'nullable|array',
         ]);
 
         // 2. Tratamento dos dados
@@ -76,11 +66,8 @@ class AuthController extends Controller
             'nome' => trim($validated['nome']),
             'email' => trim($validated['email']),
             'senha' => Hash::make($validated['senha']), // bcrypt/argon automático
-            'data_nascimento' => $validated['data_nascimento'],
-            'telefone' => $telefoneLimpo,
-            'cidade' => $validated['cidade'] ?? null,
-            'objetivos' => $validated['objetivos'] ?? null,
-            'areasInteresse' => $validated['areasInteresse'] ?? null,
+            'data_nascimento' => $validated['data_nascimento'] ?? null,
+            'telefone' => $telefoneLimpo ?? null,
         ]);
 
         return response()->json([
