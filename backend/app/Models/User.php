@@ -3,15 +3,17 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
+use App\Models\Trilha;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, TwoFactorAuthenticatable;
+    use HasFactory, Notifiable, TwoFactorAuthenticatable, HasApiTokens;
 
     /**
      * The attributes that are mass assignable.
@@ -26,4 +28,9 @@ class User extends Authenticatable
         'data_nascimento',
         'telefone',
     ];
+    public function trilhas()
+    {
+        return $this->belongsToMany(Trilha::class, 'trilha_users', 'users_id', 'trilhas_id')
+            ->withPivot('experiencias'); // Se sua tabela tiver a coluna progresso
+    }
 }

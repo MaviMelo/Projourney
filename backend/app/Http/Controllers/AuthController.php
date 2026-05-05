@@ -21,12 +21,16 @@ class AuthController extends Controller
             // Busca usuário
             $user = User::where('email', $request->email)->first();
 
+            // gerar token
+            $token = $user->createToken('auth_token')->plainTextToken;
+
             // Verifica senha
             if ($user && Hash::check($request->password, $user->senha)) {
 
                 return response()->json([
                     "status" => "sucesso",
                     "mensagem" => "Login realizado com sucesso!",
+                    "token" => $token,
                     "dados_usuario" => [
                         "id" => $user->id,
                         "nome" => $user->name,

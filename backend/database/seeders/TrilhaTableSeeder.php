@@ -9,7 +9,7 @@ class TrilhaTableSeeder extends Seeder
 {
     public function run()
     {
-        DB::table('trilha')->insert([
+        DB::table('trilhas')->insert([
             ['id' => 2, 'nome' => 'Desenvolvimento Frontend'],
             ['id' => 3, 'nome' => 'Desenvolvimento Backend'],
             ['id' => 4, 'nome' => 'Desenvolvimento Mobile'],

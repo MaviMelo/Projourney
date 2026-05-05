@@ -8,8 +8,8 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('users_experiencia', function (Blueprint $table) {
-            $table->foreignId('experiencias_id')->constrained('experiencia')->cascadeOnDelete();
+        Schema::create('users_experiencias', function (Blueprint $table) {
+            $table->foreignId('experiencias_id')->constrained('experiencias')->cascadeOnDelete();
             $table->foreignId('users_id')->constrained('users')->cascadeOnDelete();
             $table->primary(['experiencias_id', 'users_id']);
             $table->timestamps();
@@ -18,6 +18,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('users_experiencia');
+        Schema::dropIfExists('users_experiencias');
     }
 };

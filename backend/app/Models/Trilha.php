@@ -10,4 +10,10 @@ class Trilha extends Model
     use HasFactory;
 
     protected $fillable = ['nome'];
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'trilha_users', 'trilhas_id', 'users_id')
+            ->withPivot('experiencias');
+    }
 }

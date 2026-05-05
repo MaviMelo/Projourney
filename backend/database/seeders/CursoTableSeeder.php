@@ -10,7 +10,7 @@ class CursoTableSeeder extends Seeder
     public function run()
     {
         // Cursos
-        DB::table('curso')->insert([
+        DB::table('cursos')->insert([
             ['id' => 5, 'nome' => 'Python', 'nivel' => 'Basico', 'link_curso' => 'https://www.ev.org.br/cursos/linguagem-de-programacao-python-basico'],
             ['id' => 6, 'nome' => 'JavaScript', 'nivel' => 'Basico', 'link_curso' => 'https://www.betrybe.com/curso-de-programacao-javascript-do-zero'],
             ['id' => 7, 'nome' => 'Java', 'nivel' => 'Basico', 'link_curso' => 'https://www.cursoemvideo.com/curso/java-basico/'],
@@ -33,7 +33,7 @@ class CursoTableSeeder extends Seeder
         ]);
 
         // Pivot curso_trilha
-        DB::table('curso_trilha')->insert([
+        DB::table('curso_trilhas')->insert([
             ['curso_id' => 6, 'trilha_id' => 2],
             [11, 2],
             [18, 2],

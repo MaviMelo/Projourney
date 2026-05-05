@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Trilha;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -16,18 +18,45 @@ class UserController extends Controller
     }
 
     // GET /users/{id} → mostrar 1 usuário
-    public function show(string $id)
+    public function show(Request $request, String $id)
     {
-        $user = User::find($id);
+        try {
+            // O Laravel já injeta o usuário autenticado via Token no Request
+            $user = $request->User();
 
-        if (!$user) {
+            // Validamos se o usuário autenticado é o mesmo que ele está tentando ver (Segurança)
+            if (!$user || $user->id != $id) {
+                return response()->json(['status' => 'erro', 'mensagem' => 'Não autorizado.'], 403);
+            }
+
+            // Carrega a relação (ajuste 'trilhas' para o nome exato no seu Model User)
+            // Usamos ->with('trilhas') para evitar o problema de N+1 consultas
+            $user->load(['trilhas' => function ($query) {
+                $query->orderBy('nome', 'asc');
+            }]);
+
+            // Mapeia os dados para manter o formato da sua resposta original
             return response()->json([
-                'status'   => 'erro',
-                'mensagem' => 'Usuário não encontrado.'
-            ], 404);
+                'aluno' => [
+                    'id' => $user->id,
+                    'nome' => $user->nome,
+                    'email' => $user->email,
+                ],
+                'trilhas' => $user->trilhas->map(function ($trilha) {
+                    return [
+                        'id' => $trilha->id,
+                        'nome' => $trilha->nome,
+                        'progresso' => $trilha->pivot->progresso ?? 0,
+                    ];
+                }),
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'erro',
+                'mensagem' => $e->getMessage(),
+                'linha' => $e->getLine()
+            ], 500);
         }
-
-        return response()->json($user, 200);
     }
 
     // GET /users/email/{email} → buscar por email
@@ -43,42 +72,6 @@ class UserController extends Controller
         }
 
         return response()->json($user, 200);
-    }
-
-    // POST /users → cadastrar usuário
-    public function store(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'nome'            => 'required|string|max:60',
-            'email'           => 'required|email|unique:users,email',
-            'senha'           => 'required|string|min:6',
-            'tipo'            => 'in:admin,user',
-            'data_nascimento' => 'nullable|date_format:Y-m-d',
-            'telefone'        => 'nullable|string|max:30',
-            'cidade'          => 'nullable|string|max:100',
-            'objetivos'       => 'nullable|string',
-            'areasInteresse'  => 'nullable|array', // ou string dependendo do formato
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'status'   => 'erro',
-                'mensagem' => $validator->errors()
-            ], 400);
-        }
-
-        $dados = $validator->validated();
-        $dados['telefone'] = isset($dados['telefone']) ? preg_replace('/[^0-9]/', '', $dados['telefone']) : null;
-        $dados['senha'] = Hash::make($dados['senha']);
-        $dados['tipo'] = $dados['tipo'] ?? 'user';
-
-        $user = User::create($dados);
-
-        return response()->json([
-            'status' => 'sucesso',
-            'mensagem' => 'Usuário cadastrado com sucesso!',
-            'user' => $user
-        ], 201);
     }
 
     // PUT /users/{id} → editar usuário

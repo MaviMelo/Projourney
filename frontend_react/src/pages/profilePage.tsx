@@ -60,16 +60,19 @@ export default function PerfilPage(): React.JSX.Element {
                 const token = localStorage.getItem('token');
                 if (!token) {
                     navigate('/login');
+                    console.log(token);
                     return; // Se não houver token (mesmo que já tenha verificado antes)
                 };
-
-                const response = await fetch(`${BASE_URL}/perfil_aluno.php?alunoId=${usuarioLogado.id}`, {
+                console.log("Token encontrado:", token); // Log para verificar o token
+                const response = await fetch(`${BASE_URL}/user/${usuarioLogado.id}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
                 });
+
+                console.log("Token encontrado:", response); 
                 if (!response.ok) {
                     if (response.status === 401 || response.status === 403) {
                         window.alert("Sua sessão expirou ou é inválida. Faça login novamente.");
