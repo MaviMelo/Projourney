@@ -12,7 +12,16 @@ class TrilhaController extends Controller
      */
     public function index()
     {
-        //
+        try {
+            // Busca todas as trilhas do banco
+            $trilhas = Trilha::all(['id', 'nome']);
+            return response()->json($trilhas, 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'erro',
+                'mensagem' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -28,7 +37,7 @@ class TrilhaController extends Controller
      */
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        /*    $validator = Validator::make($request->all(), [
             'nome' => 'nullable|string|max:100'
         ]);
 
@@ -45,19 +54,15 @@ class TrilhaController extends Controller
 
         return response()->json([
             'status'  => 'sucesso',
-            'mensagem'=> 'Trilha criada com sucesso!',
+            'mensagem' => 'Trilha criada com sucesso!',
             'trilha'   => $trilha
-        ], 201);
+        ], 201);*/
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Trilha $trilha)
-    {
-        //
-    }
-
+    public function show() {}
     /**
      * Show the form for editing the specified resource.
      */

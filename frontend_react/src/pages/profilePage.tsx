@@ -60,10 +60,8 @@ export default function PerfilPage(): React.JSX.Element {
                 const token = localStorage.getItem('token');
                 if (!token) {
                     navigate('/login');
-                    console.log(token);
                     return; // Se não houver token (mesmo que já tenha verificado antes)
                 };
-                console.log("Token encontrado:", token); // Log para verificar o token
                 const response = await fetch(`${BASE_URL}/user/${usuarioLogado.id}`, {
                     method: 'GET',
                     headers: {
@@ -72,7 +70,6 @@ export default function PerfilPage(): React.JSX.Element {
                     },
                 });
 
-                console.log("Token encontrado:", response); 
                 if (!response.ok) {
                     if (response.status === 401 || response.status === 403) {
                         window.alert("Sua sessão expirou ou é inválida. Faça login novamente.");
@@ -179,7 +176,7 @@ export default function PerfilPage(): React.JSX.Element {
 
                 <header className="itemsJustify">
                     <div>
-                        <h1 className="title text-5xl">Olá, {usuario.nome.split(' ')[0]}!</h1>
+                        <h1 className="title text-5xl">Olá, {usuario.nome?.split(' ')[0]}!</h1>
                         <p className="">Aqui está o resumo da sua jornada de aprendizado.</p>
                     </div>
 

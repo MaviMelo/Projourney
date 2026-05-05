@@ -13,7 +13,8 @@ class Trilha extends Model
 
     public function users()
     {
-        return $this->belongsToMany(User::class, 'trilha_users', 'trilhas_id', 'users_id')
-            ->withPivot('experiencias');
+        return $this->belongsToMany(User::class, 'trilha_users', 'users_id', 'trilhas_id')
+            ->withPivot('progresso')
+            ->withTimestamps();
     }
 }

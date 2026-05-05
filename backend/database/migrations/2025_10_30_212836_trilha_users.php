@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('trilha_users', function (Blueprint $table) {
-            $table->foreignId('trilhas_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('trilhas_id')->constrained('trilhas')->cascadeOnDelete();
             $table->foreignId('users_id')->constrained('users')->cascadeOnDelete();
             $table->enum('progresso', ['Inscrito', 'Cursando', 'Suspenso', 'Concluido'])->default('Inscrito');
             $table->primary(['trilhas_id', 'users_id']);

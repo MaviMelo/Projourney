@@ -69,22 +69,31 @@ export default function TrilhasPage(): React.JSX.Element {
   useEffect(() => {
     const fetchTrilhas = async () => {
       setStatus('loading');
-      setFeedback('');
       try {
-        const response = await fetch(`${BASE_URL}/listar_trilhas.php`);
-        if (!response.ok) {
-          throw new Error('Não foi possível carregar as trilhas.');
-        }
+        // Recupere o token do localStorage (ou de onde você o salvou no login)
+        const dadosUsuario = localStorage.getItem('usuarioLogado');
+        const token = dadosUsuario ? JSON.parse(dadosUsuario).token : null;
+        console.log("Token para autenticação:", token);
+        console.log("Token para autenticação:", dadosUsuario);
+        const response = await fetch(`${BASE_URL}/listar_trilhas`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`, // Autenticação
+            'Accept': 'application/json',       // Evita redirecionamento HTML
+            'Content-Type': 'application/json'
+          },
+        });
+
+        if (!response.ok) throw new Error('Não foi possível carregar as trilhas.');
+
         const data: Trilha[] = await response.json();
         setTrilhas(data);
         setStatus('idle');
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Falha na comunicação com o servidor.';
-        setFeedback(errorMessage);
+        setFeedback(err instanceof Error ? err.message : 'Falha na comunicação.');
         setStatus('error');
       }
     };
-
     fetchTrilhas();
   }, []);
 
@@ -108,7 +117,7 @@ export default function TrilhasPage(): React.JSX.Element {
     setFeedback('');
 
     try {
-      const response = await fetch(`${BASE_URL}/inscrever_trilha.php`, {
+      const response = await fetch(`${BASE_URL}/inscrever_trilha`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

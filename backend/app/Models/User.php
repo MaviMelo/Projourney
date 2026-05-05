@@ -31,6 +31,7 @@ class User extends Authenticatable
     public function trilhas()
     {
         return $this->belongsToMany(Trilha::class, 'trilha_users', 'users_id', 'trilhas_id')
-            ->withPivot('experiencias'); // Se sua tabela tiver a coluna progresso
+            ->withPivot('progresso')
+            ->withTimestamps();
     }
 }
