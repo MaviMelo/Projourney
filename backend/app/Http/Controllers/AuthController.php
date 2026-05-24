@@ -34,13 +34,14 @@ class AuthController extends Controller
                     "dados_usuario" => [
                         "id" => $user->id,
                         "nome" => $user->name,
-                    ]
-                ], 200);
-            }
-            return response()->json([
-                "status" => "erro",
-                "mensagem" => "Credenciais inválidas. Verifique email e senha."
-            ], 401);
+                        "email" => $user->email,
+                ]], 200);
+            } else{
+                return response()->json([
+                    "status" => "erro",
+                    "mensagem" => "Credenciais inválidas. Verifique email e senha."
+                    ], 401);
+            };
         } catch (\Exception $e) {
 
             return response()->json([
@@ -66,7 +67,7 @@ class AuthController extends Controller
         $telefoneLimpo = preg_replace('/[^0-9]/', '', $validated['telefone']);
 
         // 3. Criar aluno
-        $curso = User::create([
+        $dados = User::create([
             'nome' => trim($validated['nome']),
             'email' => trim($validated['email']),
             'senha' => Hash::make($validated['senha']), // bcrypt/argon automático
@@ -76,8 +77,8 @@ class AuthController extends Controller
 
         return response()->json([
             'status' => 'sucesso',
-            'mensagem' => 'Aluno cadastrado com sucesso!',
-            'data' => $curso
+            'mensagem' => 'Usuário cadastrado com sucesso!',
+            'data' => $dados
         ], 201);
     }
 }
