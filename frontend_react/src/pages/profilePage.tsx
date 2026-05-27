@@ -45,6 +45,7 @@ export default function PerfilPage(): React.JSX.Element {
     // --- Função para Buscar Dados do Perfil ---
     useEffect(() => {
         const dadosUsuarioString = localStorage.getItem('usuarioLogado');
+        console.log(dadosUsuarioString);
         if (!dadosUsuarioString) {
             navigate('/login');
             return; // Se não houver usuário
@@ -176,7 +177,7 @@ export default function PerfilPage(): React.JSX.Element {
 
                 <header className="itemsJustify">
                     <div>
-                        <h1 className="title text-5xl">Olá, {usuario.nome?.split(' ')[0]}!</h1>
+                        <h1 className="title text-5xl">Olá, {usuario.nome?.split(' ')[0]}Gabriel</h1>
                         <p className="">Aqui está o resumo da sua jornada de aprendizado.</p>
                     </div>
 
