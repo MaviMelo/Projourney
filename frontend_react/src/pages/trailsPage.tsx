@@ -5,7 +5,6 @@ import { ArrowLeft, Code, Database, Shield, Smartphone, Globe, Cpu, Brain, Zap, 
 import SimpleButtom from "../components/common/simpleButton"
 import SimpleLink from "../components/common/simpleLink";
 import {BASE_URL} from "@/config/api";
-import ParticleBackground from "../components/effects/particlebackground";
 
 // --- Interfaces e Mapeamento de Ícones ---
 
@@ -141,7 +140,6 @@ export default function TrilhasPage(): React.JSX.Element {
 
   return (
     <>
-      <ParticleBackground />
 
       <header className="header z-40">
         <h1 className="title">Escolha sua Trilha</h1>

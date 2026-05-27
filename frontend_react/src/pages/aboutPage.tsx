@@ -1,10 +1,8 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import ParticleBackground from "@/components/effects/particlebackground"
 
 export default function About() {
   return (
     <main className="p-8 max-w-4xl mx-auto">
-      <ParticleBackground />
 
       <h1 className="textBanner">Objetivo</h1>
       <p>

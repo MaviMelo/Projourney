@@ -1,7 +1,6 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import InteractiveButton from '../components/common/interactive-button';
-import ParticleBackground from '@/components/effects/particlebackground';
 import SimpleLink from "../components/common/simpleLink";
 import { Loader2, AlertCircle, ArrowLeft, ExternalLink, LogOut } from 'lucide-react';
 
@@ -157,7 +156,6 @@ export const CourseDetailPage: React.FC = () => {
 
   return (
     <>
-      <ParticleBackground />
       {/* Header */}
       <header className="header z-[40]">
 
@@ -238,7 +236,6 @@ export const CourseDetailPage: React.FC = () => {
 export const CoursesPage: React.FC = () => {
   return (
     <div>
-      <ParticleBackground />
       {/* Header */}
       <header className="header z-[40]">
 

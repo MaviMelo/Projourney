@@ -2,7 +2,6 @@ import { useState } from "react"
 import type React from "react"
 import { Input } from "../components/ui/input"
 import { Label } from "../components/ui/label"
-import ParticleBackground from "@/components/effects/particlebackground"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card"
 import { ArrowLeft, Eye, EyeOff, Lock, Mail, Github, Chrome } from "lucide-react"
 import { Link, useNavigate } from "react-router-dom"  // Mudança do 'next/link' para o 'react-router-dom"
@@ -71,7 +70,6 @@ export default function LoginPage(): JSX.Element {
 
     return (
         <div className="centralize">
-            <ParticleBackground />
             <div>
                 <div className=" itemsJustify">
                     <SimpleLink
