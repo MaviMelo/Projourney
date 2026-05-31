@@ -1,6 +1,6 @@
 
 ---
-# Documentação das Tabelas do Baco de Dados  
+# Documentação das Tabelas do Banco de Dados  
 
 Este documento descreve, com nível de detalhe adequado para desenvolvedores, as tabelas criadas pelas migrations iniciais de um projeto Laravel. Cada seção inclui:  
 

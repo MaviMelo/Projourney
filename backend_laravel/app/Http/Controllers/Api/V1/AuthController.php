@@ -27,8 +27,8 @@ class AuthController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'birth_date' => ['date', 'date_format:Y-m-d'],
-            'fone' => ['string', 'max:30'],
+            'birth_date' => ['nullable', 'date', 'date_format:Y-m-d'],
+            'fone' => ['nullable', 'string', 'max:30'],
         ]);
 
         $user = User::create([
@@ -44,6 +44,7 @@ class AuthController extends Controller
         return response()->json([
             'status' => 'success',
             // 'token' => $token,
+            'message' => 'Cadastro de usuário relizado com sucesso.',
             'user' => [
                 'id' => $user->id,
                 'name' => $user->name,
@@ -94,6 +95,8 @@ class AuthController extends Controller
     public function fullLogout(Request $request)
     {
         // $user = User::find($request->id);
+
+        // user already authenticed via middleware('auth:sanctum') in rout.    
         $user = $request->user();
 
         if (isset($user)) {
@@ -113,9 +116,11 @@ class AuthController extends Controller
 
     public function profile(Request $request)
     {
-        
-        $user = User::where('email', $request->email)->first();
-        // $user = Auth::user();
+
+        // $user = User::where('email', $request->email)->first();
+
+        // user already authenticed via middleware('auth:sanctum') in rout.
+        $user = Auth::user();
 
         if ($user) {
 
@@ -124,7 +129,7 @@ class AuthController extends Controller
                 'message' => 'Seja sempre bem vindo.',
                 'user' => $user,
             ], 200);
-        }else{
+        } else {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Usuário não encontrado.',

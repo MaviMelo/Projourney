@@ -17,7 +17,7 @@ interface Trilha {
 // Interface para os dados do usuário armazenados no localStorage
 interface UsuarioLogado {
   id: number;
-  nome: string;
+  name: string;
   // outros campos que o login.php retorna...
 }
 
@@ -46,7 +46,7 @@ export default function TrilhasPage(): React.JSX.Element {
   const [feedback, setFeedback] = useState<string>('');
 
   const handleLogout = () => {
-    localStorage.removeItem('usuarioLogado');
+    localStorage.removeItem('loggedUser');
     navigate('/login');
   }
 
@@ -54,15 +54,18 @@ export default function TrilhasPage(): React.JSX.Element {
 
   // 1. Pega os dados do usuário logado do localStorage
   useEffect(() => {
-    const dadosUsuarioString = localStorage.getItem('usuarioLogado');
-    if (dadosUsuarioString) {
-      setUsuario(JSON.parse(dadosUsuarioString));
+    const dataUser = localStorage.getItem('loggedUser');
+    if (dataUser) {
+      setUsuario(JSON.parse(dataUser));
     } else {
       // Se não houver usuário logado, redireciona para a página de login
       alert("Você precisa estar logado para acessar esta página.");
       navigate('/login');
     }
   }, [navigate]);
+  
+  // {console.log(JSON.stringify(usuario))};
+  // debugger
 
   // 2. Busca a lista de trilhas da API PHP
   useEffect(() => {
@@ -70,7 +73,7 @@ export default function TrilhasPage(): React.JSX.Element {
       setStatus('loading');
       setFeedback('');
       try {
-        const response = await fetch(`${BASE_URL}/listar_trilhas.php`);
+        const response = await fetch(`${BASE_URL}/trails`);
         if (!response.ok) {
           throw new Error('Não foi possível carregar as trilhas.');
         }
@@ -145,7 +148,7 @@ export default function TrilhasPage(): React.JSX.Element {
         <h1 className="title">Escolha sua Trilha</h1>
         <nav className="itemsJustify">
           <div className="flex items-center space-x-4">
-            {localStorage.getItem('usuarioLogado') ? (
+            {localStorage.getItem('loggedUser') ? (
               <SimpleLink to="/perfil" variant="navLink">
                 <ArrowLeft className="w-5 h-5" />
                 Início
@@ -174,7 +177,7 @@ export default function TrilhasPage(): React.JSX.Element {
             Trilhas de Conhecimento
           </h2>
           <p>
-            Olá, {usuario?.nome || 'aventureiro(a)'}! Selecione a trilha que mais se alinha com seus objetivos.
+            Olá, {usuario?.name || 'aventureiro(a)'}! Selecione a trilha que mais se alinha com seus objetivos.
           </p>
 
           <form onSubmit={handleInscricao}>

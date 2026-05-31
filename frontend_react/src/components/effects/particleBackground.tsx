@@ -1,5 +1,5 @@
 import { JSX, useRef, useEffect } from "react";
-import { useTheme } from "./theme-provider";
+import { useTheme } from "./themeProvider";
 
 interface ParticleProps {
     x: number;

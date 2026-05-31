@@ -5,7 +5,6 @@ import { Loader2, AlertCircle, ExternalLink, ArrowLeft, LogOut } from 'lucide-re
 import SimpleLink from "../components/common/simpleLink";
 import SimpleButtom from "../components/common/simpleButton"
 import {BASE_URL} from "@/config/api";
-import ParticleBackground from '../components/effects/particlebackground';
 
 // Interface para tipar os dados do curso que vêm da API
 interface Curso {
@@ -76,7 +75,6 @@ export default function AulasPage(): React.JSX.Element {
     // --- Renderização da Lista de Cursos ---
     return (
         <>
-            <ParticleBackground />
 
             <header className="header z-40">
 

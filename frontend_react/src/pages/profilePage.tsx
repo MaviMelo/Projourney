@@ -2,18 +2,19 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {BASE_URL} from "@/config/api";
 import { User, BookOpen, MoreVertical, Loader2, AlertCircle, CheckCircle, LogOut, Trash2 } from "lucide-react";
+import {LogoutButton} from "@/components/effects/logout";
 
 // --- Interfaces para Tipagem dos Dados ---
-interface Usuario {
+interface User {
     id: number;
-    nome: string;
+    name: string;
     email: string;
 }
 
 interface TrilhaInscrita {
     id: number;
-    nome: string;
-    progresso: 'Inscrito' | 'Cursando' | 'Suspenso' | 'Concluido';
+    name: string;
+    progress: 'Inscrito' | 'Cursando' | 'Suspenso' | 'Concluido';
 }
 
 // Mapeamento de cores para os status
@@ -28,8 +29,8 @@ export default function PerfilPage(): React.JSX.Element {
     const navigate = useNavigate();
 
     // --- Estados do Componente ---
-    const [usuario, setUsuario] = useState<Usuario | null>(null);
-    const [trilhas, setTrilhas] = useState<TrilhaInscrita[]>([]);
+    const [user, setUser] = useState<User | null>(null);
+    const [trails, setTrails] = useState<TrilhaInscrita[]>([]);
     const [status, setStatus] = useState<'loading' | 'idle' | 'error'>('loading');
     const [feedback, setFeedback] = useState<string>('');
     const [alert, setAlert] = useState<{ message: string; type: 'error' | 'success' } | null>(null);
@@ -42,13 +43,21 @@ export default function PerfilPage(): React.JSX.Element {
 
     // --- Função para Buscar Dados do Perfil ---
     useEffect(() => {
-        const dadosUsuarioString = localStorage.getItem('usuarioLogado');
-        if (!dadosUsuarioString) {
+        const userData = localStorage.getItem('loggedUser');
+        
+        // debug
+        // console.log(userData);
+        
+        if (!userData) {
             navigate('/login');
             return; // Se não houver usuário
         }
-        const usuarioLogado: Usuario = JSON.parse(dadosUsuarioString);
-        setUsuario(usuarioLogado); // Define o usuário no estado
+        const loggedUser: User = JSON.parse(userData);
+        setUser(loggedUser); // Define o usuário no estado
+        
+        // debug
+        // console.log(loggedUser);
+        // console.log(JSON.stringify(userData, null, 2));
 
         // Função interna para buscar os dados
         const carregarDadosDoPerfil = async () => {
@@ -61,10 +70,9 @@ export default function PerfilPage(): React.JSX.Element {
                     return; // Se não houver token (mesmo que já tenha verificado antes)
                 };
 
-                const response = await fetch(`${BASE_URL}/perfil_aluno.php?alunoId=${usuarioLogado.id}`, {
+                const response = await fetch(`${BASE_URL}/profile?email=${encodeURIComponent(loggedUser.email)}`, {
                     method: 'GET',
                     headers: {
-                        'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
                 });
@@ -72,14 +80,14 @@ export default function PerfilPage(): React.JSX.Element {
                     if (response.status === 401 || response.status === 403) {
                         window.alert("Sua sessão expirou ou é inválida. Faça login novamente.");
                         localStorage.removeItem('token'); // Limpa o token inválido
-                        localStorage.removeItem('usuarioLogado');
+                        localStorage.removeItem('loggedUser');
                         navigate('/login');
                         return;
                     }
                     throw new Error('Falha ao carregar dados do perfil.');
                 }
                 const data = await response.json();
-                setTrilhas(data.trilhas);
+                setTrails(data.trails || []);
                 setStatus('idle');
 
             } catch (err) {
@@ -94,56 +102,51 @@ export default function PerfilPage(): React.JSX.Element {
 
 
     // --- Função para Atualizar o Progresso ---
-    const handleProgressoChange = async (trilhaId: number, novoProgresso: TrilhaInscrita['progresso']) => {
-        if (!usuario) return;
+    const handleProgressoChange = async (trailId: number, novoProgresso: TrilhaInscrita['progress']) => {
+        if (!user) return;
 
         // Otimização: Atualiza a UI primeiro para uma resposta mais rápida
-        const trilhasAntigas = [...trilhas];
-        setTrilhas(trilhas.map(t => t.id === trilhaId ? { ...t, progresso: novoProgresso } : t));
+        const trailsAntigas = [...trails];
+        setTrails(trails.map(t => t.id === trailId ? { ...t, progress: novoProgresso } : t));
 
         try {
             const response = await fetch(`${BASE_URL}/atualizar_progresso.php`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    alunoId: usuario.id,
-                    trilhaId: trilhaId,
-                    progresso: novoProgresso,
+                    alunoId: user.id,
+                    trailId: trailId,
+                    progress: novoProgresso,
                 }),
             });
             if (!response.ok) throw new Error('Falha ao atualizar o progresso.');
         } catch (err) {
             showAlert("Não foi possível atualizar o progresso.", "error");
-            setTrilhas(trilhasAntigas);
+            setTrails(trailsAntigas);
         }
     };
 
-    const handleDelete = async (trilhaId: number) => {
+    const handleDelete = async (trailId: number) => {
         if (!window.confirm("Tem certeza que deseja excluir esta trilha?")) return;
 
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`${BASE_URL}/delete_user_trail.php?trilhaId=${trilhaId}`, {
+            const response = await fetch(`${BASE_URL}/delete_user_trail.php?trilhaId=${trailId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
             const result = await response.json();
-            if (!response.ok) throw new Error(result.mensagem || 'Falha ao excluir a trilha.');
+            if (!response.ok) throw new Error(result.message || 'Falha ao excluir a trilha.');
 
             // Exibir mensagem de sucesso
-            showAlert(result.mensagem || "Trilha excluída com sucesso.", "success");
+            showAlert(result.message || "Trilha excluída com sucesso.", "success");
 
-            setTrilhas(trilhas.filter(t => t.id !== trilhaId));
+            setTrails(trails.filter(t => t.id !== trailId));
         } catch (err) {
             showAlert(err instanceof Error ? err.message : "Erro ao excluir trilha.", "error");
         }
-    };
-
-    const handleLogout = () => {
-        localStorage.removeItem('usuarioLogado');
-        navigate('/login');
     };
 
     if (status === 'loading') {
@@ -154,7 +157,7 @@ export default function PerfilPage(): React.JSX.Element {
         );
     }
 
-    if (status === 'error' || !usuario) {
+    if (status === 'error' || !user) {
         return (
             <div className="centralize">
                 <AlertCircle className="w-16 h-16 text-red-400 mb-4" />
@@ -173,14 +176,11 @@ export default function PerfilPage(): React.JSX.Element {
 
                 <header className="itemsJustify">
                     <div>
-                        <h1 className="title text-5xl">Olá, {usuario.nome.split(' ')[0]}!</h1>
+                        <h1 className="title text-5xl">Olá, {user.name.split(' ')[0]}!</h1>
                         <p className="">Aqui está o resumo da sua jornada de aprendizado.</p>
                     </div>
 
-                    <button onClick={handleLogout} className="buttonNav">
-                        <LogOut size={16} />
-                        Sair
-                    </button>
+                    <LogoutButton />
 
                 </header>
                 {alert && (
@@ -197,21 +197,21 @@ export default function PerfilPage(): React.JSX.Element {
                         Minhas Trilhas
                     </h2>
 
-                    {trilhas.length > 0 ? (
+                    {trails.length > 0 ? (
                         <div className="containerGrid ">
-                            {trilhas.map(trilha => (
-                                <div key={trilha.id} className="card1">
+                            {trails.map(trail => (
+                                <div key={trail.id} className="card1">
                                     <div>
                                         <h3 className="textCard3">
                                             <Link
-                                                to={`/aulas/${trilha.id}`}
+                                                to={`/aulas/${trail.id}`}
                                                 className="textLink"
                                             >
-                                                {trilha.nome}
+                                                {trail.name}
                                             </Link>
                                         </h3>
-                                        <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${statusColors[trilha.progresso]}`}>
-                                            {trilha.progresso}
+                                        <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${statusColors[trail.progress]}`}>
+                                            {trail.progress}
                                         </div>
                                     </div>
                                     <div className="mt-6 relative">
@@ -225,7 +225,7 @@ export default function PerfilPage(): React.JSX.Element {
                                                     <button
                                                         key={statusKey}
                                                         onClick={(e) => {
-                                                            handleProgressoChange(trilha.id, statusKey as TrilhaInscrita['progresso']);
+                                                            handleProgressoChange(trail.id, statusKey as TrilhaInscrita['progress']);
                                                             (e.target as HTMLElement).closest('details')?.removeAttribute('open');
                                                         }}
                                                         className="centralize2 linkGreen"
@@ -237,7 +237,7 @@ export default function PerfilPage(): React.JSX.Element {
                                         </details>
                                         <button
                                             className="itemsJustify linkRed"
-                                            onClick={() => handleDelete(trilha.id)}
+                                            onClick={() => handleDelete(trail.id)}
                                         >
                                             Excluir
                                             <Trash2 />

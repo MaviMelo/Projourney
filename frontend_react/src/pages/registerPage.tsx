@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { JSX, useState } from "react";
 import type React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
@@ -7,25 +7,26 @@ import { Label } from "../components/ui/label";
 import {BASE_URL} from "@/config/api";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { ArrowLeft, Loader2, AlertCircle, CheckCircle } from "lucide-react";
+import ParticleBackground from "@/components/effects/particleBackground";
 
 interface AlunoFormData {
-    nome: string;
+    name: string;
     email: string;
-    senha: string;
-    confirmarSenha: string;
-    data_nascimento: string;
-    telefone: string;
+    password: string;
+    password_confirmation: string;
+    birth_date: string;
+    fone: string;
 }
 
 export default function CadastrarAlunoPage(): JSX.Element {
     const navigate = useNavigate(); // Hook para redirecionamento
     const [formData, setFormData] = useState<AlunoFormData>({
-        nome: "",
+        name: "",
         email: "",
-        senha: "",
-        confirmarSenha: "",
-        data_nascimento: "",
-        telefone: "",
+        password: "",
+        password_confirmation: "",
+        birth_date: "",
+        fone: "",
     });
 
     // Estados para controlar o feedback da interface
@@ -45,7 +46,7 @@ export default function CadastrarAlunoPage(): JSX.Element {
         setError(null);
         setSuccess(null);
 
-        if (formData.senha !== formData.confirmarSenha) {
+        if (formData.password !== formData.password_confirmation) {
             setError("As senhas não coincidem.");
             return;
         }
@@ -53,19 +54,20 @@ export default function CadastrarAlunoPage(): JSX.Element {
         setLoading(true);
 
         try {
-            // Envia os dados para a API PHP
-            // URL para ser usada com a API rodando no comando 'php -S localhost:8000'
-            const response = await fetch(`${BASE_URL}/cadastrar_aluno.php`, {
+            // Envia os dados para a API
+            const response = await fetch(`${BASE_URL}/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json', 
                 },
                 body: JSON.stringify({ // Converte os dados do formulário para JSON
-                    nome: formData.nome,
+                    name: formData.name,
                     email: formData.email,
-                    senha: formData.senha,
-                    data_nascimento: formData.data_nascimento,
-                    telefone: formData.telefone,
+                    password: formData.password,
+                    password_confirmation: formData.password_confirmation,
+                    birth_date: formData.birth_date || null,
+                    fone: formData.fone || null,
                 }),
             });
 
@@ -73,10 +75,10 @@ export default function CadastrarAlunoPage(): JSX.Element {
 
             if (!response.ok) {
                 // Se a resposta não for 2xx, lança um erro com a mensagem do PHP
-                throw new Error(result.mensagem || `Erro ${response.status}`);
+                throw new Error(result.message || `Erro ${response.status}`);
             }
 
-            setSuccess(result.mensagem);
+            setSuccess(result.message);
             setTimeout(() => {
                 navigate('/login'); // Redireciona para o login após o sucesso
             }, 500);
@@ -92,6 +94,8 @@ export default function CadastrarAlunoPage(): JSX.Element {
     return (
 
         <>
+        <ParticleBackground/>
+
             <div className="centralize">
 
                 <Link to="/" className="buttonLink">
@@ -112,28 +116,28 @@ export default function CadastrarAlunoPage(): JSX.Element {
                             {/* Campos do formulário */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <Label htmlFor="nome">Nome Completo *</Label>
-                                    <Input id="nome" value={formData.nome} onChange={handleChange} required className="inputCard" />
+                                    <Label htmlFor="name">Nome Completo *</Label>
+                                    <Input id="name" value={formData.name} onChange={handleChange} required className="inputCard" />
                                 </div>
                                 <div>
                                     <Label htmlFor="email">E-mail *</Label>
                                     <Input id="email" type="email" value={formData.email} onChange={handleChange} required className="inputCard" />
                                 </div>
                                 <div>
-                                    <Label htmlFor="senha">Senha *</Label>
-                                    <Input id="senha" type="password" value={formData.senha} onChange={handleChange} required className="inputCard" />
+                                    <Label htmlFor="password">Senha *</Label>
+                                    <Input id="password" type="password" value={formData.password} onChange={handleChange} required className="inputCard" />
                                 </div>
                                 <div>
-                                    <Label htmlFor="confirmarSenha">Confirmar Senha *</Label>
-                                    <Input id="confirmarSenha" type="password" value={formData.confirmarSenha} onChange={handleChange} required className="inputCard" />
+                                    <Label htmlFor="password_confirmation">Confirmar Senha *</Label>
+                                    <Input id="password_confirmation" type="password" value={formData.password_confirmation} onChange={handleChange} required className="inputCard" />
                                 </div>
                                 <div>
-                                    <Label htmlFor="data_nascimento">Data de nascimento (opicional)</Label>
-                                    <Input id="data_nascimento" type="date" value={formData.data_nascimento} onChange={handleChange} className="inputCard" />
+                                    <Label htmlFor="birth_date">Data de nascimento (opicional)</Label>
+                                    <Input id="birth_date" type="date" value={formData.birth_date} onChange={handleChange} className="inputCard" />
                                 </div>
                                 <div>
-                                    <Label htmlFor="telefone">Telefone (opicional)</Label>
-                                    <Input id="telefone" type="tel" value={formData.telefone} onChange={handleChange} placeholder="(11) 99999-9999" className="inputCard" />
+                                    <Label htmlFor="fone">Telefone (opicional)</Label>
+                                    <Input id="fone" type="tel" value={formData.fone} onChange={handleChange} placeholder="(11) 99999-9999" className="inputCard" />
                                 </div>
                             </div>
 
