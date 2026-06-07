@@ -141,3 +141,22 @@
         @apply bg-background text-foreground;
     }
 }
+
+
+/* We can wrap all CSS classes in a Tailwind layer to avoid specificity issues */
+@layer components {
+    .title {
+        /* Example styling Tailwind */
+        @apply text-6xl text-orange-600 font-bold tracking-tight;
+        /* If you need something Tailwind doesn’t provide, write it directly in CSS standard */
+        letter-spacing: -0.025em;
+    }
+
+    .description {
+        @apply text-lg text-center text-muted-foreground mt-5;
+        /* Example: a custom color not in the Tailwind palette */
+        color: oklch(0.556 0 0); /* same as --muted-foreground */
+    }
+
+
+}

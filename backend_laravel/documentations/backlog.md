@@ -53,25 +53,25 @@ O projeto já possui o Laravel Fortify configurado. Embora o Fortify por si só 
 |--------|-----------|--------|
 | Analisar esquema existente | Revisar `api_php/banco/db_projourney_php.sql` para estruturas de tabelas | [*] |
 | Criar migração users | `php artisan make:migration create_users_table` | [x] |
-| Criar migração trilhas | `php artisan make:migration create_trails_table` | [ ] |
-| Criar migração cursos | `php artisan make:migration create_courses_table` | [ ] |
+| Criar migração trilhas | `php artisan make:migration create_trails_table` | [x] |
+| Criar migração cursos | `php artisan make:migration create_courses_table` | [x] |
 | Criar migração experiencias | `php artisan make:migration create_experiences_table` | [-] |
-| Criar migração pivot trail_user | `php artisan make:migration create_trail_user_table` | [ ] |
+| Criar migração pivot trail_user | `php artisan make:migration create_trail_user_table` | [x] |
 | Criar migração pivot user_experiencia | `php artisan make:migration create_user_experience_table` | [-] |
-| Criar migração pivot curso_trilha (se necessário) | `php artisan make:migration create_course_trail_table` | [ ] |
-| Definir colunas e restrições | Corresponder tipos de dados, comprimentos, padrões, restrições únicas, timestamps | [ ] |
-| Adicionar chaves estrangeiras | Apropriadas ações `onUpdate`/`onDelete` | [ ] |
-| Executar migrações | `php artisan migrate` e verificar criação das tabelas | [ ] |
+| Criar migração pivot curso_trilha (se necessário) | `php artisan make:migration create_course_trail_table` | [x] |
+| Definir colunas e restrições | Corresponder tipos de dados, comprimentos, padrões, restrições únicas, timestamps | [x] |
+| Adicionar chaves estrangeiras | Apropriadas ações `onUpdate`/`onDelete` | [*] |
+| Executar migrações | `php artisan migrate` e verificar criação das tabelas | [x] |
 | Seeders opcionais | Criar seeders para dados de consulta (experiencias, níveis de curso) | [-] |
 
 ### 4️⃣ Modelos Eloquent
 | Tarefa | Descrição | Status |
 |--------|-----------|--------|
 | Gerar modelo User | `php artisan make:model User` | [x] |
-| Gerar modelo Trail | `php artisan make:model Trail` | [ ] |
-| Gerar modelo Course | `php artisan make:model Course` | [ ] |
+| Gerar modelo Trail | `php artisan make:model Trail` | [*] |
+| Gerar modelo Course | `php artisan make:model Course` | [*] |
 | Gerar modelo Experience | `php artisan make:model Experience` | [-] |
-| Gerar modelo TrailUser | `php artisan make:model TrailUser` | [ ] |
+| Gerar modelo TrailUser | `php artisan make:model TrailUser` | [*] |
 | Gerar modelo UserExperience | `php artisan make:model UserExperience` | [-] |
 | Configurar nomes de tabelas | Definir `$table` onde necessário (trails, experiences, trail_user, user_experience) | [ ] |
 | Definir fillable/guarded | Especificar atributos de atribuição em massa | [ ] |
