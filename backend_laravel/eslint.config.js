@@ -4,6 +4,7 @@ import prettier from 'eslint-config-prettier/flat';
 import importPlugin from 'eslint-plugin-import';
 import react from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
+import tailwindcss from 'eslint-plugin-tailwindcss';
 import globals from 'globals';
 import typescript from 'typescript-eslint';
 
@@ -45,6 +46,15 @@ export default [
         settings: {
             react: {
                 version: 'detect',
+            },
+        },
+    },
+    {
+        ...tailwindcss.configs['flat/recommended'],
+        settings: {
+            tailwindcss: {
+                callees: ['clsx', 'cva', 'cn'],
+                config: 'tailwind.config.js',
             },
         },
     },
