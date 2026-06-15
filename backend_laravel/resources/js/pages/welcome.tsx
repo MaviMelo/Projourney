@@ -26,12 +26,14 @@ export default function Welcome() {
                                 >
                                     Log in
                                 </Link>
-                                <Link
-                                    href={register()}
-                                    className="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]"
-                                >
-                                    Registrar
-                                </Link>
+                                {/*
+                                    <Link
+                                        href={register()}
+                                        className="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]"
+                                    >
+                                        Registrar
+                                    </Link>
+                                */}
                             </>
                         )}
                     </nav>
@@ -40,8 +42,8 @@ export default function Welcome() {
                         <h1 className="title">Projourney Server</h1>
                         <p className="description">Acesso restrito ao pessoal autorizado.</p>
                         <p className="description" >⚠️  AVISO LEGAL DE SEGURANÇA E PROTEÇÃO DE DADOS
-                            <br/> <br/>
-                           Qualquer tentativa de violar mecanismos de autenticação, contornar barreiras de segurança ou acessar dados sem permissão configura crime e infração administrativa grave, comforme a Lei Geral de Proteção de Dados (Lei nº 13.709/2018 - LGPD).</p>
+                            <br /> <br />
+                            Qualquer tentativa de violar mecanismos de autenticação, contornar barreiras de segurança ou acessar dados sem permissão configura crime e infração administrativa grave, comforme a Lei Geral de Proteção de Dados (Lei nº 13.709/2018 - LGPD).</p>
                     </main>
 
                 </header>

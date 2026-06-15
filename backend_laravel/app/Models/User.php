@@ -14,8 +14,8 @@ use Laravel\Fortify\PasskeyAuthenticatable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable(['name', 'email', 'password', 'birth_date', 'fone'])]
-#[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token', 'birth_date', 'role', 'fone', 'created_at', 'updated_at'])]
+#[Fillable(['name', 'email', 'password', 'birth_date', 'fone', /* 'role' */])]
+#[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token', 'created_at', 'updated_at'])]
 
 class User extends Authenticatable implements PasskeyUser
 {

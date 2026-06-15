@@ -3,16 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Models\TrailUser;
+use App\Models\Trail;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class TrailUserController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $user )
     {
-        //
+        $trailsUser = Trail::all()->where('user', 'id' == $user['id'])->gat();
+
+        return Inertia::render('dashboard', ['trailsUser'=> $trailsUser]);
     }
 
     /**

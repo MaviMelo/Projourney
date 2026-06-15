@@ -155,8 +155,215 @@
     .description {
         @apply text-lg text-center text-muted-foreground mt-5;
         /* Example: a custom color not in the Tailwind palette */
-        color: oklch(0.556 0 0); /* same as --muted-foreground */
+        color: oklch(0.556 0 0);
+        /* same as --muted-foreground */
     }
 
 
+
+
+
+
+
+    body {
+        @apply bg-background text-foreground;
+    }
+
+    .header {
+        background-color: hsl(var(--header));
+        @apply sticky top-0 left-0 min-w-full h-full z-50 backdrop-blur-md border-b border-blue-500/30 pl-[30px] pr-[30px] flex justify-between items-center;
+    }
+
+    /* buttons */
+    .buttonPrimary {
+        background-color: hsl(var(--button-1));
+        @apply text-white px-4 py-4 rounded-full font-semibold shadow-lg transition-all duration-300 ease-in-out flex items-center justify-center text-center;
+    }
+
+    .buttonPrimary:hover {
+        background-color: hsl(var(--button-1-foreground));
+        @apply px-5 shadow-[#177687];
+    }
+
+    .buttonLink {
+        color: hsl(var(--button-2));
+        @apply m-4 font-semibold border-b-2 border-transparent gap-1 flex items-center justify-center text-center;
+    }
+
+    .buttonLink:hover {
+        color: hsl(var(--button-2-foreground));
+        border-bottom-color: hsl(var(--button-2-foreground));
+        @apply transition-colors
+    }
+
+    .buttonOutline {
+        border: 2px solid hsl(var(--button-2));
+        color: hsl(var(--button-2));
+        @apply font-semibold px-9 py-4 rounded-full flex items-center justify-center text-center;
+    }
+
+    .buttonOutline:hover {
+        background-color: hsl(var(--button-2));
+        color: white;
+        @apply transition-colors
+    }
+
+    .buttonNav {
+        background-color: hsl(var(--button-1));
+        @apply flex items-center gap-1 text-white px-4 py-2 rounded-md font-semibold m-4 flex items-center justify-center text-center;
+    }
+
+    .buttonNav:hover {
+        background-color: hsl(var(--button-1-foreground));
+        @apply transition-colors
+    }
+
+
+    /* 
+  .itemsJustify {
+        @apply relative flex items-center gap-1 p-1 justify-between  /* !important */
+
+    /* links */
+    .linkGreen {
+        @apply m-4 relative flex gap-1 px-1 py-1 font-semibold items-center justify-center text-center hover:text-[#36b936];
+    }
+
+    .linkGreen2 {
+        @apply m-1 relative flex font-semibold border-b gap-1 hover:text-[#36b936];
+    }
+
+    .linkRed {
+        @apply m-4 relative flex font-semibold gap-1 items-center justify-center text-center hover:text-[#d32828];
+    }
+
+    .linkRed2 {
+        @apply m-1 relative flex font-semibold border-b gap-1 hover:text-[#d32828];
+    }
+
+    /* texts */
+    .textBanner {
+        @apply text-5xl md:text-6xl font-bold mb-6 max-w-4xl;
+    }
+
+    .title1 {
+        @apply text-3xl font-bold m-2;
+        color: hsl(var(--button-2));
+    }
+
+    .textCard {
+        @apply text-3xl font-semibold my-2 max-w-2xl leading-relaxed;
+    }
+
+    .textCard2 {
+        @apply text-2xl font-semibold my-2 max-w-2xl leading-relaxed;
+    }
+
+    .textCard3 {
+        @apply text-xl font-semibold my-2 max-w-2xl leading-relaxed;
+    }
+
+    .textLink {
+        @apply hover:text-[hsl(var(--button-2))];
+    }
+
+    /* card */
+    .card1 {
+        background-color: hsl(var(--card));
+        @apply p-2 border-2 border-gray-700 m-4 text-white rounded-lg space-y-4
+    }
+
+    .card2 {
+        @apply border-2 border-dashed border-gray-700 rounded-lg p-12;
+    }
+
+    .elementeCard1 {
+        background-color: hsl(var(--card-foreground));
+        @apply border border-blue-500/20 rounded-lg p-4;
+    }
+
+    .elementeCard2 {
+        @apply border-cyan-400 p-4 rounded-lg bg-cyan-400/20 text-cyan-300 ring-2 ring-cyan-400
+    }
+
+    .warningError {
+        color: #ffffff;
+        @apply flex items-center justify-center gap-2 p-3 m-2 bg-red-900/50 rounded-md
+    }
+
+    .warningSuccess {
+        color: #ffffff;
+        @apply flex items-center justify-center gap-2 p-3 m-2 bg-green-900/50 rounded-md
+    }
+
+    .dropDown {
+        @apply absolute right-0 mb-2 w-48 bg-gray-700 border border-gray-600 rounded-lg shadow-lg z-10 hidden group-open:block
+    }
+
+
+    /* Indentation */
+
+    /*     .inputCard {
+        background-color: hsl(var(--card-foreground)) !important;
+        @apply m-2 focus:border-blue-400;
+        @apply pl-10 !important;
+        @apply pr-10 !important;
+    }
+ */
+    .itemsJustify {
+        @apply relative flex items-center gap-1 p-1 justify-between
+        /* !important */
+        ;
+    }
+
+    .itemsJustify2 {
+        @apply flex items-center space-x-2 gap-1;
+    }
+
+    .centralize {
+        @apply m-[5%] p-[2%] flex flex-col items-center justify-center gap-3 px-8 py-24 text-center;
+    }
+
+    .centralize2 {
+        @apply flex flex-col items-center justify-center p-2 text-center;
+    }
+
+
+    .containerGrid {
+        @apply mx-auto px-10 py-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8
+    }
+
+    /* Table styling and identation */
+
+    .table-1 {
+        @apply w-full border border-border rounded-lg bg-card;
+    }
+
+    .table-1 thead {
+        @apply bg-muted;
+    }
+
+    .table-1 thead th {
+        @apply px-4 py-3 text-left text-sm font-medium text-muted-foreground;
+    }
+
+    .table-1 tbody tr {
+        @apply border-b border-border;
+    }
+
+    .table-1 tbody tr:last-child {
+        @apply border-b-0;
+    }
+
+    .table-1 tbody td {
+        @apply px-4 py-3 text-sm text-foreground;
+    }
+
+    .table-1 tbody tr:hover {
+        @apply bg-accent/50;
+    }
+
+    /* Optional: container for action buttons in table cells */
+    .table-1 .actions {
+        @apply flex items-center gap-2;
+    }
 }

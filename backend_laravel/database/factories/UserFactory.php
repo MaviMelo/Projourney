@@ -29,6 +29,8 @@ class UserFactory extends Factory
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
+            'birth_date' => fake()->dateTimeBetween( '-40 years', '-15 years'),
+            'fone' => fake()->phoneNumber(),
             'remember_token' => Str::random(10),
             'two_factor_secret' => null,
             'two_factor_recovery_codes' => null,
@@ -37,11 +39,37 @@ class UserFactory extends Factory
     }
 
     /**
+     *  State for create a Root user.
+     */
+    public function root(): static
+    {
+        return $this->state(
+            fn(array $attributes) => [
+                'role' => 'root',
+                'birth_date' => fake()->dateTimeBetween('-60 years', '-20 years'),
+            ]
+        );
+    }
+
+    /**
+     *  State for create a Administrator user.
+     */
+    public function admin(): static
+    {
+        return $this->state(
+            fn(array $attributes) => [
+                'role' => 'admin',
+                'birth_date' => fake()->dateTimeBetween('-60 years', '-20 years'),
+            ]
+        );
+    }
+
+    /**
      * Indicate that the model's email address should be unverified.
      */
     public function unverified(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'email_verified_at' => null,
         ]);
     }
@@ -51,7 +79,7 @@ class UserFactory extends Factory
      */
     public function withTwoFactor(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'two_factor_secret' => encrypt('secret'),
             'two_factor_recovery_codes' => encrypt(json_encode(['recovery-code-1'])),
             'two_factor_confirmed_at' => now(),

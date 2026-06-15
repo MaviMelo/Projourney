@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Trail;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class TrailController extends Controller
 {
@@ -12,7 +13,9 @@ class TrailController extends Controller
      */
     public function index()
     {
-        //
+        $trails = Trail::all();
+
+        return Inertia::render('dashboard', ['trails' => $trails]);
     }
 
     /**
