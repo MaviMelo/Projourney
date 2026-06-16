@@ -1,10 +1,10 @@
-import { Head, Link, router, usePage  } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import { dashboard, register } from '@/routes';
 import { route } from 'ziggy-js';
 import { List } from "lucide-react";
 import { useState, useEffect } from 'react';
-import { TableUsers } from '@/components/personalized/table-users';
+import { TableUsers } from '@/pages/users/table-users';
 
 export default function Dashboard({
     users = { data: [], links: [] },
@@ -15,7 +15,7 @@ export default function Dashboard({
 }) {
 
     const [view, setView] = useState(activeView);
-    
+
     useEffect(() => {
         setView(activeView);
     }, [activeView]);
@@ -28,6 +28,10 @@ export default function Dashboard({
 
     const dataCollaborators = () => {
         router.get(route('user.indexCollaborators'))
+    };
+
+    const createUser = () => {
+        router.get(route('user.create'))
     };
 
     const handleDelete = (id: number) => {
@@ -51,12 +55,12 @@ export default function Dashboard({
                         <div className="itemsJustify ">Total de clientes:     {stats.total_users}</div>
                         <div className="itemsJustify">Total de colaboradores: {stats.total_collaborators}</div>
                         <div className="itemsJustify hider">
-                            <Link
-                                href={register()}
-                                className="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]"
+                            <button
+                                onClick={createUser}
+                                className="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b] "
                             >
-                                Registrar novo usuário (não disponível)
-                            </Link>
+                                Cadastrar novo usuário
+                            </button>
                         </div>
 
                     </div>
@@ -77,29 +81,29 @@ export default function Dashboard({
                     <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
 
                     <div className="itemsJustify2 relative z-10 p-4 gap-2 flex">
-                        <button 
-                            className={`linkGreen ${view === 'users' ? 'bg-green-600 text-white' : ''}`} 
+                        <button
+                            className={`linkGreen ${view === 'users' ? 'bg-green-600 text-white' : ''}`}
                             onClick={dataUsers}
                         >
                             Listar Usuários <List />
                         </button>
 
-                        <button 
-                            className={`linkGreen ${view === 'collaborators' ? 'bg-green-600 text-white' : ''}`} 
+                        <button
+                            className={`linkGreen ${view === 'collaborators' ? 'bg-green-600 text-white' : ''}`}
                             onClick={dataCollaborators}
                         >
                             Listar Colaboradores <List />
                         </button>
 
-                        <button 
-                            className={`linkGreen ${view === 'courses' ? 'bg-green-600 text-white' : ''}`} 
+                        <button
+                            className={`linkGreen ${view === 'courses' ? 'bg-green-600 text-white' : ''}`}
                             onClick={() => setView('courses')}
                         >
                             Listar Cursos <List />
                         </button>
 
-                        <button 
-                            className={`linkGreen ${view === 'trails' ? 'bg-green-600 text-white' : ''}`} 
+                        <button
+                            className={`linkGreen ${view === 'trails' ? 'bg-green-600 text-white' : ''}`}
                             onClick={() => setView('trails')}
                         >
                             Listar Trilhas <List />
@@ -116,7 +120,9 @@ export default function Dashboard({
                         {view === 'users' && (
                             <TableUsers title="Usuários" data={userData} handleDelete={handleDelete} />
                         )}
-                        {/* 
+
+                        
+                        {/*
                         {view === 'courses' && (
                             <TableGeneric title="Cursos" data={courses} />
                         )}
@@ -129,27 +135,27 @@ export default function Dashboard({
 
 
                     {/* PAGINAÇÃO */}
-                    {(view ==='users' || view === 'collaborators') && (
-                    <div className="itemsJustify">
-                        <div>
-                            {users.links.map((link, index) => (
-                                link.url ? (
-                                    <Link
-                                        key={index}
-                                        href={link.url}
-                                        className={`px-3 py-1 border rounded ${link.active ? 'bg-blue-500 text-white' : ' hover:bg-gray-500'}`}
-                                        dangerouslySetInnerHTML={{ __html: link.label }}
-                                    />
-                                ) : (
-                                    <span
-                                        key={index}
-                                        className="px-3 py-1 border rounded text-gray-400 cursor-not-allowed"
-                                        dangerouslySetInnerHTML={{ __html: link.label }}
-                                    />
-                                )
-                            ))}
+                    {(view === 'users' || view === 'collaborators') && (
+                        <div className="itemsJustify">
+                            <div>
+                                {users.links.map((link, index) => (
+                                    link.url ? (
+                                        <Link
+                                            key={index}
+                                            href={link.url}
+                                            className={`px-3 py-1 border rounded ${link.active ? 'bg-blue-500 text-white' : ' hover:bg-gray-500'}`}
+                                            dangerouslySetInnerHTML={{ __html: link.label }}
+                                        />
+                                    ) : (
+                                        <span
+                                            key={index}
+                                            className="px-3 py-1 border rounded text-gray-400 cursor-not-allowed"
+                                            dangerouslySetInnerHTML={{ __html: link.label }}
+                                        />
+                                    )
+                                ))}
+                            </div>
                         </div>
-                    </div>
                     )}
                 </div>
             </div>

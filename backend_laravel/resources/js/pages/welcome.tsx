@@ -393,7 +393,20 @@ export default function Welcome() {
                         </div>
                     </main>
                 </div>
-                <div className="hidden h-14.5 lg:block"></div>
+                <div className=" h-14.5 p-5 lg:block">
+                    Em desenvolvimeto. 
+                    <br/>
+                    Exrcute: php artisan migrate --seed
+                    <br/>
+                    Credenciais: 
+                    <br/>
+                     root (senha: root1234567890) 
+                    <br/>
+                    ou
+                    <br/>
+                     adm (senha: adm1234567890).
+                    <br/>
+                </div>
             </div>
         </>
     );
