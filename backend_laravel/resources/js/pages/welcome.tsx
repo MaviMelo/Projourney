@@ -14,7 +14,7 @@ export default function Welcome() {
                         {auth.user ? (
                             <Link
                                 href={dashboard()}
-                                className="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]"
+                                className="button1"
                             >
                                 Dashboard
                             </Link>
@@ -22,7 +22,7 @@ export default function Welcome() {
                             <>
                                 <Link
                                     href={login()}
-                                    className="inline-block rounded-sm border border-transparent px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#19140035] dark:text-[#EDEDEC] dark:hover:border-[#3E3E3A]"
+                                    className="button1"
                                 >
                                     Log in
                                 </Link>
@@ -393,18 +393,18 @@ export default function Welcome() {
                         </div>
                     </main>
                 </div>
-                <div className=" h-14.5 p-5 lg:block">
+                <div className="alertError">
                     Em desenvolvimeto. 
                     <br/>
                     Exrcute: php artisan migrate --seed
                     <br/>
                     Credenciais: 
                     <br/>
-                     root (senha: root1234567890) 
+                     root@email.com (senha: root1234567890) 
                     <br/>
                     ou
                     <br/>
-                     adm (senha: adm1234567890).
+                     adm@email.com (senha: adm1234567890).
                     <br/>
                 </div>
             </div>

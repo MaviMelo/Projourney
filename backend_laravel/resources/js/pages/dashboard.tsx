@@ -3,8 +3,8 @@ import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import { dashboard, register } from '@/routes';
 import { route } from 'ziggy-js';
 import { List } from "lucide-react";
-import { useState, useEffect } from 'react';
-import { TableUsers } from '@/pages/users/table-users';
+import { useState, useEffect} from 'react';
+import { TableUsers } from '@/pages/user/table-users';
 
 export default function Dashboard({
     users = { data: [], links: [] },
@@ -47,63 +47,63 @@ export default function Dashboard({
     return (
         <>
             <Head title="Dashboard" />
-            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-                <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-                    <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
+            <div className="conteinerDashboard">
+                <div className="containerGrid3">
+                    <div className="card1">
+                        <PlaceholderPattern className="absolute inset-0 size-full  stroke-neutral-900/20 dark:stroke-neutral-100/20" />
                         <div className="textCard3 centralize2">Usuários</div>
                         <div className="itemsJustify ">Total de clientes:     {stats.total_users}</div>
                         <div className="itemsJustify">Total de colaboradores: {stats.total_collaborators}</div>
                         <div className="itemsJustify hider">
                             <button
                                 onClick={createUser}
-                                className="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b] "
+                                className="buttonPrimary"
                             >
                                 Cadastrar novo usuário
                             </button>
                         </div>
 
                     </div>
-                    <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
+                    <div className="card1">
                         <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
                         <div className="textCard3 centralize2">Curso:</div>
                         <div className="itemsJustify">Total: {courses.length}</div>
                         <div className="itemsJustify">Ranking de avaliações:</div>
                     </div>
-                    <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
+                    <div className="card1">
                         <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
                         <div className="textCard3 centralize2">Trilhas:</div>
                         <div className="itemsJustify">Total: {trails.length}</div>
                         <div className="itemsJustify">Ranking de avaliações:</div>
                     </div>
                 </div>
-                <div className="relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border">
+                <div className="conteinerDashboard">
                     <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
 
                     <div className="itemsJustify2 relative z-10 p-4 gap-2 flex">
                         <button
-                            className={`linkGreen ${view === 'users' ? 'bg-green-600 text-white' : ''}`}
+                            className={`button1 ${view === 'users' ? 'button1Selected' : ''}`}
                             onClick={dataUsers}
                         >
                             Listar Usuários <List />
                         </button>
 
                         <button
-                            className={`linkGreen ${view === 'collaborators' ? 'bg-green-600 text-white' : ''}`}
+                            className={`button1 ${view === 'collaborators' ? 'button1Selected' : ''}`}
                             onClick={dataCollaborators}
                         >
                             Listar Colaboradores <List />
                         </button>
 
                         <button
-                            className={`linkGreen ${view === 'courses' ? 'bg-green-600 text-white' : ''}`}
+                            className={`button1 ${view === 'courses' ? 'button1Selected' : ''}`}
                             onClick={() => setView('courses')}
                         >
                             Listar Cursos <List />
                         </button>
 
                         <button
-                            className={`linkGreen ${view === 'trails' ? 'bg-green-600 text-white' : ''}`}
+                            className={`button1 ${view === 'trails' ? 'button1Selected' : ''}`}
                             onClick={() => setView('trails')}
                         >
                             Listar Trilhas <List />
@@ -121,7 +121,7 @@ export default function Dashboard({
                             <TableUsers title="Usuários" data={userData} handleDelete={handleDelete} />
                         )}
 
-                        
+
                         {/*
                         {view === 'courses' && (
                             <TableGeneric title="Cursos" data={courses} />

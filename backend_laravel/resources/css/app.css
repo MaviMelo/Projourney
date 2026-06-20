@@ -62,8 +62,11 @@
 }
 
 :root {
-    --background: oklch(1 0 0);
+    --background: oklch(84.212% 0.0001 271.152);
     --foreground: oklch(0.145 0 0);
+    --button-1: hsl(195, 78%, 31%);
+    --button-1-text: hsl(224, 72%, 34%);
+    --button-1-foreground: hsl(188, 94%, 75%);
     --card: oklch(1 0 0);
     --card-foreground: oklch(0.145 0 0);
     --popover: oklch(1 0 0);
@@ -72,13 +75,14 @@
     --primary-foreground: oklch(0.985 0 0);
     --secondary: oklch(0.97 0 0);
     --secondary-foreground: oklch(0.205 0 0);
+    --modal: oklch(81.901% 0.06095 133.873);
     --muted: oklch(0.97 0 0);
     --muted-foreground: oklch(0.556 0 0);
     --accent: oklch(0.97 0 0);
     --accent-foreground: oklch(0.205 0 0);
     --destructive: oklch(0.577 0.245 27.325);
     --destructive-foreground: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
+    --border: oklch(60.498% 0.00239 15.642);
     --input: oklch(0.922 0 0);
     --ring: oklch(0.87 0 0);
     --chart-1: oklch(0.646 0.222 41.116);
@@ -98,8 +102,11 @@
 }
 
 .dark {
-    --background: oklch(0.145 0 0);
+    --background: oklch(25.304% 0.00149 16.197);
     --foreground: oklch(0.985 0 0);
+    --button-1: hsl(38, 61%, 29%);
+    --button-1-text: hsl(19, 68%, 37%);
+    --button-1-foreground: hsl(64, 100%, 83%);
     --card: oklch(0.145 0 0);
     --card-foreground: oklch(0.985 0 0);
     --popover: oklch(0.145 0 0);
@@ -108,13 +115,14 @@
     --primary-foreground: oklch(0.205 0 0);
     --secondary: oklch(0.269 0 0);
     --secondary-foreground: oklch(0.985 0 0);
+    --modal: oklch(27.694% 0.06163 284.29);
     --muted: oklch(0.269 0 0);
     --muted-foreground: oklch(0.708 0 0);
     --accent: oklch(0.269 0 0);
     --accent-foreground: oklch(0.985 0 0);
     --destructive: oklch(0.396 0.141 25.723);
     --destructive-foreground: oklch(0.637 0.237 25.331);
-    --border: oklch(0.269 0 0);
+    --border: oklch(64.355% 0.06411 67.072);
     --input: oklch(0.269 0 0);
     --ring: oklch(0.439 0 0);
     --chart-1: oklch(0.488 0.243 264.376);
@@ -128,7 +136,7 @@
     --sidebar-primary-foreground: oklch(0.985 0 0);
     --sidebar-accent: oklch(0.269 0 0);
     --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(0.269 0 0);
+    --sidebar-border: oklch(39.236% 0.00268 16.357);
     --sidebar-ring: oklch(0.439 0 0);
 }
 
@@ -170,51 +178,87 @@
     }
 
     .header {
-        background-color: hsl(var(--header));
+        background-color: var(--header);
         @apply sticky top-0 left-0 min-w-full h-full z-50 backdrop-blur-md border-b border-blue-500/30 pl-[30px] pr-[30px] flex justify-between items-center;
     }
 
     /* buttons */
     .buttonPrimary {
-        background-color: hsl(var(--button-1));
-        @apply text-white px-4 py-4 rounded-full font-semibold shadow-lg transition-all duration-300 ease-in-out flex items-center justify-center text-center;
+        background-color: var(--button-1);
+        @apply text-white p-2 rounded-full font-semibold shadow-lg transition-all duration-300 ease-in-out flex items-center justify-center text-center;
     }
 
     .buttonPrimary:hover {
-        background-color: hsl(var(--button-1-foreground));
-        @apply px-5 shadow-[#177687];
+        background-color: var(--button-1-foreground);
+        color: var(--button-1-text);
+        box-sizing: 5px;
+        box-shadow: 0px 0px 25px 5px var(--button-1);
+
+    }
+
+    .button1 {
+        border: 2px solid;
+        border-color: var(--border);
+        color: var(--border);
+        @apply px-2 py-2 rounded-[5px] font-semibold shadow-lg transition-all duration-300 ease-in-out flex items-center justify-center text-center;
+    }
+
+    .button1:hover {
+        border: 2px solid var(--button-1);
+        background-color: var(--button-1-foreground);
+        color: var(--button-1-text);
+        @apply shadow-[#fff];
+    }
+
+    .button1Selected {
+        border: 2px solid var(--border);
+        background-color: var(--button-1);
+        color: #fff;
+        @apply px-2 py-2 rounded-[5px] font-semibold shadow-lg transition-all duration-300 ease-in-out flex items-center justify-center text-center;
+    }
+
+    .button2 {
+        @apply w-full bg-(--button-1) text-white py-2 rounded-[1vw];
+     
+    }
+
+    .button2:hover {
+        background-color: var(--button-1-foreground);
+        color: var(--button-1-text);
+        box-sizing: 5px;
+        box-shadow: 0px 0px 25px 5px var(--button-1);
     }
 
     .buttonLink {
-        color: hsl(var(--button-2));
+        color: var(--button-2);
         @apply m-4 font-semibold border-b-2 border-transparent gap-1 flex items-center justify-center text-center;
     }
 
     .buttonLink:hover {
-        color: hsl(var(--button-2-foreground));
+        color: var(--button-2-foreground);
         border-bottom-color: hsl(var(--button-2-foreground));
         @apply transition-colors
     }
 
     .buttonOutline {
-        border: 2px solid hsl(var(--button-2));
-        color: hsl(var(--button-2));
+        border: 2px solid var(--button-2);
+        color: var(--button-2);
         @apply font-semibold px-9 py-4 rounded-full flex items-center justify-center text-center;
     }
 
     .buttonOutline:hover {
-        background-color: hsl(var(--button-2));
+        background-color: var(--button-2);
         color: white;
         @apply transition-colors
     }
 
     .buttonNav {
-        background-color: hsl(var(--button-1));
+        background-color: var(--button-1);
         @apply flex items-center gap-1 text-white px-4 py-2 rounded-md font-semibold m-4 flex items-center justify-center text-center;
     }
 
     .buttonNav:hover {
-        background-color: hsl(var(--button-1-foreground));
+        background-color: var(--button-1-foreground);
         @apply transition-colors
     }
 
@@ -266,23 +310,51 @@
         @apply hover:text-[hsl(var(--button-2))];
     }
 
-    /* card */
-    .card1 {
-        background-color: hsl(var(--card));
-        @apply p-2 border-2 border-gray-700 m-4 text-white rounded-lg space-y-4
+    /* alerts */
+
+
+    .alertSuccess {
+        @apply mb-4 p-4 text-center rounded bg-green-200 text-green-800 transition-all duration-300 ease-out;
+        animation: pulse-gentle 2s ease-in-out infinite;
     }
 
-    .card2 {
-        @apply border-2 border-dashed border-gray-700 rounded-lg p-12;
+    @keyframes pulse-gentle {
+
+        0%,
+        100% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 var(--border);
+        }
+
+        50% {
+            transform: scale(1.02);
+            box-shadow: 0 0 0 10px rgba(185, 51, 42, 0);
+        }
+    }
+    .alertSuccess button{
+        @apply ml-4 p-1 rounded-full transition-colors hover:bg-green-300 text-green-600;
     }
 
-    .elementeCard1 {
-        background-color: hsl(var(--card-foreground));
-        @apply border border-blue-500/20 rounded-lg p-4;
+    .alertError {
+        @apply mb-4 p-4 text-center rounded bg-yellow-200 text-red-800 transition-all duration-300 ease-out;
+        animation: pulse-gentle 2s ease-in-out infinite;
     }
 
-    .elementeCard2 {
-        @apply border-cyan-400 p-4 rounded-lg bg-cyan-400/20 text-cyan-300 ring-2 ring-cyan-400
+    @keyframes pulse-gentle {
+
+        0%,
+        100% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 var(--border);
+        }
+
+        50% {
+            transform: scale(1.02);
+            box-shadow: 0 0 0 10px rgba(185, 51, 42, 0);
+        }
+    }
+    .alertError button{
+        @apply ml-4 p-1 rounded-full transition-colors hover:bg-red-200 text-red-600;
     }
 
     .warningError {
@@ -293,6 +365,27 @@
     .warningSuccess {
         color: #ffffff;
         @apply flex items-center justify-center gap-2 p-3 m-2 bg-green-900/50 rounded-md
+    }
+
+    /* card */
+    .card1 {
+        @apply p-2 rounded-lg space-y-4 relative aspect-video overflow-visible rounded-xl border-3 border-sidebar-border/70 dark:border-sidebar-border;
+    }
+
+    .card2 {
+        @apply m-4 bg-(--modal) border-2 border-dashed border-gray-700 rounded-lg p-12;
+    }
+
+    .input {
+        @apply block text-sm font-medium text-gray-700 mb-1;
+    }
+
+    .elementeCard1 {
+        @apply border border-(--border) rounded-lg p-4;
+    }
+
+    .elementeCard2 {
+        @apply border-cyan-400 p-4 rounded-lg bg-cyan-400/20 text-cyan-300 ring-2 ring-cyan-400
     }
 
     .dropDown {
@@ -327,9 +420,22 @@
         @apply flex flex-col items-center justify-center p-2 text-center;
     }
 
+    .conteinerDashboard {
+        @apply flex h-full  flex-col gap-4 p-4;
+        @apply relative min-h-[100vh] flex-1 overflow-auto rounded-xl;
+        
+    }
 
     .containerGrid {
         @apply mx-auto px-10 py-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8
+    }
+
+    .containerGrid2 {
+        @apply grid auto-rows-min gap-4 md:grid-cols-2;
+    }
+
+    .containerGrid3 {
+        @apply grid auto-rows-min gap-4 md:grid-cols-3;
     }
 
     /* Table styling and identation */
@@ -347,7 +453,7 @@
     }
 
     .table-1 tbody tr {
-        @apply border-b border-border;
+        @apply border-2 border-border;
     }
 
     .table-1 tbody tr:last-child {
@@ -359,11 +465,21 @@
     }
 
     .table-1 tbody tr:hover {
-        @apply bg-accent/50;
+        background-color:  rgb(103, 121, 93);
     }
 
     /* Optional: container for action buttons in table cells */
     .table-1 .actions {
         @apply flex items-center gap-2;
     }
+
+    .form1 label {
+        @apply block text-sm font-medium mb-1;
+    }
+
+    .form1 input {
+        @apply w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 ease-out;
+  
+    }
+
 }

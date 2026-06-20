@@ -60,7 +60,7 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validate = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
@@ -69,16 +69,16 @@ class UserController extends Controller
         ]);
 
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'birth_date' => $request->birth_date,
-            'fone' => $request->fone,
+            'name' => $validate['name'],
+            'email' => $validate['email'],
+            'birth_date' => $validate['birth_date'],
+            'fone' => $validate['fone'],
+            'password' => Hash::make($validate['password']),
         ]);
 
         return redirect()->route('dashboard')->with('message', [
             'status' => 'success',
-            'msg' => 'Usuário cadastrado com sucesso.',
+            'msg' => 'Usuário "' . $user->name . '" cadastrado com sucesso.',
         ]);
     }
 
@@ -93,14 +93,44 @@ class UserController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id) {}
+    public function edit(string $id) {
 
+        $user = User::findOrFail($id);
+        
+        // dd($user);
+        // logger($user);
+        return Inertia::render('user/edit')->with(['user' => $user,]);
+    }
+    
     /**
      * Update the specified resource in storage.
-     */
+    */
     public function update(Request $request, string $id)
     {
-        //
+        $user = User::findOrFail($id);
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $id],
+            'birth_date' => ['nullable', 'date', 'date_format:Y-m-d'],
+            'fone' => ['nullable', 'string', 'max:30'],
+            'role' => ['required', 'string', 'in:user,admin,root']
+        ]);
+
+        // $user->name = $validate['name'];
+        // $user->email = $validate['email'];
+        // $user->birth_date = $validate['birth_date'];
+        // $user->fone = $validate['fone'];
+        // $user->role = $validate['role'];
+
+        $user->fill($validated);
+
+        $user->save();
+
+        return redirect()->route('dashboard')->with('message', [
+            'status' => 'success',
+            'msg' => 'Usuário "'. $user->name .'" atualizado com sucesso.',
+        ]);
     }
 
     /**
