@@ -1,8 +1,8 @@
-# PROJOURNEY
+# ProJourney
 
 ---
 
-O **Projourne** é um projeto acadêmico desenvolvido por estudantes do curso de Tecnologia de Sistemas para a Internet - TSI - do Instituto Federal de Pernambuco, Campos Igarassu. O mesmo tem, na sua origem, como principal objetivo o redirecionamento de seus usuários para cursos onlines gratuitos com boa aprovação ou avaliação  popular. Permitindo seguir uma sequencia de cursos online,  denominadas como **Trilas**, que formam o conteúdo educacional necessário para uma determinada formação profissional ou pessoal.
+O **ProJourney** é um projeto acadêmico desenvolvido por estudantes do curso de Tecnologia de Sistemas para a Internet - TSI - do Instituto Federal de Pernambuco, Campos Igarassu. O mesmo tem, na sua origem, como principal objetivo o redirecionamento de seus usuários para cursos onlines gratuitos com boa aprovação ou avaliação popular. Permitindo seguir uma sequencia de cursos online, denominadas como **Trilhas**, que formam o conteúdo educacional necessário para uma determinada formação profissional ou pessoal.
 
 ---
 
@@ -21,19 +21,19 @@ O **Projourne** é um projeto acadêmico desenvolvido por estudantes do curso de
 ## Principais Dependências:
 
 1. **Frontend:**
-    - Node.js v22.22.1
-    - nmp 10.9.4
+    - Node.js
+    - npm 10.9.4
 
 1. **Backend:**
-    - PHP version 8.5.0
+    - PHP
         - php-mysql
-    - Conposer 2.8.12
-    - mysql-server 8.0
+    - Conposer
+    - mysql-server
 
 
 ## Instalação:
 
-1. **api_php:**
+1. **backend_laravel:**
     - Executar o comando ```composer install```;
     - Criar e configurar arquivo de variáveis de ambiente (```.env```);
     - Teste localmente: ```php -S localhost:8000```
@@ -45,8 +45,8 @@ O **Projourne** é um projeto acadêmico desenvolvido por estudantes do curso de
 
 1. **Banco de Dados:**
     - Ter instalado o SGBD MySQL;
-    - Popular o banco de dados com o script SQL do arquivo "db_backup_projourney_php.sql": 
-        - ```mysql -u <usuário> -p < db_backup_projourney_php.sql```
+    - Popular o banco de dados com o script feito na API: 
+        - ```php artisan db:seed```
 
 ## Arquitetura do Software Para Essa Versão:
 ```
@@ -112,7 +112,7 @@ Projourney
 * [Maviael Melo](https://github.com/MaviMelo)
 * [Gabriel Henrique](https://github.com/crocodileBigger)
 * [Victor Soares](https://github.com/VSoares27)
-* [Diego](https://github.com/Diego-jpeg-27)
+* [José Diego](https://github.com/Diego-jpeg-27)
 
 ## Professores orientadores ao longo do projeto:
 * [Liliane](https://github.com/lilialnas)
