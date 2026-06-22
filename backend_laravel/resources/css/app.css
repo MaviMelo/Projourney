@@ -218,6 +218,7 @@
     }
 
     .button2 {
+        margin: 15px 0px 15px 0px;
         @apply w-full bg-(--button-1) text-white py-2 rounded-[1vw];
      
     }
@@ -269,7 +270,7 @@
 
     /* links */
     .linkGreen {
-        @apply m-4 relative flex gap-1 px-1 py-1 font-semibold items-center justify-center text-center hover:text-[#36b936];
+        @apply m-4 relative flex  font-semibold items-center justify-center text-center hover:text-[#36b936];
     }
 
     .linkGreen2 {
@@ -369,7 +370,7 @@
 
     /* card */
     .card1 {
-        @apply p-2 rounded-lg space-y-4 relative aspect-video overflow-visible rounded-xl border-3 border-sidebar-border/70 dark:border-sidebar-border;
+        @apply p-2 m-[20px] rounded-lg space-y-4 relative aspect-video overflow-visible rounded-xl border-3 border-(--border);
     }
 
     .card2 {
@@ -381,6 +382,7 @@
     }
 
     .elementeCard1 {
+        margin: 10px 0px 10px 0px;
         @apply border border-(--border) rounded-lg p-4;
     }
 
@@ -461,7 +463,7 @@
     }
 
     .table-1 tbody td {
-        @apply px-4 py-3 text-sm text-foreground;
+        @apply text-sm text-foreground;
     }
 
     .table-1 tbody tr:hover {

@@ -14,6 +14,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->call([
+            CourseSeeder::class, 
+            TrailSeeder::class,
+            TrailCourseSeeder::class,
+        ]);
 
         User::factory()->root()->create([
             'name' => 'Administrador Root',

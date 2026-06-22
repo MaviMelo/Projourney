@@ -21,7 +21,7 @@
   1. Backend — api_php/ (PHP puro)
 
   - Database: MySQL com as tabelas:
-    - users — alunos (id, nome, email, senha com hash Argon2ID, tipo, data_nascimento, telefone)
+    - users — alunos (id, nome, email, senha com hash Argon2ID, tipo, data_nascimento, Telefone)
     - trilha — trilhas de estudo (id, nome)
     - curso — cursos (id, nome, nível, link_curso)
     - trilha_aluno — relação N:N aluno-trilha com campo progresso (Inscrito/Cursando/Suspenso/Concluido)

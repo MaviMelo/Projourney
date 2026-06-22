@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Trail;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+
 
 class TrailController extends Controller
 {
@@ -15,7 +17,13 @@ class TrailController extends Controller
     {
         $trails = Trail::all();
 
-        return Inertia::render('dashboard', ['trails' => $trails]);
+        return Inertia::render('dashboard', [
+            'trails' => $trails,
+            'activeView' => 'trails',
+            'status' => [
+                'total_trails' => Trail::count(),
+            ]
+        ]);
     }
 
     /**
@@ -23,7 +31,7 @@ class TrailController extends Controller
      */
     public function create()
     {
-        //
+        return Inertia::render('trail/create');
     }
 
     /**
@@ -31,7 +39,28 @@ class TrailController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:150', 'unique:trails,name'],
+        ]);
+
+        try {
+            $trail = Trail::create($validated);
+
+            return redirect()->back()->with([
+                'dbData' => $trail,
+                'message' => [
+                    'status' => 'success',
+                    'msg' => 'A trilha ' . $trail->mane . ' foi criada com sucesso.'
+                ]
+            ]);
+        } catch (\Throwable $th) {
+            $statusCode = $th->getCode() ?: 500;
+
+            return redirect()->back()->with([
+                'status' => 'error',
+                'msg' => 'Não foi possível criar a trilha (codigo: ' . $statusCode . ').'
+            ]);
+        }
     }
 
     /**
@@ -45,17 +74,48 @@ class TrailController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Trail $trail)
+    public function edit(string $id)
     {
-        //
+        $trail = Trail::findOrFail($id);
+        return Inertia::render('trail/edit', compact('trail'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Trail $trail)
+    public function update(Request $request, string $id)
     {
-        //
+        $trail = Trail::findOrFail($id);
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:150', 'unique:trails,name,' . $id],
+        ]);
+
+        try {
+            $trail->fill($validated);
+            $trail->save();
+
+            return redirect()->back()->with([
+                'dbData' => $trail,
+                'message' => [
+                    'status' => 'success',
+                    'msg' => 'A trilha ' . $trail->mane . ' foi atualizada com sucesso.'
+                ]
+            ]);
+        } catch (\Throwable $th) {
+            $statusCode = $th->getCode() ?: 500;
+            log::error('Erro ao tentar excluír curso: ', [
+                'Dados: ' => $trail,
+                'Erro: ' => $th->getMessage,
+                'Arquivo: ' => $th->getFile,
+                'Linha: ' => $th->getLine,
+            ]);
+
+            return redirect()->back()->with([
+                'status' => 'error',
+                'msg' => 'Não foi possível atualizar a trilha (codigo: ' . $statusCode . ').'
+            ]);
+        }
     }
 
     /**
@@ -63,6 +123,24 @@ class TrailController extends Controller
      */
     public function destroy(Trail $trail)
     {
-        //
+        try {
+            $trail->delete();
+            return redirect()->back()->with('message', [
+                'status'  => 'success',
+                'msg' => 'Curso ' . $trail->name . ' excluído com sucesso.',
+            ]);
+        } catch (\Throwable $e) {
+            log::error('Erro ao tentar excluír curso: ', [
+                'Dados: ' => $trail,
+                'Erro: ' => $e->getMessage,
+                'Arquivo: ' => $e->getFile,
+                'Linha: ' => $e->getLine,
+            ]);
+
+            return redirect()->back()->with('message', [
+                'status'  => 'error',
+                'msg' => 'Erro ao tentar excluir:',
+            ]);
+        }
     }
 }

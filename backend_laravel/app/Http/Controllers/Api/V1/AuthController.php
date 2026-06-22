@@ -28,7 +28,7 @@ class AuthController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'birth_date' => ['nullable', 'date', 'date_format:Y-m-d'],
-            'fone' => ['nullable', 'string', 'max:30'],
+            'phone' => ['nullable', 'string', 'max:30'],
         ]);
 
         $user = User::create([
@@ -36,7 +36,7 @@ class AuthController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'birth_date' => $request->birth_date,
-            'fone' => $request->fone,
+            'phone' => $request->phone,
         ]);
 
         // $token = $user->createToken('projourney')->plainTextToken;

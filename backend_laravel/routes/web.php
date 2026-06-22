@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\TrailController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 
@@ -14,6 +15,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [UserController::class, 'index'])->name('dashboard');
 
     Route::get('/dashboard/colaboradores', [UserController::class, 'indexCollaborators'])->name('user.indexCollaborators');
+    // Route::get('/dashboard/cursos', [CourseController::class, 'index'])->name('course.index');
     // Route::get('/dashboard/cadastrar-usuario', [UserController::class, 'create'])->name('user.create');
 
     // rotas específicas para cursos e trilhas no dashboard:
@@ -22,6 +24,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resources([
         'user' => UserController::class,
         'course' => CourseController::class,
+        'trail' => TrailController::class,
     ]);
 });
 

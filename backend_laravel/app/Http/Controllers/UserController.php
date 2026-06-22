@@ -21,7 +21,7 @@ class UserController extends Controller
     public function index()
     {
         // Only common users
-        $users = User::where('role', 'user')->latest()->paginate(15);
+        $users = User::where('role', 'user')->latest()->paginate(25);
 
         return Inertia::render('dashboard', [
             'users' => $users,
@@ -60,25 +60,29 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $validate = $request->validate([
+        $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'birth_date' => ['nullable', 'date', 'date_format:Y-m-d'],
-            'fone' => ['nullable', 'string', 'max:30'],
+            'phone' => ['nullable', 'string', 'max:30'],
         ]);
 
         $user = User::create([
-            'name' => $validate['name'],
-            'email' => $validate['email'],
-            'birth_date' => $validate['birth_date'],
-            'fone' => $validate['fone'],
-            'password' => Hash::make($validate['password']),
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'birth_date' => $validated['birth_date'],
+            'phone' => $validated['phone'],
+            'password' => Hash::make($validated['password']),
         ]);
 
-        return redirect()->route('dashboard')->with('message', [
-            'status' => 'success',
-            'msg' => 'Usuário "' . $user->name . '" cadastrado com sucesso.',
+        return redirect()->back()
+        ->with(['dbData' => $user,])
+        ->with([
+            'message' => [
+                'status' => 'success',
+                'msg' => 'Usuário "' . $user->name . '" cadastrado com sucesso.',
+            ]
         ]);
     }
 
@@ -93,18 +97,19 @@ class UserController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id) {
+    public function edit(string $id)
+    {
 
         $user = User::findOrFail($id);
-        
+
         // dd($user);
         // logger($user);
         return Inertia::render('user/edit')->with(['user' => $user,]);
     }
-    
+
     /**
      * Update the specified resource in storage.
-    */
+     */
     public function update(Request $request, string $id)
     {
         $user = User::findOrFail($id);
@@ -113,23 +118,23 @@ class UserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $id],
             'birth_date' => ['nullable', 'date', 'date_format:Y-m-d'],
-            'fone' => ['nullable', 'string', 'max:30'],
+            'phone' => ['nullable', 'string', 'max:30'],
             'role' => ['required', 'string', 'in:user,admin,root']
         ]);
 
         // $user->name = $validate['name'];
         // $user->email = $validate['email'];
         // $user->birth_date = $validate['birth_date'];
-        // $user->fone = $validate['fone'];
+        // $user->phone = $validate['phone'];
         // $user->role = $validate['role'];
 
         $user->fill($validated);
 
         $user->save();
 
-        return redirect()->route('dashboard')->with('message', [
+        return redirect()->back()->with('message', [
             'status' => 'success',
-            'msg' => 'Usuário "'. $user->name .'" atualizado com sucesso.',
+            'msg' => 'Usuário "' . $user->name . '" atualizado com sucesso.',
         ]);
     }
 

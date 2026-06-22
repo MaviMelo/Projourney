@@ -3,24 +3,24 @@ import { Pencil, Trash2, Eye } from "lucide-react";
 import { router, Head, Link, useForm } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 
-export function TableUsers({ title, data}) {
+export function TableTrails({ title, data }) {
 
     const modal = useRef(null);
 
-    const [selectedUser, setSelectedUser] = useState(null);
+    const [selectedTrail, setSelectedTrail] = useState(null);
 
-    function openModal(user: []) {
-        setSelectedUser(user);
+    function openModal(trail: []) {
+        setSelectedTrail(trail);
         modal.current.showModal();
-    };
+    }
 
-    function handleEdit( id: string) {
-        router.get(route('user.edit', id));
-    };
+    function handleEdit(id: string) {
+        router.get(route('trail.edit', id));
+    }
 
     const handleDelete = (id: number) => {
-        if (confirm('Tem certeza que deseja excluir este usuário?')) {
-            router.delete(route('user.destroy', id), {
+        if (confirm('Tem certeza que deseja excluir este curso?')) {
+            router.delete(route('trail.destroy', id), {
                 onSuccess: () => {
                     // Opcional: Alguma lógica após sucesso
                 },
@@ -29,9 +29,10 @@ export function TableUsers({ title, data}) {
     };
     /* 
         function closeModal() {
-            setSelectedUser(null);
+            setSelectedTrail(null);
             modal.current.close();
         }
+
      */
 
     return (
@@ -42,35 +43,33 @@ export function TableUsers({ title, data}) {
                     <tr>
                         <th>Id</th>
                         <th>Nome</th>
-                        <th>Email</th>
                         <th>Opções</th>
                     </tr>
                 </thead>
                 <tbody>
                     {data.length > 0 ? (
-                        data.map((user) => (
-                            <tr key={user.id}>
-                                <th>{user.id}</th>
-                                <td>{user.name}</td>
-                                <td>{user.email}</td>
+                        data.map((trail) => (
+                            <tr key={trail.id}>
+                                <th>{trail.id}</th>
+                                <td>{trail.name}</td>
                                 <td className="itemsJustify">
                                     <button
                                         className="linkRed"
-                                        onClick={() => handleDelete(user.id)}
+                                        onClick={() => handleDelete(trail.id)}
                                     >
                                         Excluir
                                         <Trash2 size={16} />
                                     </button>
                                     <button
                                         className="linkGreen"
-                                        onClick={() => handleEdit(user.id)}
+                                        onClick={() => handleEdit(trail.id)}
                                     >
                                         Editar
                                         <Pencil size={16} />
                                     </button>
                                     <button
                                         className="linkGreen"
-                                        onClick={() => openModal(user)}
+                                        onClick={() => openModal(trail)}
                                     >
                                         Ver detalhes
                                         <Eye size={16} />
@@ -87,21 +86,17 @@ export function TableUsers({ title, data}) {
             </table>
 
             <dialog className='card2 ' ref={modal}>
-                {selectedUser && (
+                {selectedTrail && (
                     <>
                         <p className="elementeCard1">Detalhes do Usuário:</p>
 
                         <ul>
-                            <li>ID: {selectedUser.id}</li>
-                            <li>Nome: {selectedUser.name}</li>
-                            <li>Email: {selectedUser.email}</li>
-                            <li>Data de nascimento: {selectedUser.birth_date}</li>
-                            <li>Número de contato: {selectedUser.phone}</li>
-                            <li>Nível de acesso: {selectedUser.role}</li>
+                            <li>ID: {selectedTrail.id}</li>
+                            <li>Nome: {selectedTrail.name}</li>
                         </ul>
                     </>
                 )}
-                <button className="button2" onClick={() => [setSelectedUser(null), modal.current.close()]}>fechar X</button>
+                <button className="button2" onClick={() => [setSelectedTrail(null), modal.current.close()]}>fechar X</button>
             </dialog>
         </>
     );

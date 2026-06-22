@@ -3,13 +3,15 @@ import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import { dashboard, register } from '@/routes';
 import { route } from 'ziggy-js';
 import { List } from "lucide-react";
-import { useState, useEffect} from 'react';
+import { useState, useEffect } from 'react';
 import { TableUsers } from '@/pages/user/table-users';
+import { TableCourses } from '@/pages/course/table-courses';
+import { TableTrails } from '@/pages/trail/table-trails';
 
 export default function Dashboard({
     users = { data: [], links: [] },
-    courses = [],
-    trails = [],
+    courses = { data: [], links: [] },
+    trails = { data: [], links: [] },
     stats = { total_users: 0, total_collaborators: 0 },
     activeView = 'users'
 }) {
@@ -21,6 +23,8 @@ export default function Dashboard({
     }, [activeView]);
 
     const userData = users.data || [];
+    const coursesData = courses.data || [];
+    const trailsData = trails || [];
 
     const dataUsers = () => {
         router.get(route('dashboard'));
@@ -30,19 +34,26 @@ export default function Dashboard({
         router.get(route('user.indexCollaborators'))
     };
 
+
+    function dataCourses() {
+        router.get(route('course.index'))
+    }
+    function dataTrails() {
+        router.get(route('trail.index'))
+    }
+
     const createUser = () => {
         router.get(route('user.create'))
     };
 
-    const handleDelete = (id: number) => {
-        if (confirm('Tem certeza que deseja excluir este usuário?')) {
-            router.delete(route('user.destroy', id), {
-                onSuccess: () => {
-                    // Opcional: Alguma lógica após sucesso
-                },
-            });
-        };
+    const createCourse = () => {
+        router.get(route('course.create'))
     };
+
+    const createTrail = () => {
+        router.get(route('trail.create'))
+    };
+
 
     return (
         <>
@@ -67,14 +78,30 @@ export default function Dashboard({
                     <div className="card1">
                         <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
                         <div className="textCard3 centralize2">Curso:</div>
-                        <div className="itemsJustify">Total: {courses.length}</div>
+                        <div className="itemsJustify">Total: {coursesData.length}</div>
                         <div className="itemsJustify">Ranking de avaliações:</div>
+                        <div className="itemsJustify hider">
+                            <button
+                                onClick={createCourse}
+                                className="buttonPrimary"
+                            >
+                                Cadastrar novo cruso
+                            </button>
+                        </div>
                     </div>
                     <div className="card1">
                         <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
                         <div className="textCard3 centralize2">Trilhas:</div>
-                        <div className="itemsJustify">Total: {trails.length}</div>
+                        <div className="itemsJustify">Total: {trailsData.length}</div>
                         <div className="itemsJustify">Ranking de avaliações:</div>
+                        <div className="itemsJustify hider">
+                            <button
+                                onClick={createTrail}
+                                className="buttonPrimary"
+                            >
+                                Criar nova trilha
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <div className="conteinerDashboard">
@@ -97,14 +124,14 @@ export default function Dashboard({
 
                         <button
                             className={`button1 ${view === 'courses' ? 'button1Selected' : ''}`}
-                            onClick={() => setView('courses')}
+                            onClick={dataCourses}
                         >
                             Listar Cursos <List />
                         </button>
 
                         <button
                             className={`button1 ${view === 'trails' ? 'button1Selected' : ''}`}
-                            onClick={() => setView('trails')}
+                            onClick={dataTrails}
                         >
                             Listar Trilhas <List />
                         </button>
@@ -114,23 +141,22 @@ export default function Dashboard({
                         {/* RENDERIZAÇÃO CONDICIONAL */}
 
                         {view === 'collaborators' && (
-                            <TableUsers title="Colaboradores" data={userData} handleDelete={handleDelete} />
+                            <TableUsers title="Colaboradores" data={userData} />
                         )}
 
                         {view === 'users' && (
-                            <TableUsers title="Usuários" data={userData} handleDelete={handleDelete} />
+                            <TableUsers title="Usuários" data={userData} />
                         )}
 
 
-                        {/*
                         {view === 'courses' && (
-                            <TableGeneric title="Cursos" data={courses} />
+                            <TableCourses title="Cursos" data={coursesData} />
                         )}
 
                         {view === 'trails' && (
-                            <TableGeneric title="Trilhas" data={trails} />
+                            <TableTrails title="Trilhas" data={trails} />
                         )}
- */}
+
                     </div>
 
 

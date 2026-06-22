@@ -183,7 +183,7 @@ curl -X POST http://localhost:8000/api/register \
 "email":"exemplo@email.com", 
 "password":"minha-senha-segura",
 "password_confirmation":"minha-senha-segura",
-"fone":"(11) 99999-9999",
+"phone":"(11) 99999-9999",
 "birth_date":"1990-01-30"
 }'
 

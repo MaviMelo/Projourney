@@ -33,7 +33,7 @@ Armazena o cadastro principal de pessoas que podem autenticar-se no sistema. É 
 | **email_verified_at** | `timestamp` (nullable) | Preenchido quando o usuário confirma seu e-mail (via rota de verificação do Laravel). `NULL` indica e-mail não verificado. |
 | **role** | `enum('user','admin','root')` (default: `'user'`) | Controle simples de papéis. Não substitui um sistema de ACL completo (como Spatie/Laravel-Permission), mas serve para verificações básicas (`if ($user->role === 'admin')`). |
 | **birth_date** | `date` (nullable) | Data de nascimento. Útil para filtros de idade ou aniversários. |
-| **fone** | `string(30)` (nullable) | Telefone no formato internacional (ex.: `+55 11 99999-9999`). Tamanho 30 permite códigos de país, DDD, número e extensão. |
+| **phone** | `string(30)` (nullable) | Telefone no formato internacional (ex.: `+55 11 99999-9999`). Tamanho 30 permite códigos de país, DDD, número e extensão. |
 | **password** | `string` (máx. 255) | Hash bcrypt da senha (gerado por `Hash::make()`). Nunca armazena senha em texto puro. |
 | **remember_token** | `string(100)` (nullable) | Token usado pela funcionalidade “lembrar-me” (`$request->user()->createToken()`). Se presente, permite autenticação persistente entre sessões. |
 | **two_factor_secret** | `text` (nullable) | Segredo base32 usado pelo Google Authenticator ou similares (TOTP). Preenchido quando o usuário ativa 2FA. |

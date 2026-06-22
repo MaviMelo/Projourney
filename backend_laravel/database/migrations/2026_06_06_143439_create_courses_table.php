@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('courses', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 250)->unique() ;
-            $table->enum('level', ['Basico', 'Intermediario',   'Avançado']) ;
+            $table->string('name', 150)->unique() ;
+            $table->enum('level', ['básico', 'intermediário', 'avançado']) ;
             $table->string('link_course', 250)->index() ;
             // $table->foreign('category_id')->constrained('categories')->nullable() ;
             $table->timestamps();
@@ -30,3 +30,4 @@ return new class extends Migration
         Schema::dropIfExists('courses');
     }
 };
+
