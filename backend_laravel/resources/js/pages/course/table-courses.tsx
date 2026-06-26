@@ -3,7 +3,7 @@ import { Pencil, Trash2, Eye } from "lucide-react";
 import { router, Head, Link, useForm } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 
-export function TableCourses({ title, data }) {
+export function TableCourses({ title, collection }) {
 
     const modal = useRef(null);
 
@@ -53,8 +53,8 @@ export function TableCourses({ title, data }) {
                     </tr>
                 </thead>
                 <tbody>
-                    {data.length > 0 ? (
-                        data.map((course) => (
+                    {collection.data.length > 0 ? (
+                        collection.data.map((course) => (
                             <tr key={course.id}>
                                 <th>{course.id}</th>
                                 <td>{course.name}</td>
@@ -93,6 +93,32 @@ export function TableCourses({ title, data }) {
                 </tbody>
             </table>
 
+            {/* PAGINAÇÃO */}
+            {(
+                <div className="itemsJustify">
+                    <div>
+                        {collection.links.map((link, index) => (
+                            link.url ? (
+                                <Link
+                                    key={index}
+                                    href={link.url}
+                                    className={`px-3 py-1 border rounded ${link.active ? 'bg-blue-500 text-white' : ' hover:bg-gray-500'}`}
+                                    dangerouslySetInnerHTML={{ __html: link.label }}
+                                />
+                            ) : (
+                                <span
+                                    key={index}
+                                    className="px-3 py-1 border rounded text-gray-400 cursor-not-allowed"
+                                    dangerouslySetInnerHTML={{ __html: link.label }}
+                                />
+                            )
+                        ))}
+                    </div>
+                </div>
+            )}
+
+
+
             <dialog className='card2 ' ref={modal}>
                 {selectedCourse && (
                     <>
@@ -117,7 +143,7 @@ export function TableCourses({ title, data }) {
                         <p className="elementeCard1">Trilhas Atribuídas:</p>
 
                         <ul>
-                            {selectedCourse.trails.length > 0 ?(selectedCourse.trails && selectedCourse.trails.map((trail) =>
+                            {selectedCourse.trails.length > 0 ? (selectedCourse.trails && selectedCourse.trails.map((trail) =>
                                 <li>
                                     <button
                                         key={trail.id}
@@ -128,7 +154,7 @@ export function TableCourses({ title, data }) {
                                         {trail.name}
                                     </button>
                                 </li>
-                            )): (<li>Nenhum trilha atribuida</li>)
+                            )) : (<li>Nenhum trilha atribuida</li>)
                             }
                         </ul>
 

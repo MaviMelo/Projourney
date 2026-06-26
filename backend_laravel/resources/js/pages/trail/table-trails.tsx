@@ -3,7 +3,7 @@ import { Pencil, Trash2, Eye } from "lucide-react";
 import { router, Head, Link, useForm } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 
-export function TableTrails({ title, data }) {
+export function TableTrails({ title, collection }) {
 
     const modal = useRef(null);
 
@@ -16,6 +16,11 @@ export function TableTrails({ title, data }) {
 
     function handleEdit(id: string) {
         router.get(route('trail.edit', id));
+    }
+
+    function handleEditCourses(id: string) {
+        const courseEditUrl = route('course.edit', id);
+        window.open(courseEditUrl, '_balnk');
     }
 
     const handleDelete = (id: number) => {
@@ -47,8 +52,8 @@ export function TableTrails({ title, data }) {
                     </tr>
                 </thead>
                 <tbody>
-                    {data.length > 0 ? (
-                        data.map((trail) => (
+                    {collection.data.length > 0 ? (
+                        collection.data.map((trail) => (
                             <tr key={trail.id}>
                                 <th>{trail.id}</th>
                                 <td>{trail.name}</td>
@@ -85,6 +90,32 @@ export function TableTrails({ title, data }) {
                 </tbody>
             </table>
 
+            {/* PAGINAÇÃO */}
+            {(
+                <div className="itemsJustify">
+                    <div>
+                        {collection.links.map((link, index) => (
+                            link.url ? (
+                                <Link
+                                    key={index}
+                                    href={link.url}
+                                    className={`px-3 py-1 border rounded ${link.active ? 'bg-blue-500 text-white' : ' hover:bg-gray-500'}`}
+                                    dangerouslySetInnerHTML={{ __html: link.label }}
+                                />
+                            ) : (
+                                <span
+                                    key={index}
+                                    className="px-3 py-1 border rounded text-gray-400 cursor-not-allowed"
+                                    dangerouslySetInnerHTML={{ __html: link.label }}
+                                />
+                            )
+                        ))}
+                    </div>
+                </div>
+            )}
+
+
+
             <dialog className='card2 ' ref={modal}>
                 {selectedTrail && (
                     <>
@@ -94,10 +125,30 @@ export function TableTrails({ title, data }) {
                             <li>ID: {selectedTrail.id}</li>
                             <li>Nome: {selectedTrail.name}</li>
                         </ul>
+                        <button className="button2" onClick={() => [setSelectedTrail(null), modal.current.close()]}>fechar X</button>
+
+                        <p className="elementeCard1">Cursos Associados:</p>
+                        <ul>
+
+                            {selectedTrail.courses && selectedTrail.courses.length > 0 ? (selectedTrail.courses.map((course) => (
+                                <li>
+                                    <button
+                                        key={course.id}
+                                        className="linkGreen2"
+                                        onClick={() => handleEditCourses(course.id)}
+                                    >
+                                        {course.name}
+                                    </button>
+
+                                </li>
+                            ))) : (
+                                <li>Sem cursos associadas</li>
+                            )}
+                        </ul>
                     </>
                 )}
-                <button className="button2" onClick={() => [setSelectedTrail(null), modal.current.close()]}>fechar X</button>
             </dialog>
         </>
     );
+
 }

@@ -3,7 +3,7 @@ import { Pencil, Trash2, Eye } from "lucide-react";
 import { router, Head, Link, useForm } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 
-export function TableUsers({ title, data}) {
+export function TableUsers({ title, collection }) {
 
     const modal = useRef(null);
 
@@ -14,7 +14,7 @@ export function TableUsers({ title, data}) {
         modal.current.showModal();
     };
 
-    function handleEdit( id: string) {
+    function handleEdit(id: string) {
         router.get(route('user.edit', id));
     };
 
@@ -47,8 +47,8 @@ export function TableUsers({ title, data}) {
                     </tr>
                 </thead>
                 <tbody>
-                    {data.length > 0 ? (
-                        data.map((user) => (
+                    {collection.data.length > 0 ? (
+                        collection.data.map((user) => (
                             <tr key={user.id}>
                                 <th>{user.id}</th>
                                 <td>{user.name}</td>
@@ -85,6 +85,31 @@ export function TableUsers({ title, data}) {
                     )}
                 </tbody>
             </table>
+
+            {/* PAGINAÇÃO */}
+            { (
+                <div className="itemsJustify">
+                    <div>
+                        {collection.links.map((link, index) => (
+                            link.url ? (
+                                <Link
+                                    key={index}
+                                    href={link.url}
+                                    className={`px-3 py-1 border rounded ${link.active ? 'bg-blue-500 text-white' : ' hover:bg-gray-500'}`}
+                                    dangerouslySetInnerHTML={{ __html: link.label }}
+                                />
+                            ) : (
+                                <span
+                                    key={index}
+                                    className="px-3 py-1 border rounded text-gray-400 cursor-not-allowed"
+                                    dangerouslySetInnerHTML={{ __html: link.label }}
+                                />
+                            )
+                        ))}
+                    </div>
+                </div>
+            )}
+
 
             <dialog className='card2 ' ref={modal}>
                 {selectedUser && (

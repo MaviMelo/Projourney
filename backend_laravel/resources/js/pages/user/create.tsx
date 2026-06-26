@@ -67,6 +67,7 @@ export default function CreateUser() {
                             value={data.email}
                             onChange={(e) => setData('email', e.target.value)}
                             required
+                            autoFocus
                             autoComplete="email"
                             placeholder="email@exemplo.com"
 
@@ -151,7 +152,7 @@ export default function CreateUser() {
             {user && (
                 <div className='card1 '>
 
-                    <p className="elementeCard1">Usuário Criado:</p>
+                    <p className="elementeCard1">Usuário Cadastrado:</p>
 
                     <ul>
                         <li>ID: {user.id}</li>

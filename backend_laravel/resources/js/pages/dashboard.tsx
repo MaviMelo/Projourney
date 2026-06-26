@@ -22,8 +22,8 @@ export default function Dashboard({
         setView(activeView);
     }, [activeView]);
 
-    const userData = users.data || [];
-    const coursesData = courses.data || [];
+    const userData = users || [];
+    const coursesData = courses || [];
     const trailsData = trails || [];
 
     const dataUsers = () => {
@@ -141,48 +141,24 @@ export default function Dashboard({
                         {/* RENDERIZAÇÃO CONDICIONAL */}
 
                         {view === 'collaborators' && (
-                            <TableUsers title="Colaboradores" data={userData} />
+                            <TableUsers title="Colaboradores" collection={userData} />
                         )}
 
                         {view === 'users' && (
-                            <TableUsers title="Usuários" data={userData} />
+                            <TableUsers title="Usuários" collection={userData} />
                         )}
 
 
                         {view === 'courses' && (
-                            <TableCourses title="Cursos" data={coursesData} />
+                            <TableCourses title="Cursos" collection={coursesData} />
                         )}
 
                         {view === 'trails' && (
-                            <TableTrails title="Trilhas" data={trails} />
+                            <TableTrails title="Trilhas" collection={trails} />
                         )}
 
                     </div>
 
-
-                    {/* PAGINAÇÃO */}
-                    {(view === 'users' || view === 'collaborators') && (
-                        <div className="itemsJustify">
-                            <div>
-                                {users.links.map((link, index) => (
-                                    link.url ? (
-                                        <Link
-                                            key={index}
-                                            href={link.url}
-                                            className={`px-3 py-1 border rounded ${link.active ? 'bg-blue-500 text-white' : ' hover:bg-gray-500'}`}
-                                            dangerouslySetInnerHTML={{ __html: link.label }}
-                                        />
-                                    ) : (
-                                        <span
-                                            key={index}
-                                            className="px-3 py-1 border rounded text-gray-400 cursor-not-allowed"
-                                            dangerouslySetInnerHTML={{ __html: link.label }}
-                                        />
-                                    )
-                                ))}
-                            </div>
-                        </div>
-                    )}
                 </div>
             </div>
         </>

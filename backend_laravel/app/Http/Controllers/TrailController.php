@@ -15,7 +15,7 @@ class TrailController extends Controller
      */
     public function index()
     {
-        $trails = Trail::all();
+        $trails = Trail::with('courses')->latest()->paginate(25);
 
         return Inertia::render('dashboard', [
             'trails' => $trails,
