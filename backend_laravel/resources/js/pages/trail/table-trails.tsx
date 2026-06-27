@@ -119,13 +119,13 @@ export function TableTrails({ title, collection }) {
             <dialog className='card2 ' ref={modal}>
                 {selectedTrail && (
                     <>
+                        <button className="button1" onClick={() => [setSelectedTrail(null), modal.current.close()]}>x</button>
                         <p className="elementeCard1">Detalhes do Usuário:</p>
 
                         <ul>
                             <li>ID: {selectedTrail.id}</li>
                             <li>Nome: {selectedTrail.name}</li>
                         </ul>
-                        <button className="button2" onClick={() => [setSelectedTrail(null), modal.current.close()]}>fechar X</button>
 
                         <p className="elementeCard1">Cursos Associados:</p>
                         <ul>

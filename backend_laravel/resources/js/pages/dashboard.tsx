@@ -7,13 +7,14 @@ import { useState, useEffect } from 'react';
 import { TableUsers } from '@/pages/user/table-users';
 import { TableCourses } from '@/pages/course/table-courses';
 import { TableTrails } from '@/pages/trail/table-trails';
+import Pinboard from '@/pages/feed/pinboard'
 
 export default function Dashboard({
     users = { data: [], links: [] },
     courses = { data: [], links: [] },
     trails = { data: [], links: [] },
     stats = { total_users: 0, total_collaborators: 0 },
-    activeView = 'users'
+    activeView = 'pinboard'
 }) {
 
     const [view, setView] = useState(activeView);
@@ -27,7 +28,7 @@ export default function Dashboard({
     const trailsData = trails || [];
 
     const dataUsers = () => {
-        router.get(route('dashboard'));
+        router.get(route('user.index'));
     };
 
     const dataCollaborators = () => {
@@ -58,7 +59,7 @@ export default function Dashboard({
     return (
         <>
             <Head title="Dashboard" />
-            <div className="conteinerDashboard">
+            <div className="containerDashboard">
                 <div className="containerGrid3">
                     <div className="card1">
                         <PlaceholderPattern className="absolute inset-0 size-full  stroke-neutral-900/20 dark:stroke-neutral-100/20" />
@@ -78,7 +79,7 @@ export default function Dashboard({
                     <div className="card1">
                         <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
                         <div className="textCard3 centralize2">Curso:</div>
-                        <div className="itemsJustify">Total: {coursesData.length}</div>
+                        <div className="itemsJustify">Total: {coursesData.data.length}</div>
                         <div className="itemsJustify">Ranking de avaliações:</div>
                         <div className="itemsJustify hider">
                             <button
@@ -92,7 +93,7 @@ export default function Dashboard({
                     <div className="card1">
                         <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
                         <div className="textCard3 centralize2">Trilhas:</div>
-                        <div className="itemsJustify">Total: {trailsData.length}</div>
+                        <div className="itemsJustify">Total: {trailsData.data.length}</div>
                         <div className="itemsJustify">Ranking de avaliações:</div>
                         <div className="itemsJustify hider">
                             <button
@@ -104,7 +105,7 @@ export default function Dashboard({
                         </div>
                     </div>
                 </div>
-                <div className="conteinerDashboard">
+                <div className="containerDashboard">
                     <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
 
                     <div className="itemsJustify2 relative z-10 p-4 gap-2 flex">
@@ -140,14 +141,18 @@ export default function Dashboard({
 
                         {/* RENDERIZAÇÃO CONDICIONAL */}
 
-                        {view === 'collaborators' && (
-                            <TableUsers title="Colaboradores" collection={userData} />
+                        {view === 'pinboard' && (
+                            <Pinboard />
                         )}
+
 
                         {view === 'users' && (
                             <TableUsers title="Usuários" collection={userData} />
                         )}
 
+                        {view === 'collaborators' && (
+                            <TableUsers title="Colaboradores" collection={userData} />
+                        )}
 
                         {view === 'courses' && (
                             <TableCourses title="Cursos" collection={coursesData} />

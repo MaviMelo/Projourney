@@ -114,6 +114,7 @@ export function TableUsers({ title, collection }) {
             <dialog className='card2 ' ref={modal}>
                 {selectedUser && (
                     <>
+                        <button className="button1" onClick={() => [setSelectedUser(null), modal.current.close()]}>x</button>
                         <p className="elementeCard1">Detalhes do Usuário:</p>
 
                         <ul>
@@ -126,7 +127,6 @@ export function TableUsers({ title, collection }) {
                         </ul>
                     </>
                 )}
-                <button className="button2" onClick={() => [setSelectedUser(null), modal.current.close()]}>fechar X</button>
             </dialog>
         </>
     );

@@ -291,7 +291,7 @@
     }
 
     .title1 {
-        @apply text-3xl font-bold m-2;
+        @apply text-4xl font-bold m-2;
         color: hsl(var(--button-2));
     }
 
@@ -370,10 +370,12 @@
 
     /* card */
     .card1 {
-        @apply p-2 m-[20px] rounded-lg space-y-4 relative aspect-video overflow-visible rounded-xl border-3 border-(--border);
+        max-width: 80cap;
+        @apply p-2 m-[20px] rounded-lg space-y-4 relative  overflow-visible rounded-xl border-3 border-(--border);
     }
 
     .card2 {
+        max-width: 80cap;
         @apply m-4 bg-(--modal) border-2 border-dashed border-gray-700 rounded-lg p-12;
     }
 
@@ -422,7 +424,7 @@
         @apply flex flex-col items-center justify-center p-2 text-center;
     }
 
-    .conteinerDashboard {
+    .containerDashboard {
         @apply flex h-full  flex-col gap-4 p-4;
         @apply relative min-h-[100vh] flex-1 overflow-auto rounded-xl;
         

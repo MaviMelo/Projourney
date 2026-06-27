@@ -122,6 +122,7 @@ export function TableCourses({ title, collection }) {
             <dialog className='card2 ' ref={modal}>
                 {selectedCourse && (
                     <>
+                        <button className=" button1" onClick={() => [setSelectedCourse(null), modal.current.close()]}>x</button>
                         <p className="elementeCard1">Detalhes do Curso:</p>
 
                         <ul>
@@ -161,7 +162,6 @@ export function TableCourses({ title, collection }) {
 
                     </>
                 )}
-                <button className="button2" onClick={() => [setSelectedCourse(null), modal.current.close()]}>fechar X</button>
             </dialog>
         </>
     );
