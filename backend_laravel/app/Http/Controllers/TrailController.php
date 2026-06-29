@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Trail;
+use App\Models\Course;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -57,8 +58,10 @@ class TrailController extends Controller
             $statusCode = $th->getCode() ?: 500;
 
             return redirect()->back()->with([
-                'status' => 'error',
-                'msg' => 'Não foi possível criar a trilha (codigo: ' . $statusCode . ').'
+                'message' => [
+                    'status' => 'error',
+                    'msg' => 'Não foi possível criar a trilha (codigo: ' . $statusCode . ').'
+                ]
             ]);
         }
     }
@@ -76,8 +79,9 @@ class TrailController extends Controller
      */
     public function edit(string $id)
     {
-        $trail = Trail::findOrFail($id);
-        return Inertia::render('trail/edit', compact('trail'));
+        $trail = Trail::with('courses')->findOrFail($id);
+        $courses = Course::all();
+        return Inertia::render('trail/edit', compact('trail', 'courses'));
     }
 
     /**

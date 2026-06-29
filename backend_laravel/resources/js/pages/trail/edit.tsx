@@ -1,8 +1,8 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 
-export default function EditTrail({ trail }) {
-    const { data, setData, put, processing, errors, reset } = useForm({
+export default function EditTrail({ trail, courses }) {
+    const { data, setData, put, post, processing, errors, reset } = useForm({
         name: trail.name || '',
     })
 
@@ -12,6 +12,27 @@ export default function EditTrail({ trail }) {
             onSuccess: () => reset(),
         });
     };
+
+    function addCourseToTrail(trailId: number, courseId: number) {
+        const trailCourse: Record<string, number> = {
+            "trail_id": trailId,
+            "course_id": courseId
+        }
+        post(route('trailCourse.store', trailCourse), {
+
+            onSuccess: () => {
+                // Inertia.visit() //  Inertia.reload()
+                const message: Record<string, string> = {
+                    'status': 'success',
+                    'msg': `A trilha ${trail.mane} foi criada com sucesso.`,
+                }
+            }
+        });
+    };
+
+    function deleteCourseOfTrail(pivotId: number) {
+        router.delete(route('trailCourse.destroy', pivotId));
+    }
 
     return (
         <>
@@ -58,14 +79,66 @@ export default function EditTrail({ trail }) {
                     </div>
                 </form>
 
-                <div className='card1 '>
+                <div className='card2 '>
 
-                    <p className="elementeCard1">Dados Atuais da Trilha:</p>
+                    <h2 className="elementeCard1">Dados Atuais da Trilha:</h2>
 
                     <ul>
                         <li>ID: {trail.id}</li>
                         <li>Nome: {trail.name}</li>
                     </ul>
+
+                    <h2 className="elementeCard1">Cursos Associados:</h2>
+                    <ul>
+
+                        {trail.courses.length > 0 ? (trail.courses.map((course) => (
+                            <div className="linkRed itemsJustify">
+                                <li
+                                    key={course.id}
+                                >
+                                    {course.name}
+                                </li>
+                                <button
+                                onClick={() => deleteCourseOfTrail(course.pivot.id)}
+                                >
+                                    Excluir Curso (-)
+                                </button>
+                            </div>
+                        ))
+                        ) : (
+                            <li>Nenhum curso associado.</li>
+                        )}
+                    </ul>
+
+                </div>
+
+                <div className='card1 '>
+
+                    <h2 className="elementeCard1">Lista Geral de Cursos:</h2>
+                    <ul>
+                        {courses.length > 0 ? (courses.map((course) => (
+                            <>
+                                <div className="itemsJustify linkGreen">
+                                    <li
+                                        key={course.id}
+                                    >
+                                        <div>{course.id}. {course.name}</div>
+                                        <div></div>
+                                    </li>
+                                    <button
+                                        key={course.id}
+                                        onClick={() => addCourseToTrail(trail.id, course.id)}
+                                    >
+                                        Adicionar à Trilha Atual (+)
+                                    </button>
+                                </div>
+                            </>
+                        ))
+                        ) : (
+                            <li>Nenhum curso para associar.</li>
+                        )}
+                    </ul>
+
                 </div>
             </div>
         </>

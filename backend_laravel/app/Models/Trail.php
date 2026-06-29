@@ -16,6 +16,6 @@ class Trail extends Model
 
     public function courses()
     {
-        return $this->belongsToMany(Course::class, 'trail_courses', 'trail_id', 'course_id');
+        return $this->belongsToMany(Course::class, 'trail_courses', 'trail_id', 'course_id')->withPivot('id');
     }
 }

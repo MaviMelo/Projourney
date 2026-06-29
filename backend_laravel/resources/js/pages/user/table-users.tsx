@@ -87,7 +87,7 @@ export function TableUsers({ title, collection }) {
             </table>
 
             {/* PAGINAÇÃO */}
-            { (
+            {(
                 <div className="itemsJustify">
                     <div>
                         {collection.links.map((link, index) => (
