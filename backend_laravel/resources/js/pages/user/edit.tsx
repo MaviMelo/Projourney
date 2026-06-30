@@ -20,7 +20,7 @@ export default function EditUser({ user }) {
     return (
         <>
             <div className="max-w-2xl mx-auto">
-                <Head title="Cadastrar Usuário" />
+                <Head title="Editar Usuário" />
 
                 <div className="mb-6">
                     <Link
@@ -120,7 +120,7 @@ export default function EditUser({ user }) {
                             disabled={processing}
                             className="button2"
                         >
-                            {processing ? 'Cadastrando...' : 'Cadastrar usuário'}
+                            {processing ? 'Cadastrando...' : 'Atualizar dados do usuário'}
                         </button>
                     </div>
                 </form>

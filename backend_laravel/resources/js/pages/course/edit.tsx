@@ -18,7 +18,7 @@ export default function EditCourse({ course }) {
     return (
         <>
             <div className="max-w-2xl mx-auto">
-                <Head title="Cadastrar Usuário" />
+                <Head title="Editar Curso" />
 
                 <div className="mb-6">
                     <Link

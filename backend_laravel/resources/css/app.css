@@ -99,6 +99,9 @@
     --sidebar-accent-foreground: oklch(0.205 0 0);
     --sidebar-border: oklch(0.922 0 0);
     --sidebar-ring: oklch(0.87 0 0);
+    /* customer */
+    --elemente-card: oklch(36.955% 0.09426 266.947);
+    --elemente-card-foreground: #2fd0b369;
 }
 
 .dark {
@@ -115,7 +118,7 @@
     --primary-foreground: oklch(0.205 0 0);
     --secondary: oklch(0.269 0 0);
     --secondary-foreground: oklch(0.985 0 0);
-    --modal: oklch(27.694% 0.06163 284.29);
+    --modal: oklch(32.28% 0.0744 259.246);
     --muted: oklch(0.269 0 0);
     --muted-foreground: oklch(0.708 0 0);
     --accent: oklch(0.269 0 0);
@@ -138,6 +141,9 @@
     --sidebar-accent-foreground: oklch(0.985 0 0);
     --sidebar-border: oklch(39.236% 0.00268 16.357);
     --sidebar-ring: oklch(0.439 0 0);
+    /* customer */
+    --elemente-card: oklch(100% 0.00011 271.152);
+    --elemente-card-foreground: #d4af0c5f;
 }
 
 @layer base {
@@ -389,7 +395,7 @@
     }
 
     .elementeCard2 {
-        @apply border-cyan-400 p-4 rounded-lg bg-cyan-400/20 text-cyan-300 ring-2 ring-cyan-400
+        @apply border-(--elemente-card) border-2 p-4 rounded-lg bg-(--elemente-card-foreground) text-(--elemente-card)
     }
 
     .dropDown {
@@ -469,7 +475,7 @@
     }
 
     .table-1 tbody tr:hover {
-        background-color:  rgb(103, 121, 93);
+        background-color:  rgba(103, 121, 93, 0.64);
     }
 
     /* Optional: container for action buttons in table cells */

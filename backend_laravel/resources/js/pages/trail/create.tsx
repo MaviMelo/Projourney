@@ -22,7 +22,7 @@ export default function CreateTrail() {
     return (
         <>
             <div className="max-w-2xl mx-auto">
-                <Head title="Cadastrar Usuário" />
+                <Head title="Criar Trilhas" />
 
                 <div className="mb-6">
                     <Link

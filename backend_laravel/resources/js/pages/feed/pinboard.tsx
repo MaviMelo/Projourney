@@ -1,7 +1,7 @@
 function Pinboard() {
     return (
         <>
-            <h1 className="title1 centralize2">Mural Institucional (protótipo)</h1>
+            <h1 className="elementeCard2 title1 centralize2">Mural Institucional (protótipo)</h1>
 
             <main>
                 <section className="containerGrid2">

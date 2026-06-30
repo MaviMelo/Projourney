@@ -4,18 +4,18 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, Code, Database, Shield, Smartphone, Globe, Cpu, Brain, Zap, Loader2, AlertCircle, CheckCircle, LogOut } from "lucide-react";
 import SimpleButtom from "../components/common/simpleButton"
 import SimpleLink from "../components/common/simpleLink";
-import {BASE_URL} from "@/config/api";
+import { BASE_URL } from "@/config/api";
 
 // --- Interfaces e Mapeamento de Ícones ---
 
 // Interface para os dados da trilha que virão da API PHP
-interface Trilha {
+interface Trail {
   id: number;   // O PHP retorna chaves em maiúsculas por padrão do PDO::FETCH_ASSOC
-  nome: string;
+  name: string;
 }
 
 // Interface para os dados do usuário armazenados no localStorage
-interface UsuarioLogado {
+interface userLogged {
   id: number;
   name: string;
   // outros campos que o login.php retorna...
@@ -31,15 +31,16 @@ const iconMap: { [key: string]: React.ElementType } = {
   "DevOps e Cloud": Cpu,
   "Inteligência Artificial": Zap,
   "Desenvolvimento Full Stack": Code,
+  "Interconexão e Serviços de Redes (ISR)": Globe,
 };
 
-export default function TrilhasPage(): React.JSX.Element {
+export default function TrailsPage(): React.JSX.Element {
   const navigate = useNavigate();
 
   // --- Estados do Componente ---
-  const [trilhas, setTrilhas] = useState<Trilha[]>([]);
-  const [trilhaSelecionada, setTrilhaSelecionada] = useState<number | null>(null);
-  const [usuario, setUsuario] = useState<UsuarioLogado | null>(null);
+  const [trails, setTrails] = useState<Trail[]>([]);
+  const [trailSelected, setTrailSelected] = useState<number | null>(null);
+  const [user, setUser] = useState<userLogged | null>(null);
 
   // Estados para controle da UI
   const [status, setStatus] = useState<'loading' | 'idle' | 'error' | 'success'>('loading');
@@ -56,29 +57,36 @@ export default function TrilhasPage(): React.JSX.Element {
   useEffect(() => {
     const dataUser = localStorage.getItem('loggedUser');
     if (dataUser) {
-      setUsuario(JSON.parse(dataUser));
+      setUser(JSON.parse(dataUser));
     } else {
       // Se não houver usuário logado, redireciona para a página de login
       alert("Você precisa estar logado para acessar esta página.");
       navigate('/login');
     }
   }, [navigate]);
-  
-  // {console.log(JSON.stringify(usuario))};
+
+  // {console.log(JSON.stringify(user))};
   // debugger
 
-  // 2. Busca a lista de trilhas da API PHP
+  // 2. Busca a lista de trilhas na API 
   useEffect(() => {
-    const fetchTrilhas = async () => {
+    const fetchTrails = async () => {
       setStatus('loading');
       setFeedback('');
       try {
-        const response = await fetch(`${BASE_URL}/trails`);
+
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${BASE_URL}/trail`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json'
+          }
+        });
         if (!response.ok) {
           throw new Error('Não foi possível carregar as trilhas.');
         }
-        const data: Trilha[] = await response.json();
-        setTrilhas(data);
+        const data: Trail[] = await response.json();
+        setTrails(data.trails);
         setStatus('idle');
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Falha na comunicação com o servidor.';
@@ -87,20 +95,20 @@ export default function TrilhasPage(): React.JSX.Element {
       }
     };
 
-    fetchTrilhas();
+    fetchTrails();
   }, []);
 
   // --- Função de Inscrição ---
   const handleInscricao = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!trilhaSelecionada) {
+    if (!trailSelected) {
       setFeedback("Por favor, selecione uma trilha para continuar.");
       setStatus('error');
       return;
     }
 
-    if (!usuario) {
+    if (!user) {
       setFeedback("Erro: Usuário não identificado. Por favor, faça login novamente.");
       setStatus('error');
       return;
@@ -110,29 +118,36 @@ export default function TrilhasPage(): React.JSX.Element {
     setFeedback('');
 
     try {
-      const response = await fetch(`${BASE_URL}/inscrever_trilha.php`, {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${BASE_URL}/trailUser`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify({
-          alunoId: usuario.id,
-          trilhaId: trilhaSelecionada,
+          user_id: user.id,
+          trail_id: trailSelected,
         }),
       });
 
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.mensagem || `Erro ${response.status}`);
+        throw new Error(result.message || `Erro ${response.status}`);
       }
 
-      setFeedback(result.mensagem);
-      setStatus('success');
+      setFeedback(result.message);
+      setStatus(result.status);
 
-      setTimeout(() => {
+      if(result.status === "success"){
 
-        navigate('/perfil'); // Redireciona para o perfil do aluno
-
-      }, 2000);
+        setTimeout(() => {
+          
+          navigate('/perfil'); // Redireciona para o perfil do aluno
+          
+        }, 2000);
+      }
 
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Falha ao realizar inscrição.';
@@ -177,23 +192,23 @@ export default function TrilhasPage(): React.JSX.Element {
             Trilhas de Conhecimento
           </h2>
           <p>
-            Olá, {usuario?.name || 'aventureiro(a)'}! Selecione a trilha que mais se alinha com seus objetivos.
+            Olá, {user?.name || 'aventureiro(a)'}! Selecione a trilha que mais se alinha com seus objetivos.
           </p>
 
           <form onSubmit={handleInscricao}>
-            {status === 'loading' && !trilhas.length ? (
+            {status === 'loading' && !trails.length ? (
               <div className="flex justify-center p-12">
                 <Loader2 className="w-12 h-12 animate-spin text-blue-400" />
               </div>
             ) : (
               <div className="containerGrid">
-                {trilhas.map((trilha) => {
-                  const Icon = iconMap[trilha.nome] || Code;
-                  const isSelected = trilhaSelecionada === trilha.id;
+                {trails.map((trail) => {
+                  const Icon = iconMap[trail.name] || Code;
+                  const isSelected = trailSelected === trail.id;
                   return (
                     <div
-                      key={trilha.id}
-                      onClick={() => setTrilhaSelecionada(trilha.id)}
+                      key={trail.id}
+                      onClick={() => setTrailSelected(trail.id)}
                       className={` itemsJustify2
                         ${isSelected
                           ? 'elementeCard2'
@@ -201,7 +216,7 @@ export default function TrilhasPage(): React.JSX.Element {
                         }`}
                     >
                       <Icon className="w-7 h-7 text-cyan-400" />
-                      <span className="text-lg font-medium">{trilha.nome}</span>
+                      <span className="text-lg font-medium">{trail.name}</span>
                     </div>
                   );
                 })}
@@ -229,7 +244,7 @@ export default function TrilhasPage(): React.JSX.Element {
               <SimpleButtom
                 type="submit"
                 variant="primary"
-                disabled={!trilhaSelecionada || status === 'loading' || status === 'success'}
+                disabled={!trailSelected || status === 'loading' || status === 'success'}
               >
                 {status === 'loading' ? (
                   <Loader2 className="w-6 h-6 animate-spin" />

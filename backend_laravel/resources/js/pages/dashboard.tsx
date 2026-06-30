@@ -63,7 +63,7 @@ export default function Dashboard({
                 <div className="containerGrid3">
                     <div className="card1">
                         <PlaceholderPattern className="absolute inset-0 size-full  stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                        <div className="textCard3 centralize2">Usuários</div>
+                        <div className=" textCard3 centralize2">Usuários:</div>
                         <div className="itemsJustify ">Total de clientes:     {stats.total_users}</div>
                         <div className="itemsJustify">Total de colaboradores: {stats.total_collaborators}</div>
                         <div className="itemsJustify hider">

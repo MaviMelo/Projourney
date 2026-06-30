@@ -23,7 +23,7 @@ export default function CreateCourse() {
     return (
         <>
             <div className="max-w-2xl mx-auto">
-                <Head title="Cadastrar Usuário" />
+                <Head title="Cadastrar Cursos" />
 
                 <div className="mb-6">
                     <Link

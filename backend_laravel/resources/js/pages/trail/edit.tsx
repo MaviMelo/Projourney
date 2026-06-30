@@ -37,7 +37,7 @@ export default function EditTrail({ trail, courses }) {
     return (
         <>
             <div className="max-w-2xl mx-auto">
-                <Head title="Cadastrar Usuário" />
+                <Head title="Editar Trilha" />
 
                 <div className="mb-6">
                     <Link
@@ -48,7 +48,7 @@ export default function EditTrail({ trail, courses }) {
                     </Link>
                 </div>
 
-                <h1 className="text-2xl font-bold mb-6">Atualizar Dados da Trilha {trail.name} (ID: {trail.id})</h1>
+                <h1 className="text-2xl font-bold mb-6">Atualizar Dados da Trilha {trail.name}</h1>
 
                 <form onSubmit={submit} className="form1">
                     <div className="space-y-6">
