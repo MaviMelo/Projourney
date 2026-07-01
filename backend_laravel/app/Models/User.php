@@ -35,5 +35,9 @@ class User extends Authenticatable implements PasskeyUser
             'two_factor_confirmed_at' => 'datetime',
         ];
     }
+
+    public function trails(){
+        return $this->belongsToMany(Trail::class, 'user_trails', 'user_id', 'trail_id');
+    }
 }
 

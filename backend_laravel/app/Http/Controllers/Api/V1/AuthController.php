@@ -63,6 +63,10 @@ class AuthController extends Controller
         if (Auth::attempt($credentials)) {
 
             $user = Auth::user();
+            // $user->makeHidden(['role']);
+            $userData = $user->toArray();
+            unset($userData['role']);
+
 
             $newToken = $user->createToken('projourney: ' . now())->plainTextToken;
 
@@ -70,7 +74,7 @@ class AuthController extends Controller
                 'status' => 'success',
                 'message' => 'Login relizado com sucesso.',
                 'token' => $newToken,
-                'user' => $user,
+                'user' => $userData,
             ], 200);
         };
 
@@ -120,8 +124,18 @@ class AuthController extends Controller
         // $user = User::where('email', $request->email)->first();
 
         // user already authenticed via middleware('auth:sanctum') in rout.
-        $user = Auth::user();
+        $user = Auth::user()->makeHidden('role');
 
+                // Eager load trails with the pivot progress
+        $user->load(['trails' => function ($query) {
+            $query->withPivot('progress');
+        }]);
+
+        // Attach the progress from the pivot to each trail object
+        $user->trails->each(function ($trail) {
+            $trail->progress = $trail->pivot->progress;
+        });
+        
         if ($user) {
 
             return response()->json([

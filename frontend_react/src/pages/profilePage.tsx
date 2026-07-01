@@ -11,10 +11,10 @@ interface User {
     email: string;
 }
 
-interface TrilhaInscrita {
+interface Trail {
     id: number;
     name: string;
-    progress: 'Inscrito' | 'Cursando' | 'Suspenso' | 'Concluido';
+    progress: 'Inscrito' | 'Cursando' | 'Suspenso' | 'Concluído';
 }
 
 // Mapeamento de cores para os status
@@ -30,14 +30,14 @@ export default function PerfilPage(): React.JSX.Element {
 
     // --- Estados do Componente ---
     const [user, setUser] = useState<User | null>(null);
-    const [trails, setTrails] = useState<TrilhaInscrita[]>([]);
+    const [trails, setTrails] = useState<Trail[]>([]);
     const [status, setStatus] = useState<'loading' | 'idle' | 'error'>('loading');
     const [feedback, setFeedback] = useState<string>('');
-    const [alert, setAlert] = useState<{ message: string; type: 'error' | 'success' } | null>(null);
+    const [alert, setAlert] = useState<{ message: string} | null>(null);
 
     // --- Função para disparar alertas (Fora de qualquer outro hook/função) ---
-    const showAlert = (message: string, type: 'error' | 'success') => {
-        setAlert({ message, type });
+    const showAlert = (message: string) => {
+        setAlert({ message});
         setTimeout(() => setAlert(null), 5000);
     };
 
@@ -60,7 +60,7 @@ export default function PerfilPage(): React.JSX.Element {
         // console.log(JSON.stringify(userData, null, 2));
 
         // Função interna para buscar os dados
-        const carregarDadosDoPerfil = async () => {
+        const loadProfileData = async () => {
             setStatus('loading');
             try {
 
@@ -87,8 +87,9 @@ export default function PerfilPage(): React.JSX.Element {
                     throw new Error('Falha ao carregar dados do perfil.');
                 }
                 const data = await response.json();
-                setTrails(data.trails || []);
-                setStatus('idle');
+                setTrails(data.user.trails || []);
+                setStatus(data.status);
+                showAlert(data.message);
 
             } catch (err) {
                 setFeedback(err instanceof Error ? err.message : 'Erro desconhecido.');
@@ -96,13 +97,13 @@ export default function PerfilPage(): React.JSX.Element {
             }
         };
 
-        carregarDadosDoPerfil();
+        loadProfileData();
 
     }, [navigate]);
 
 
     // --- Função para Atualizar o Progresso ---
-    const handleProgressoChange = async (trailId: number, novoProgresso: TrilhaInscrita['progress']) => {
+    const handleProgressoChange = async (trailId: number, novoProgresso: Trail['progress']) => {
         if (!user) return;
 
         // Otimização: Atualiza a UI primeiro para uma resposta mais rápida
@@ -225,7 +226,7 @@ export default function PerfilPage(): React.JSX.Element {
                                                     <button
                                                         key={statusKey}
                                                         onClick={(e) => {
-                                                            handleProgressoChange(trail.id, statusKey as TrilhaInscrita['progress']);
+                                                            handleProgressoChange(trail.id, statusKey as Trail['progress']);
                                                             (e.target as HTMLElement).closest('details')?.removeAttribute('open');
                                                         }}
                                                         className="centralize2 linkGreen"
