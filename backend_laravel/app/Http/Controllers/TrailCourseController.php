@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\TrailCourse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class TrailCourseController extends Controller
 {
@@ -98,11 +99,19 @@ class TrailCourseController extends Controller
                 ]
             ]);
         } catch (\Throwable $th) {
+            $statusCode = $th->getCode() ?: 500;
+
+            Log::error('Falha ao excluir a instâcia de TrailCourse', [
+                'dados' => $id,
+                'erro'  => $th->getMessage(),
+                'arquivo' => $th->getFile(),
+                'linha'   => $th->getLine(),
+            ]);
 
             return redirect()->back()->with([
                 'message' => [
                     'status' => 'error',
-                    'msg' => 'O curso não pôde ser exclúido. Tente novamente mais tarde.'
+                    'msg' => 'O curso não pôde ser exclúido. Tente novamente mais tarde (código: '.$statusCode.').'
                 ]
             ]);
         }

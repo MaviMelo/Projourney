@@ -108,7 +108,7 @@ class TrailController extends Controller
             ]);
         } catch (\Throwable $th) {
             $statusCode = $th->getCode() ?: 500;
-            log::error('Erro ao tentar excluír curso: ', [
+            log::error('Erro ao tentar excluír Trilha: ', [
                 'Dados: ' => $trail,
                 'Erro: ' => $th->getMessage,
                 'Arquivo: ' => $th->getFile,
@@ -134,7 +134,7 @@ class TrailController extends Controller
                 'msg' => 'Curso ' . $trail->name . ' excluído com sucesso.',
             ]);
         } catch (\Throwable $e) {
-            log::error('Erro ao tentar excluír curso: ', [
+            log::error('Erro ao tentar excluír Trilha: ', [
                 'Dados: ' => $trail,
                 'Erro: ' => $e->getMessage,
                 'Arquivo: ' => $e->getFile,

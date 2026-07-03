@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Models\Trail;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 use function Pest\Laravel\json;
 
@@ -15,12 +16,28 @@ class TrailController extends Controller
      */
     public function index()
     {
-        $trails = Trail::all();
-        return response()->json([
-            'trails' => $trails,
-            'status' => 'success',
-            'message' => 'lista de trilhas'
-        ]);
+        try {
+
+            $trails = Trail::all();
+            return response()->json([
+                'trails' => $trails,
+                'status' => 'success',
+                'message' => 'lista de trilhas'
+            ]);
+        } catch (\Throwable $th) {
+            $statusCode = $th->getCode() ?: 500;
+
+            Log::error('Falha ao buscar as trilhas', [
+                'erro'  => $th->getMessage(),
+                'arquivo' => $th->getFile(),
+                'linha'   => $th->getLine(),
+            ]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Não foi possível fazer essa operação. Erro interno (status: ' . $statusCode . '), tente mais tarde.'
+            ]);
+        }
     }
 
     /**

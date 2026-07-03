@@ -116,7 +116,7 @@ class CourseController extends Controller
         } catch (\Throwable $th) {
             $statusCode = $th->getCode() ?: 500;
 
-            Log::error('Falha ao criar curso', [
+            Log::error('Falha ao atualizar curso', [
                 'dados' => $validated,
                 'erro'  => $th->getMessage(),
                 'arquivo' => $th->getFile(),

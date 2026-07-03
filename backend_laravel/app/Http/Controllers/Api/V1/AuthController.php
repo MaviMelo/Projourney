@@ -125,17 +125,20 @@ class AuthController extends Controller
 
         // user already authenticed via middleware('auth:sanctum') in rout.
         $user = Auth::user()->makeHidden('role');
+        $user->load('trails');
 
-                // Eager load trails with the pivot progress
-        $user->load(['trails' => function ($query) {
+        // Eager load trails with the pivot progress
+/*         $user->load(['trails' => function ($query) {
             $query->withPivot('progress');
         }]);
+ */
+
 
         // Attach the progress from the pivot to each trail object
-        $user->trails->each(function ($trail) {
+/*         $user->trails->each(function ($trail) {
             $trail->progress = $trail->pivot->progress;
         });
-        
+ */
         if ($user) {
 
             return response()->json([

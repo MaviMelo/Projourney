@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use Inertia\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\View;
 
 
@@ -77,13 +78,13 @@ class UserController extends Controller
         ]);
 
         return redirect()->back()
-        ->with(['dbData' => $user,])
-        ->with([
-            'message' => [
-                'status' => 'success',
-                'msg' => 'Usuário "' . $user->name . '" cadastrado com sucesso.',
-            ]
-        ]);
+            ->with(['dbData' => $user,])
+            ->with([
+                'message' => [
+                    'status' => 'success',
+                    'msg' => 'Usuário "' . $user->name . '" cadastrado com sucesso.',
+                ]
+            ]);
     }
 
     /**
@@ -163,9 +164,18 @@ class UserController extends Controller
                 ]
             ]); */
         } catch (\Exception $e) {
+            $statusCode = $e->getCode() ?: 500;
+
+            Log::error('Falha ao excluir usuário:', [
+                'dados' => $id,
+                'erro'  => $e->getMessage(),
+                'arquivo' => $e->getFile(),
+                'linha'   => $e->getLine(),
+            ]);
+
             return redirect()->back()->with('message', [
                 'status'  => 'error',
-                'msg' => 'Erro ao tentar excluir: ' . $e->getMessage(),
+                'msg' => 'Erro ao tentar excluir (código: '. $statusCode.').',
             ]);
         }
     }

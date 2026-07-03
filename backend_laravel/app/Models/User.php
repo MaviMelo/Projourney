@@ -37,7 +37,7 @@ class User extends Authenticatable implements PasskeyUser
     }
 
     public function trails(){
-        return $this->belongsToMany(Trail::class, 'user_trails', 'user_id', 'trail_id');
+        return $this->belongsToMany(Trail::class, 'user_trails', 'user_id', 'trail_id')->withPivot('progress', 'id');
     }
 }
 
