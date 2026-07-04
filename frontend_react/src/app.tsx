@@ -25,7 +25,7 @@ function App() {
                 <Route path="/cursos/:id" element={<CourseDetailPage />} /> {/* Rota para detalhes do curso */}
                 <Route path="/trilhas" element={<TrilhasPage />} />
                 <Route path="/perfil" element={<PerfilPage />} />
-                <Route path="/aulas/:trilhaId" element={<AulasPage />} />
+                <Route path="/aulas/:trailId" element={<AulasPage />} />
                 <Route path="/sobre" element={<SobrePage />} />
             </Route>
         </Routes>

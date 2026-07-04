@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\TrailController;
 use App\Http\Controllers\Api\V1\TrailUserController;
+use App\Http\Controllers\Api\V1\CourseController;
 use Illuminate\Routing\ResolvesRouteDependencies;
 
 Route::post('/register', [AuthController::class, 'register']);
@@ -16,6 +17,7 @@ Route::middleware('auth:sanctum')->name('api.')->group(function () {
 
     Route::apiResources([
         'trail' => TrailController::class,
+        'course' => CourseController::class,
         'trailUser' => TrailUserController::class,
     ]);
 });

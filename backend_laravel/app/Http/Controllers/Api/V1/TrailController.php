@@ -53,7 +53,24 @@ class TrailController extends Controller
      */
     public function show(Trail $trail)
     {
-        //
+        try {
+
+            // var_dump($trail);
+            $trail->load('courses');
+
+            return response()->json([
+                'trail' => $trail,
+                'status' => 'success',
+                'message' => 'Esses são os cursos da trilha.'
+            ]);
+        } catch (\Throwable $th) {
+            $statusCode = $th->getCode() ?: 500;
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Não foi possível fazer essa operação. Erro interno (status: ' . $statusCode . '), tente mais tarde.'
+            ]);
+        }
     }
 
     /**

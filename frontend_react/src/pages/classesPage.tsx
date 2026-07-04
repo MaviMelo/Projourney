@@ -4,43 +4,48 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Loader2, AlertCircle, ExternalLink, ArrowLeft, LogOut } from 'lucide-react';
 import SimpleLink from "../components/common/simpleLink";
 import SimpleButtom from "../components/common/simpleButton"
-import {BASE_URL} from "@/config/api";
+import { BASE_URL } from "@/config/api";
 
-// Interface para tipar os dados do curso que vêm da API
-interface Curso {
+interface Course {
     id: number;
-    nome: string;
-    nivel: string;
-    link_curso: string;
+    name: string;
+    level: string;
+    link_course: string;
 }
 
 export default function AulasPage(): React.JSX.Element {
 
     const navigate = useNavigate();
-    const { trilhaId } = useParams<{ trilhaId: string }>();
-    const [cursos, setCursos] = useState<Curso[]>([]);
+    const { trailId } = useParams<{ trailId: string }>();  // parametros das URLs definidos no src/app.tsx
+    const [courses, setCourses] = useState<Course[]>([]);
     const [status, setStatus] = useState<'loading' | 'error' | 'success'>('loading');
+    
+    // console.log(`  trailId (passado na URL): ${trailId}`);
+    // debugger;
 
     const handleLogout = () => {
-        localStorage.removeItem('usuarioLogado');
+        localStorage.removeItem('loggedUser');
         navigate('/login');
     }
 
     useEffect(() => {
-        if (!trilhaId) return;
+        if (!trailId) return;
 
         const fetchCursos = async () => {
             try {
-                // Chama o endpoint do backend
-                const response = await fetch(`${BASE_URL}/cursos_da_trilha.php?trilhaId=${trilhaId}`);
+                const response = await fetch(`${BASE_URL}/trail/${trailId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
                 if (!response.ok) {
-                    // Se a resposta não for OK, tenta ler o corpo como texto para ver o erro do PHP
                     const errorText = await response.text();
                     throw new Error(`Erro do Servidor: ${errorText}`);
                 }
 
-                const data: Curso[] = await response.json();
-                setCursos(data);
+                const result = await response.json();
+                setCourses(result.trail.courses);
                 setStatus('success');
 
             } catch (error) {
@@ -51,7 +56,7 @@ export default function AulasPage(): React.JSX.Element {
         };
 
         fetchCursos();
-    }, [trilhaId]); // Roda a busca sempre que o ID da trilha mudar
+    }, [trailId]); // Roda a busca sempre que o ID da trilha mudar
 
     // --- Renderização Condicional Simples ---
     if (status === 'loading') {
@@ -80,7 +85,7 @@ export default function AulasPage(): React.JSX.Element {
 
                 <h1 className="title">Cursos da Trilha</h1>
                 <div className="itemsJustify">
-                    {localStorage.getItem('usuarioLogado') ? (
+                    {localStorage.getItem('loggedUser') ? (
                         <SimpleLink to="/perfil" variant="navLink">
                             <ArrowLeft className="w-5 h-5" />
                             Início
@@ -111,23 +116,23 @@ export default function AulasPage(): React.JSX.Element {
                 </div>
 
                 <div className="">
-                    {cursos.length > 0 ? (
-                        cursos.map(curso => (
-                            <div     className="card1 itemsJustify">
+                    {courses.length > 0 ? (
+                        courses.map(course => (
+                            <div className="card1 itemsJustify">
                                 <a
-                                    key={curso.id}
+                                    key={course.id}
                                     className="itemsJustify textLink"
-                                    href={curso.link_curso}
+                                    href={course.link_course}
                                     target="_blank" // Abre o link em uma nova aba
                                     rel="noopener noreferrer" // Boa prática de segurança para links externos
-                                
+
                                 >
-                                        <h3 className="textCard">{curso.nome}</h3>
-                                    <ExternalLink  size={20} />
+                                    <h3 className="textCard">{course.name}</h3>
+                                    <ExternalLink size={20} />
                                 </a>
-                                    <div>
-                                        <span className="text-sm text-gray-400 mt-1 inline-block">{curso.nivel}</span>
-                                    </div>
+                                <div>
+                                    <span className="text-sm text-gray-400 mt-1 inline-block">{course.level}</span>
+                                </div>
                             </div>
                         ))
                     ) : (

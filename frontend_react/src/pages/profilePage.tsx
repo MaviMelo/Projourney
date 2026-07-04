@@ -142,27 +142,26 @@ export default function PerfilPage(): React.JSX.Element {
     };
 
     const handleDelete = async (trail: []) => {
-        if (!window.confirm("Tem certeza que deseja excluir esta trilha?")) return;
+        window.confirm("Tem certeza que deseja excluir esta trilha?");
 
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${BASE_URL}/trailUser/${trail.pivot.id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.message || 'Falha ao excluir a trilha.');
 
-            try {
-                const token = localStorage.getItem('token');
-                const response = await fetch(`${BASE_URL}/trailUser/${trail.pivot.id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                const result = await response.json();
-                if (!response.ok) throw new Error(result.message || 'Falha ao excluir a trilha.');
+            // Exibir mensagem de sucesso
+            showAlert("success", result.message);
 
-                // Exibir mensagem de sucesso
-                showAlert("success", result.message);
-
-                setTrails(trails.filter(t => t.id !== trail.id));
-            } catch (err) {
-                showAlert(err instanceof Error ? err.message : "error", "Erro ao excluir trilha.");
-            }
+            setTrails(trails.filter(t => t.id !== trail.id));
+        } catch (err) {
+            showAlert(err instanceof Error ? err.message : "error", "Erro ao excluir trilha.");
+        }
     };
 
     if (status === 'loading') {

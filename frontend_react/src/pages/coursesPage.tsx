@@ -161,7 +161,7 @@ export const CourseDetailPage: React.FC = () => {
 
         <h1 className="title">Cursos Publicados</h1>
         <nav>
-          {localStorage.getItem('usuarioLogado') ? (
+          {localStorage.getItem('loggedUser') ? (
             <SimpleLink to="/perfil" variant="navLink">
               <ArrowLeft className="w-5 h-5" />
               Início
@@ -241,7 +241,7 @@ export const CoursesPage: React.FC = () => {
 
         <h1 className="title">Cursos Publicados</h1>
         <nav>
-          {localStorage.getItem('usuarioLogado') ? (
+          {localStorage.getItem('loggedUser') ? (
             <SimpleLink to="/perfil" variant="navLink">
               <ArrowLeft className="w-5 h-5" />
               Início
