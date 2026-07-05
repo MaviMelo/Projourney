@@ -85,6 +85,21 @@ class AuthController extends Controller
         ], 401);
     }
 
+    public function refresh(Request $request)
+    {
+        $user = $request->user();
+
+        $request->user()->currentAccessToken()->delete();
+
+        $newToken = $user->createToken('projourney' . now())->plainTextToken;
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Token renovado.',
+            'token' => $newToken,
+        ]);
+    }
+
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();

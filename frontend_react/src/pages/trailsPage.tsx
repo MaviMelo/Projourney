@@ -4,7 +4,8 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, Code, Database, Shield, Smartphone, Globe, Cpu, Brain, Zap, Loader2, AlertCircle, CheckCircle, LogOut } from "lucide-react";
 import SimpleButtom from "../components/common/simpleButton"
 import SimpleLink from "../components/common/simpleLink";
-import { BASE_URL } from "@/config/api";
+import { apiFetch, initAuth } from '@/lib/api';
+import { LogoutButton } from "@/components/effects/logout";
 
 // --- Interfaces e Mapeamento de Ícones ---
 
@@ -46,15 +47,11 @@ export default function TrailsPage(): React.JSX.Element {
   const [status, setStatus] = useState<'loading' | 'idle' | 'error' | 'success'>('loading');
   const [feedback, setFeedback] = useState<string>('');
 
-  const handleLogout = () => {
-    localStorage.removeItem('loggedUser');
-    navigate('/login');
-  }
-
   // --- carregar dados ---
 
   // 1. Pega os dados do usuário logado do localStorage
   useEffect(() => {
+    initAuth();
     const dataUser = localStorage.getItem('loggedUser');
     if (dataUser) {
       setUser(JSON.parse(dataUser));
@@ -68,25 +65,19 @@ export default function TrailsPage(): React.JSX.Element {
   // {console.log(JSON.stringify(user))};
   // debugger
 
-  // 2. Busca a lista de trilhas na API 
+  // 2. Busca a lista de trilhas na API
   useEffect(() => {
     const fetchTrails = async () => {
       setStatus('loading');
       setFeedback('');
       try {
+        const response = await apiFetch('/trail');
 
-        const token = localStorage.getItem('token');
-        const response = await fetch(`${BASE_URL}/trail`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json'
-          }
-        });
-        if (!response.ok) {
-          throw new Error('Não foi possível carregar as trilhas.');
+        if (response.status !== 'success') {
+          throw new Error(response.message || 'Não foi possível carregar as trilhas.');
         }
-        const data: Trail[] = await response.json();
-        setTrails(data.trails);
+        const data = (response.data as { trails: Trail[] })?.trails || [];
+        setTrails(data);
         setStatus('idle');
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Falha na comunicação com o servidor.';
@@ -118,34 +109,24 @@ export default function TrailsPage(): React.JSX.Element {
     setFeedback('');
 
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${BASE_URL}/trailUser`, {
+      const response = await apiFetch('/trailUser', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
         body: JSON.stringify({
           user_id: user.id,
           trail_id: trailSelected,
         }),
       });
 
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || `Erro ${response.status}`);
+      if (response.status !== 'success') {
+        throw new Error(response.message || `Erro ${response.data}`);
       }
 
-      setFeedback(result.message);
-      setStatus(result.status);
+      setFeedback(response.message || 'Inscrição realizada com sucesso!');
+      setStatus('success');
 
-      if(result.status === "success"){
-
+      if (response.status === "success") {
         setTimeout(() => {
-          
           navigate('/perfil'); // Redireciona para o perfil do aluno
-          
         }, 2000);
       }
 
@@ -175,12 +156,7 @@ export default function TrailsPage(): React.JSX.Element {
               </SimpleLink>
             )}
 
-            <SimpleButtom onClick={handleLogout}
-              variant="navButton"
-              className="itemsJustify">
-              <LogOut size={16} />
-              Sair
-            </SimpleButtom>
+            <LogoutButton />
           </div>
         </nav>
       </header>

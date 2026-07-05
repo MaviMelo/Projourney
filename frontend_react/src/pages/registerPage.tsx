@@ -4,10 +4,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
-import {BASE_URL} from "@/config/api";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { ArrowLeft, Loader2, AlertCircle, CheckCircle } from "lucide-react";
 import ParticleBackground from "@/components/effects/particleBackground";
+import { register } from '@/lib/api';
 
 interface AlunoFormData {
     name: string;
@@ -54,31 +54,18 @@ export default function CadastrarAlunoPage(): JSX.Element {
         setLoading(true);
 
         try {
-            // Envia os dados para a API
-            const response = await fetch(`${BASE_URL}/register`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json', 
-                },
-                body: JSON.stringify({ // Converte os dados do formulário para JSON
-                    name: formData.name,
-                    email: formData.email,
-                    password: formData.password,
-                    password_confirmation: formData.password_confirmation,
-                    birth_date: formData.birth_date || null,
-                    phone_number: formData.phone_number || null,
-                }),
-            });
+            const response = await register(
+                formData.name,
+                formData.email,
+                formData.password,
+                formData.password_confirmation
+            );
 
-            const result = await response.json(); // Pega a resposta da API em JSON
-
-            if (!response.ok) {
-                // Se a resposta não for 2xx, lança um erro com a mensagem do PHP
-                throw new Error(result.message || `Erro ${response.status}`);
+            if (response.status !== 'success') {
+                throw new Error(response.message || `Erro ${response.data}`);
             }
 
-            setSuccess(result.message);
+            setSuccess(response.message ?? 'Cadastro realizado com sucesso');
             setTimeout(() => {
                 navigate('/login'); // Redireciona para o login após o sucesso
             }, 500);

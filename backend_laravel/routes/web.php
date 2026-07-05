@@ -3,7 +3,6 @@
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\TrailController;
 use App\Http\Controllers\TrailCourseController;
-use App\Http\Controllers\TrailUserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 
@@ -28,7 +27,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         'course' => CourseController::class,
         'trail' => TrailController::class,
         'trailCourse' => TrailCourseController::class,
-        'trailUser' => TrailUserController::class,
     ]);
 });
 

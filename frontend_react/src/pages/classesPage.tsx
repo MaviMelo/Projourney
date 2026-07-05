@@ -4,7 +4,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Loader2, AlertCircle, ExternalLink, ArrowLeft, LogOut } from 'lucide-react';
 import SimpleLink from "../components/common/simpleLink";
 import SimpleButtom from "../components/common/simpleButton"
-import { BASE_URL } from "@/config/api";
+import { apiFetch, initAuth } from '@/lib/api';
 
 interface Course {
     id: number;
@@ -19,7 +19,7 @@ export default function AulasPage(): React.JSX.Element {
     const { trailId } = useParams<{ trailId: string }>();  // parametros das URLs definidos no src/app.tsx
     const [courses, setCourses] = useState<Course[]>([]);
     const [status, setStatus] = useState<'loading' | 'error' | 'success'>('loading');
-    
+
     // console.log(`  trailId (passado na URL): ${trailId}`);
     // debugger;
 
@@ -29,22 +29,18 @@ export default function AulasPage(): React.JSX.Element {
     }
 
     useEffect(() => {
+        initAuth();
         if (!trailId) return;
 
         const fetchCursos = async () => {
             try {
-                const response = await fetch(`${BASE_URL}/trail/${trailId}`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
-                });
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`Erro do Servidor: ${errorText}`);
+                const response = await apiFetch(`/trail/${trailId}`);
+
+                if (response.status !== 'success') {
+                    throw new Error(`Erro do Servidor: ${response.message}`);
                 }
 
-                const result = await response.json();
+                const result = response.data as { trail: { courses: Course[] } };
                 setCourses(result.trail.courses);
                 setStatus('success');
 

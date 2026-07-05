@@ -4,10 +4,9 @@ import { Input } from "../components/ui/input"
 import { Label } from "../components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card"
 import { ArrowLeft, Eye, EyeOff, Lock, Mail, Github, Chrome } from "lucide-react"
-import { Link, useNavigate } from "react-router-dom"  // Mudança do 'next/link' para o 'react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import SimpleLink from "../components/common/simpleLink"
-import { BASE_URL } from "@/config/api";
-import type { JSX } from "react/jsx-runtime"
+import { login } from '@/lib/api';
 import ParticleBackground from "@/components/effects/particleBackground"
 
 interface LoginFormData {
@@ -16,7 +15,7 @@ interface LoginFormData {
     rememberMe: boolean
 }
 
-export default function LoginPage(): JSX.Element {
+export default function LoginPage(): React.ReactElement {
 
     const navigate = useNavigate();
 
@@ -36,28 +35,11 @@ export default function LoginPage(): JSX.Element {
         setError(null)
 
         try {
-            const response = await fetch(`${BASE_URL}/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/jso'
-                },
-                body: JSON.stringify({
-                    email: formData.email,
-                    password: formData.password,
-                }),
-            })
+            const response = await login(formData.email, formData.password);
 
-            const result = await response.json()
-
-            if (!response.ok) {
-                throw new Error(result.message || 'Ocorreu um erro na verificação dos dados.')
+            if (response.status !== 'success') {
+                throw new Error(response.message || 'Ocorreu um erro na verificação dos dados.')
             }
-
-            // Guardar dados e token do usuário no navegador para 'lembrar' que está logado e autenticar requisições futuras.
-            localStorage.setItem('loggedUser', JSON.stringify(result.user));
-            localStorage.setItem('token', result.token);
-
 
             navigate('/perfil')
 
@@ -66,7 +48,7 @@ export default function LoginPage(): JSX.Element {
             setError(errorMessage);
 
         } finally {
-            setIsLoading(false); // Desativa o estado de 'carregando'.
+            setIsLoading(false);
         }
     }
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { BASE_URL } from "@/config/api";
+import { apiFetch, initAuth } from '@/lib/api';
 import { User, BookOpen, MoreVertical, Loader2, AlertCircle, CheckCircle, LogOut, Trash2 } from "lucide-react";
 import { LogoutButton } from "@/components/effects/logout";
 
@@ -15,6 +15,10 @@ interface Trail {
     id: number;
     name: string;
     progress: 'Inscrito' | 'Cursando' | 'Suspenso' | 'Concluído';
+    pivot: {
+        id: number;
+        progress: 'Inscrito' | 'Cursando' | 'Suspenso' | 'Concluído';
+    };
 }
 
 // Mapeamento de cores para os status
@@ -43,10 +47,8 @@ export default function PerfilPage(): React.JSX.Element {
 
     // --- Função para Buscar Dados do Perfil ---
     useEffect(() => {
+        initAuth();
         const userData = localStorage.getItem('loggedUser');
-
-        // debug
-        // console.log(userData);
 
         if (!userData) {
             navigate('/login');
@@ -55,38 +57,23 @@ export default function PerfilPage(): React.JSX.Element {
         const loggedUser: User = JSON.parse(userData);
         setUser(loggedUser); // Define o usuário no estado
 
-        // debug
-        // console.log(loggedUser);
-        // console.log(JSON.stringify(userData, null, 2));
-
         // Função interna para buscar os dados
         const loadProfileData = async () => {
             setStatus('loading');
             try {
+                const response = await apiFetch('/profile');
 
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    navigate('/login');
-                    return; // Se não houver token (mesmo que já tenha verificado antes)
-                };
-
-                const response = await fetch(`${BASE_URL}/profile?email=${encodeURIComponent(loggedUser.email)}`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    },
-                });
-                if (!response.ok) {
-                    if (response.status === 401 || response.status === 403) {
+                if (response.status !== 'success') {
+                    if (response.data === 401 || response.data === 403) {
                         window.alert("Sua sessão expirou ou é inválida. Faça login novamente.");
-                        localStorage.removeItem('token'); // Limpa o token inválido
+                        localStorage.removeItem('token');
                         localStorage.removeItem('loggedUser');
                         navigate('/login');
                         return;
                     }
-                    throw new Error('Falha ao carregar dados do perfil.');
+                    throw new Error(response.message || 'Falha ao carregar dados do perfil.');
                 }
-                const data = await response.json();
+                const data = response.data as { user: { trails: Trail[] }, status: 'loading' | 'success' | 'idle' | 'error', message: string };
                 setTrails(data.user.trails || []);
                 setStatus(data.status);
                 showAlert(data.status, data.message);
@@ -112,13 +99,8 @@ export default function PerfilPage(): React.JSX.Element {
 
 
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`${BASE_URL}/trailUser/${pivotId}`, {
+            const response = await apiFetch(`/trailUser/${pivotId}`, {
                 method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `bearer ${token}`
-                },
                 body: JSON.stringify({
                     user_id: user.id,
                     // pivot_id: pivotId,
@@ -126,9 +108,9 @@ export default function PerfilPage(): React.JSX.Element {
                 }),
             });
 
-            if (!response.ok) throw new Error('Falha ao atualizar o progresso.');
+            if (response.status !== 'success') throw new Error('Falha ao atualizar o progresso.');
 
-            const result = await response.json();
+            const result = response.data as { progress: Trail['progress'], status: string, message: string };
 
             // Otimização: Atualiza a UI para uma exibir o dado atializado sem recarregar o componente pelo loadProfileData() (request mais cara).
             setTrails(trails.map(t => t.pivot.id === pivotId ? { ...t, pivot: { ...t.pivot, progress: result.progress } } : t));
@@ -141,19 +123,15 @@ export default function PerfilPage(): React.JSX.Element {
         }
     };
 
-    const handleDelete = async (trail: []) => {
+    const handleDelete = async (trail: Trail) => {
         window.confirm("Tem certeza que deseja excluir esta trilha?");
 
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`${BASE_URL}/trailUser/${trail.pivot.id}`, {
+            const response = await apiFetch(`/trailUser/${trail.pivot.id}`, {
                 method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
             });
-            const result = await response.json();
-            if (!response.ok) throw new Error(result.message || 'Falha ao excluir a trilha.');
+            const result = response.data as { status: string, message: string };
+            if (response.status !== 'success') throw new Error(result.message || 'Falha ao excluir a trilha.');
 
             // Exibir mensagem de sucesso
             showAlert("success", result.message);
@@ -275,4 +253,3 @@ export default function PerfilPage(): React.JSX.Element {
         </>
     );
 }
-
