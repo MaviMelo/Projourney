@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../co
 import { ArrowLeft, Eye, EyeOff, Lock, Mail, Github, Chrome } from "lucide-react"
 import { Link, useNavigate } from "react-router-dom"
 import SimpleLink from "../components/common/simpleLink"
-import { login } from '@/lib/api';
+import { login, initCsrf } from '@/lib/api';
 import ParticleBackground from "@/components/effects/particleBackground"
 
 interface LoginFormData {
@@ -35,6 +35,9 @@ export default function LoginPage(): React.ReactElement {
         setError(null)
 
         try {
+            // Garante que o cookie XSRF-TOKEN está presente antes do POST
+            await initCsrf();
+
             const response = await login(formData.email, formData.password);
 
             if (response.status !== 'success') {

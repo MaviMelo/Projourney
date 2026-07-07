@@ -169,8 +169,8 @@ return [
     |
     */
 
-    'secure' => env('SESSION_SECURE_COOKIE'),
-
+    'secure' => env('SESSION_SECURE_COOKIE'),  // , true em prod (HTTPS)
+ 
     /*
     |--------------------------------------------------------------------------
     | HTTP Access Only

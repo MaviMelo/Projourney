@@ -80,8 +80,8 @@ return [
 
     'middleware' => [
         'authenticate_session' => AuthenticateSession::class,
-        'encrypt_cookies' => EncryptCookies::class,
-        'validate_csrf_token' => ValidateCsrfToken::class,
+        'encrypt_cookies' => \App\Http\Middleware\EncryptCookiesExceptCsrf::class,
+        'validate_csrf_token' => \App\Http\Middleware\VerifyCsrfTokenPlain::class,
     ],
 
 ];

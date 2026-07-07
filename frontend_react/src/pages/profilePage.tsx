@@ -66,7 +66,6 @@ export default function PerfilPage(): React.JSX.Element {
                 if (response.status !== 'success') {
                     if (response.data === 401 || response.data === 403) {
                         window.alert("Sua sessão expirou ou é inválida. Faça login novamente.");
-                        localStorage.removeItem('token');
                         localStorage.removeItem('loggedUser');
                         navigate('/login');
                         return;
@@ -112,7 +111,7 @@ export default function PerfilPage(): React.JSX.Element {
 
             const result = response.data as { progress: Trail['progress'], status: string, message: string };
 
-            // Otimização: Atualiza a UI para uma exibir o dado atializado sem recarregar o componente pelo loadProfileData() (request mais cara).
+            // Otimização: Atualiza a UI para exibir o dado atializado sem recarregar o componente pelo loadProfileData() (request mais cara).
             setTrails(trails.map(t => t.pivot.id === pivotId ? { ...t, pivot: { ...t.pivot, progress: result.progress } } : t));
 
             showAlert(result.status, result.message);

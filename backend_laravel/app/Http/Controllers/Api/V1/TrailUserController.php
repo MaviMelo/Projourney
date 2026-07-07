@@ -91,7 +91,7 @@ class TrailUserController extends Controller
 
                 return response()->json([
                     'status' => 'error',
-                    'menssage' => 'Operação não permitida. Você não tem permissão para atualizar o progresso dessa instâcia.'
+                    'message' => 'Operação não permitida. Você não tem permissão para atualizar o progresso dessa instâcia.'
                 ]);
             }
         } catch (\Throwable $th) {

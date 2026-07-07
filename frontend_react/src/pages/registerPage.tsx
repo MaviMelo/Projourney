@@ -7,7 +7,7 @@ import { Label } from "../components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { ArrowLeft, Loader2, AlertCircle, CheckCircle } from "lucide-react";
 import ParticleBackground from "@/components/effects/particleBackground";
-import { register } from '@/lib/api';
+import { register, initCsrf } from '@/lib/api';
 
 interface AlunoFormData {
     name: string;
@@ -54,6 +54,9 @@ export default function CadastrarAlunoPage(): JSX.Element {
         setLoading(true);
 
         try {
+            // Garante que o cookie XSRF-TOKEN está presente antes do POST
+            await initCsrf();
+
             const response = await register(
                 formData.name,
                 formData.email,
@@ -66,9 +69,7 @@ export default function CadastrarAlunoPage(): JSX.Element {
             }
 
             setSuccess(response.message ?? 'Cadastro realizado com sucesso');
-            setTimeout(() => {
-                navigate('/login'); // Redireciona para o login após o sucesso
-            }, 500);
+            navigate('/perfil');
 
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Falha na comunicação com o servidor.';

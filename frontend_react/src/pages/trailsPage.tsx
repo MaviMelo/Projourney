@@ -116,13 +116,15 @@ export default function TrailsPage(): React.JSX.Element {
           trail_id: trailSelected,
         }),
       });
-
+/*       
       if (response.status !== 'success') {
         throw new Error(response.message || `Erro ${response.data}`);
+        return;
       }
-
+ */
       setFeedback(response.message || 'Inscrição realizada com sucesso!');
-      setStatus('success');
+      setStatus(response.status);
+
 
       if (response.status === "success") {
         setTimeout(() => {
