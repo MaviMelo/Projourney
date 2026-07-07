@@ -11,7 +11,7 @@ export default function HomePage(): JSX.Element {
           Entrar
         </SimpleLink>
         <SimpleLink to="/cadastrar" variant="navButton">
-          cadastrar
+          Cadastrar-se
         </SimpleLink>
       </div>
 
@@ -22,10 +22,10 @@ export default function HomePage(): JSX.Element {
             Prepare-se para sua formação de forma inteligente
           </h1>
           <p className="textCard">
-            Varias trilhas de cursos de tecnologia, redirecionamento para
+            Várias trilhas de cursos de tecnologia, redirecionamento para
             plataformas de cursos on-line grátis e muito mais.
           </p>
-          <SimpleLink to="Login" variant="outline">
+          <SimpleLink to="/cadastrar" variant="outline">
             Comece agora. Tudo de forma gratuita!
           </SimpleLink>
         </section>

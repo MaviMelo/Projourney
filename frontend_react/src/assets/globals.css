@@ -68,7 +68,7 @@ body {
   .dark {
 
     --teste: #076e18;
-    --background: 0 100% 2%;
+    --background: 0, 0%, 3%;
     --foreground: 0 0% 98%;
     --header: 224, 64%, 33%, 0.4;
     --particle1: 61, 100%, 86%, 0.6;
@@ -120,7 +120,7 @@ body {
 
   .header {
     background-color: hsl(var(--header));
-    @apply sticky top-0 left-0 min-w-full h-full z-50 backdrop-blur-md border-b border-blue-500/30 pl-[30px] pr-[30px] flex justify-between items-center;
+    @apply sticky top-0 left-0 min-w-full h-20 z-50 backdrop-blur-md border-b border-blue-500/30 pl-[30px] pr-[30px] flex justify-between items-center;
   }
 
   /* buttons */
@@ -272,4 +272,69 @@ body {
   .containerGrid {
     @apply mx-auto px-10 py-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8
   }
+}
+
+/* --- Recursos de Acessibilidade --- */
+
+/* --- Fontes Mais Grossas --- */
+body.bold-text,
+body.bold-text *,
+body.bold-text .title,
+body.bold-text .textBanner,
+body.bold-text [class*="text-"],
+body.bold-text [class*="font-"] {
+  font-weight: 800 !important;
+}
+
+/* --- Alto Contraste --- */
+body.high-contrast {
+  --background: 0 0% 0% !important;
+  --foreground: 60 100% 50% !important; /* Amarelo Puro */
+  --card: 0 0% 0% !important;
+  --card-foreground: 60 100% 50% !important;
+  --header: 0 0% 0% !important;
+  background-color: #000000 !important;
+  color: #ffff00 !important;
+}
+
+body.high-contrast *,
+body.high-contrast .card1,
+body.high-contrast .elementeCard1,
+body.high-contrast .header,
+body.high-contrast input {
+  background-color: #000000 !important;
+  color: #ffff00 !important;
+  border-color: #ffff00 !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+body.high-contrast a,
+body.high-contrast button,
+body.high-contrast [class*="button"],
+body.high-contrast [class*="link"] {
+  background-color: #000000 !important;
+  color: #00ffff !important; /* Ciano */
+  border: 2px solid #00ffff !important;
+}
+
+body.high-contrast a:hover,
+body.high-contrast button:hover,
+body.high-contrast [class*="button"]:hover {
+  background-color: #00ffff !important;
+  color: #000000 !important;
+}
+
+body.high-contrast svg {
+  fill: currentColor !important;
+  stroke: currentColor !important;
+}
+
+html.large-text {
+  font-size: 125% !important;
+}
+
+html.large-text button[aria-label="Abrir menu de acessibilidade"],
+html.large-text button[aria-label="Abrir menu de acessibilidade"] + div {
+  zoom: 0.8;
 }

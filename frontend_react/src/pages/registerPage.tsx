@@ -15,7 +15,7 @@ interface AlunoFormData {
     password: string;
     password_confirmation: string;
     birth_date: string;
-    fone: string;
+    phone_number: string;
 }
 
 export default function CadastrarAlunoPage(): JSX.Element {
@@ -26,7 +26,7 @@ export default function CadastrarAlunoPage(): JSX.Element {
         password: "",
         password_confirmation: "",
         birth_date: "",
-        fone: "",
+        phone_number: "",
     });
 
     // Estados para controlar o feedback da interface
@@ -67,7 +67,7 @@ export default function CadastrarAlunoPage(): JSX.Element {
                     password: formData.password,
                     password_confirmation: formData.password_confirmation,
                     birth_date: formData.birth_date || null,
-                    fone: formData.fone || null,
+                    phone_number: formData.phone_number || null,
                 }),
             });
 
@@ -117,15 +117,15 @@ export default function CadastrarAlunoPage(): JSX.Element {
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <Label htmlFor="name">Nome Completo *</Label>
-                                    <Input id="name" value={formData.name} onChange={handleChange} required className="inputCard" />
+                                    <Input id="name" value={formData.name} onChange={handleChange} placeholder="Seu nome completo" required className="inputCard" />
                                 </div>
                                 <div>
                                     <Label htmlFor="email">E-mail *</Label>
-                                    <Input id="email" type="email" value={formData.email} onChange={handleChange} required className="inputCard" />
+                                    <Input id="email" type="email" value={formData.email} onChange={handleChange} placeholder="Seu melhor e-mail" required className="inputCard" />
                                 </div>
                                 <div>
                                     <Label htmlFor="password">Senha *</Label>
-                                    <Input id="password" type="password" value={formData.password} onChange={handleChange} required className="inputCard" />
+                                    <Input id="password" type="password" value={formData.password} onChange={handleChange} placeholder="Minimo 8 caracteres" required className="inputCard" />
                                 </div>
                                 <div>
                                     <Label htmlFor="password_confirmation">Confirmar Senha *</Label>
@@ -136,8 +136,8 @@ export default function CadastrarAlunoPage(): JSX.Element {
                                     <Input id="birth_date" type="date" value={formData.birth_date} onChange={handleChange} className="inputCard" />
                                 </div>
                                 <div>
-                                    <Label htmlFor="fone">Telefone (opicional)</Label>
-                                    <Input id="fone" type="tel" value={formData.fone} onChange={handleChange} placeholder="(11) 99999-9999" className="inputCard" />
+                                    <Label htmlFor="phone_number">Telefone (opicional)</Label>
+                                    <Input id="phone_number" type="tel" value={formData.phone_number} onChange={handleChange} placeholder="(11) 99999-9999" className="inputCard" />
                                 </div>
                             </div>
 
