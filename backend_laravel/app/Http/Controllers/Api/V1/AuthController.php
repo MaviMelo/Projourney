@@ -195,8 +195,8 @@ class AuthController extends Controller
         $user->load('trails');
 
         return response()->json([
-            'status' => 'success',
-            'message' => 'Seja sempre bem vindo.',
+            // 'status' => 'success',
+            // 'message' => 'Seja sempre bem vindo.',
             'user' => $user,
         ], 200);
     }
