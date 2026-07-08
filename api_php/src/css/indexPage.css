@@ -1,9 +1,0 @@
-body {
-    font-family: Arial, Helvetica, sans-serif;
-    max-width: 60%;   /* Ou qualquer largura */
-    margin: auto;
-}
-
-div+div {
-    margin-top: 1.5rem;
-}

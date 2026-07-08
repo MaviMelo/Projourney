@@ -2,6 +2,7 @@
 
 import { Routes, Route } from 'react-router-dom';
 
+
 // Importa os componentes de página existentes
 import Layout from './components/layout/layout'
 import HomePage from './pages/homePage';
@@ -13,8 +14,17 @@ import AulasPage from './pages/classesPage';
 import { CoursesPage, CourseDetailPage } from './pages/coursesPage';
 import SobrePage from './pages/aboutPage';
 
+import AccessibilityToolbar from './components/acessibilities/AcessibilityToolbar';
+import VLibras from './components/acessibilities/VLibras';
+
 function App() {
     return (
+      // Wrap the siblings in a Fragment
+      <>
+        <AccessibilityToolbar />
+
+        <VLibras />
+        
         <Routes>
             {/* ATENÇÃO: Os paths devem ser URLs, não nomes de arquivos */}
             <Route path="/cadastrar" element={<CadastrarPage />} /> {/* Rota para a página de cadastro */}
@@ -25,10 +35,11 @@ function App() {
                 <Route path="/cursos/:id" element={<CourseDetailPage />} /> {/* Rota para detalhes do curso */}
                 <Route path="/trilhas" element={<TrilhasPage />} />
                 <Route path="/perfil" element={<PerfilPage />} />
-                <Route path="/aulas/:trilhaId" element={<AulasPage />} />
+                <Route path="/aulas/:trailId" element={<AulasPage />} />
                 <Route path="/sobre" element={<SobrePage />} />
             </Route>
         </Routes>
+      </>
     );
 }
 

@@ -1,7 +1,7 @@
 //src/components/layout/header.tsx
 
 import { Moon, Sun, SunMoon } from "lucide-react"
-import { useTheme } from "../effects/theme-provider"
+import { useTheme } from "../effects/themeProvider"
 import SimpleLink from "../common/simpleLink"
 import { Button } from "../ui/button"
 import {APP_TITLE} from "@/config/api"

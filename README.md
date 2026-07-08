@@ -1,8 +1,18 @@
-# PROJOURNEY
+# ProJourney
+
+## Índice
+
+- [Sobre o Projeto](#sobre-o-projeto)
+- [Recursos](#recursos-disponíveis)
+- [Dependências](#principais-dependências)
+- [Instalação](#instalação)
+- [Arquitetura](#arquitetura-do-sistema)
+- [Documentação](#documentação)
+- [Contribuidores](#desenvolvedores-que-contribuíram-e-os-que-ainda-contribuem-para-o-projeto)
 
 ---
 
-O **Projourne** é um projeto acadêmico desenvolvido por estudantes do curso de Tecnologia de Sistemas para a Internet - TSI - do Instituto Federal de Pernambuco, Campos Igarassu. O mesmo tem, na sua origem, como principal objetivo o redirecionamento de seus usuários para cursos onlines gratuitos com boa aprovação ou avaliação  popular. Permitindo seguir uma sequencia de cursos online,  denominadas como **Trilas**, que formam o conteúdo educacional necessário para uma determinada formação profissional ou pessoal.
+O **ProJourney** é um projeto acadêmico desenvolvido por estudantes do curso de Tecnologia de Sistemas para a Internet - TSI - do Instituto Federal de Pernambuco, Campos Igarassu. O mesmo tem, na sua origem, como principal objetivo o redirecionamento de seus usuários para cursos onlines gratuitos com boa aprovação ou avaliação popular. Permitindo seguir uma sequencia de cursos online, denominadas como **Trilhas**, que formam o conteúdo educacional necessário para uma determinada formação profissional ou pessoal.
 
 ---
 
@@ -18,90 +28,190 @@ O **Projourne** é um projeto acadêmico desenvolvido por estudantes do curso de
 
 ---
 
-## Principais Dependências:
+## Principais Dependências
 
-1. **Frontend:**
-    - Node.js v22.22.1
-    - nmp 10.9.4
+### Backend
 
-1. **Backend:**
-    - PHP version 8.5.0
-        - php-mysql
-    - Conposer 2.8.12
-    - mysql-server 8.0
+| Dependência | Versão | Função |
+|-------------|--------|--------|
+| PHP | ^8.3 | Linguagem do backend |
+| Laravel | ^13.7 | Framework PHP |
+| Composer | - | Gerenciador de pacotes PHP |
+| MySQL | - | Banco de dados |
+| php-mysql | - | Extensão PHP para MySQL |
+
+### Backend - Pacotes Laravel
+
+| Pacote | Versão | Função |
+|--------|--------|--------|
+| `inertiajs/inertia-laravel` | ^3.0 | Ponte Laravel + React (admin) |
+| `laravel/sanctum` | ^4.3 | Autenticação SPA (HttpOnly + CSRF) |
+| `laravel/fortify` | ^1.37.2 | Autenticação backend |
+| `tightenco/ziggy` | * | Rotas Laravel no frontend |
+
+### Frontend
+
+| Dependência | Versão | Função |
+|-------------|--------|--------|
+| Node.js | LTS | Runtime JavaScript |
+| npm | 10.9.4 | Gerenciador de pacotes |
+| React | ^19.1.0 | Framework UI |
+| TypeScript | ^5.8.3 | Superset tipado |
+| Vite | ^6.3.5 | Bundler e dev server |
+
+### Frontend - Principais Pacotes
+
+| Pacote | Versão | Função |
+|--------|--------|--------|
+| `react-router-dom` | ^7.6.2 | Roteamento SPA |
+| `axios` | ^1.7.9 | Cliente HTTP |
+| `tailwindcss` | ^3.4.1 | Framework CSS |
+| `@radix-ui/*` | latest | Componentes de UI |
+| `lucide-react` | ^0.523.0 | Ícones |
+| `shadcn/ui` | - | Componentes UI |
 
 
-## Instalação:
+---
 
-1. **api_php:**
-    - Executar o comando ```composer install```;
-    - Criar e configurar arquivo de variáveis de ambiente (```.env```);
-    - Teste localmente: ```php -S localhost:8000```
+## Instalação e Comandos
 
-1. **frontend_react:**
-    - Executar o comando ```npm install```;
-    - Criar e configurar arquivo de variáveis de ambiente (```.env```);
-    - Teste localmente: ```npm rum dev```
+### 1. backend_laravel
 
-1. **Banco de Dados:**
-    - Ter instalado o SGBD MySQL;
-    - Popular o banco de dados com o script SQL do arquivo "db_backup_projourney_php.sql": 
-        - ```mysql -u <usuário> -p < db_backup_projourney_php.sql```
+```bash
+# Entrar no diretório
+cd backend_laravel
 
-## Arquitetura do Software Para Essa Versão:
+# Instalar dependências PHP
+composer install
+
+# Copiar e configurar .env
+cp .env.example .env
+
+# Gerar chave da aplicação
+php artisan key:generate
+
+# Rodar migrações do banco
+php artisan migrate
+
+# Popular banco com dados (opcional)
+php artisan db:seed
+
+# Rodar servidor de desenvolvimento
+php artisan serve
+# Ou alternativamente:
+php -S localhost:8000
+# Ou
+composer run dev # para Laravel (PHP) e VITE (NodeJS)
 ```
-Projourney
-.
-├── api_php
-│   ├── banco
-│   │   ├── db_backup_projournei_php.sql
-│   │   └── db_projourney_php.sql
-│   ├── composer.json
-│   ├── composer.lock
-│   ├── css
-│   │   └── styles.css
-│   ├── src
-│   │   ├── atualizar_progresso.php
-│   │   ├── auth.php
-│   │   ├── cadastrar_aluno.php
-│   │   ├── cursos_da_trilha.php
-│   │   ├── db.php
-│   │   ├── delete_user_trail.php
-│   │   ├── index.php
-│   │   ├── inscrever_trilha.php
-│   │   ├── listar_trilhas.php
-│   │   ├── login.php
-│   │   └── perfil_aluno.php
-│   └── vendor
-├── frontend_react
-│   ├── dist
-│   │   ├── teste2.js
-│   │   └── teste.js
-│   ├── index.html
-│   ├── node_modules
-│   ├── package.json
-│   ├── package-lock.json
-│   ├── postcss.config.js
-│   ├── public
-│   │   └── image
-│   ├── README.md
-│   ├── src
-│   │   ├── app.tsx
-│   │   ├── assets
-│   │   ├── components
-│   │   ├── config
-│   │   ├── lib
-│   │   ├── main.tsx
-│   │   ├── pages
-│   │   └── types
-│   ├── tailwind.config.js
-│   ├── tsconfig.json
-│   ├── tutorial.md
-│   └── vite.config.ts
-└── README.md
 
-210 directories, 32 files
+### 2. frontend_react
+
+```bash
+# Entrar no diretório
+cd frontend_react
+
+# Instalar dependências npm
+npm install
+
+# Copiar e configurar .env
+cp .env.example .env
+
+# Rodar em desenvolvimento
+npm run dev
+# → http://localhost:5173 ou outra porta próxima.
 ```
+
+### 3. Banco de Dados
+
+```bash
+# Criar banco MySQL
+mysql -u root -p
+> CREATE DATABASE projourney_laravel;
+
+# Ou rodar migrations diretamente
+php artisan migrate
+
+# Seed (opcional - importa dados do legado)
+php artisan db:seed
+```
+
+---
+
+### Visão Geral
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                         ProJourney                              │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ┌──────────────────────┐         ┌─────────────────────────┐   │
+│  │   Frontend SPA       │         │   Backend Laravel 13    │   │
+│  │   (React 19 + TS)    │◄───────►│   (API + Inertia)       │   │
+│  │   localhost:5174     │  CORS   │   localhost:8000        │   │
+│  │                      │         │                         │   │
+│  │  • Pages (8)         │         │  • Web Routes (Inertia) │   │
+│  │  • Components        │         │  • API Routes (/api/v1) │   │
+│  │  • shadcn/ui         │         │  • Controllers          │   │
+│  │  • Tailwind CSS      │         │  • Models + Relations   │   │
+│  └──────────────────────┘         └─────────────────────────┘   │
+│                                                │                │
+│                     ┌──────────────────────────┘                │
+│                     │                                           │
+│                     ▼                                           │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │           MySQL Database (projourney_laravel)            │   │
+│  │                                                          │   │
+│  │  • users (id, name, email, password, role, ...)          │   │
+│  │  • trails (id, name)                                     │   │
+│  │  • courses (id, name, level, link_course)                │   │
+│  │  • trail_courses (pivot: trail_id, course_id)            │   │
+│  │  • sessions (Laravel session driver)                     │   │
+│  │  • cache, jobs, failed_jobs (Laravel infrastructure)     │   │
+│  └──────────────────────────────────────────────────────────┘   │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Fluxo de Autenticação (SPA → API)
+
+```
+1. LOGIN (POST /api/v1/login)
+   ┌──────────────┐         ┌─────────────────┐         ┌─────────┐
+   │   React SPA  │         │  Laravel API    │         │  MySQL  │
+   │              │  POST   │                 │  QUERY  │         │
+   │  {email,     │────────►│  AuthController │────────►│  users  │
+   │   password}  │         │  login()        │         │         │
+   │              │         │                 │         │         │
+   │              │◄────────│  200 OK +       │         │         │
+   │              │         │  Set-Cookie:    │         │         │
+   │              │         │  laravel_session│         │         │
+   │              │         │  XSRF-TOKEN     │         │         │
+   └──────────────┘         └─────────────────┘         └─────────┘
+
+2. REQUIS SUBSEQUENTES (X-XSRF-TOKEN + Cookie HttpOnly)
+   ┌──────────────┐         ┌─────────────────┐
+   │   React SPA  │         │  Laravel API    │
+   │              │  GET    │  auth:sanctum   │
+   │  /api/v1/    │────────►│  middleware     │
+   │  profile     │         │                 │
+   │  Headers:    │         │                 │
+   │  Cookie:     │         │                 │
+   │  X-XSRF-     │         │                 │
+   │  TOKEN:      │         │                 │
+   └──────────────┘         └─────────────────┘
+```
+
+## Documentação
+
+| Documento | Link |
+|-----------|------|
+| [Backend Laravel](backend_laravel/README.md) | Arquitetura do backend Laravel + Inertia |
+| [Frontend React](frontend_react/README.md) | Arquitetura da SPA React |
+| [Database Schema](backend_laravel/documentations/database.md) | Estrutura do banco de dados |
+| [CSRF + HttpOnly](backend_laravel/documentations/csrf-http-only-implementation.md) | Segurança com Sanctum SPA |
+| [Gate/Policy Authorization](backend_laravel/documentations/gate-policy-admin-authorization.md) | Autorização baseada em roles |
+
+---
 
 ## Desenvolvedores que contribuíram e os que ainda contribuem para o projeto:
 
@@ -112,11 +222,9 @@ Projourney
 * [Maviael Melo](https://github.com/MaviMelo)
 * [Gabriel Henrique](https://github.com/crocodileBigger)
 * [Victor Soares](https://github.com/VSoares27)
-* [Diego](https://github.com/Diego-jpeg-27)
+* [José Diego](https://github.com/Diego-jpeg-27)
 
 ## Professores orientadores ao longo do projeto:
 * [Liliane](https://github.com/lilialnas)
 * [Emaur Florêncio](https://github.com/)
 * [Macone J. Silva](https://github.com/)
-
-

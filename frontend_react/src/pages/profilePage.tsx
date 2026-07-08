@@ -1,21 +1,24 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import {BASE_URL} from "@/config/api";
-import { User, BookOpen, MoreVertical, Loader2, AlertCircle, CheckCircle, LogOut, Trash2 } from
-    "lucide-react";
-import ParticleBackground from "@/components/effects/particlebackground";
+import { apiFetch, initAuth } from '@/lib/api';
+import { User, BookOpen, MoreVertical, Loader2, AlertCircle, CheckCircle, LogOut, Trash2 } from "lucide-react";
+import { LogoutButton } from "@/components/effects/logout";
 
 // --- Interfaces para Tipagem dos Dados ---
-interface Usuario {
+interface User {
     id: number;
-    nome: string;
+    name: string;
     email: string;
 }
 
-interface TrilhaInscrita {
+interface Trail {
     id: number;
-    nome: string;
-    progresso: 'Inscrito' | 'Cursando' | 'Suspenso' | 'Concluido';
+    name: string;
+    progress: 'Inscrito' | 'Cursando' | 'Suspenso' | 'Concluído';
+    pivot: {
+        id: number;
+        progress: 'Inscrito' | 'Cursando' | 'Suspenso' | 'Concluído';
+    };
 }
 
 // Mapeamento de cores para os status
@@ -23,66 +26,56 @@ const statusColors: { [key: string]: string } = {
     Inscrito: 'bg-blue-700/20 text-blue-300 border-blue-500/30',
     Cursando: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30',
     Suspenso: 'bg-gray-100/20 text-gray-300 border-gray-500/30',
-    Concluido: 'bg-green-500/20 text-green-300 border-green-500/30',
+    Concluído: 'bg-green-500/20 text-green-300 border-green-500/30',
 };
 
 export default function PerfilPage(): React.JSX.Element {
     const navigate = useNavigate();
 
     // --- Estados do Componente ---
-    const [usuario, setUsuario] = useState<Usuario | null>(null);
-    const [trilhas, setTrilhas] = useState<TrilhaInscrita[]>([]);
-    const [status, setStatus] = useState<'loading' | 'idle' | 'error'>('loading');
+    const [user, setUser] = useState<User | null>(null);
+    const [trails, setTrails] = useState<Trail[]>([]);
+    const [status, setStatus] = useState<'loading' | 'success' | 'idle' | 'error'>('loading');
     const [feedback, setFeedback] = useState<string>('');
-    const [alert, setAlert] = useState<{ message: string; type: 'error' | 'success' } | null>(null);
+    const [alert, setAlert] = useState<{ status: string, message: string } | null>(null);
 
     // --- Função para disparar alertas (Fora de qualquer outro hook/função) ---
-    const showAlert = (message: string, type: 'error' | 'success') => {
-        setAlert({ message, type });
+    const showAlert = (status: string, message: string) => {
+        setAlert({ status, message });
         setTimeout(() => setAlert(null), 5000);
     };
 
     // --- Função para Buscar Dados do Perfil ---
     useEffect(() => {
-        const dadosUsuarioString = localStorage.getItem('usuarioLogado');
-        if (!dadosUsuarioString) {
+        initAuth();
+        const userData = localStorage.getItem('loggedUser');
+
+        if (!userData) {
             navigate('/login');
             return; // Se não houver usuário
         }
-        const usuarioLogado: Usuario = JSON.parse(dadosUsuarioString);
-        setUsuario(usuarioLogado); // Define o usuário no estado
+        const loggedUser: User = JSON.parse(userData);
+        setUser(loggedUser); // Define o usuário no estado
 
         // Função interna para buscar os dados
-        const carregarDadosDoPerfil = async () => {
+        const loadProfileData = async () => {
             setStatus('loading');
             try {
+                const response = await apiFetch('/profile');
 
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    navigate('/login');
-                    return; // Se não houver token (mesmo que já tenha verificado antes)
-                };
-
-                const response = await fetch(`${BASE_URL}/perfil_aluno.php?alunoId=${usuarioLogado.id}`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                });
-                if (!response.ok) {
-                    if (response.status === 401 || response.status === 403) {
+                if (response.status !== 'success') {
+                    if (response.data === 401 || response.data === 403) {
                         window.alert("Sua sessão expirou ou é inválida. Faça login novamente.");
-                        localStorage.removeItem('token'); // Limpa o token inválido
-                        localStorage.removeItem('usuarioLogado');
+                        localStorage.removeItem('loggedUser');
                         navigate('/login');
                         return;
                     }
-                    throw new Error('Falha ao carregar dados do perfil.');
+                    throw new Error(response.message || 'Falha ao carregar dados do perfil.');
                 }
-                const data = await response.json();
-                setTrilhas(data.trilhas);
-                setStatus('idle');
+                const data = response.data as { user: { trails: Trail[] }, status: 'loading' | 'success' | 'idle' | 'error', message: string };
+                setTrails(data.user.trails || []);
+                setStatus(data.status);
+                showAlert(data.status, data.message);
 
             } catch (err) {
                 setFeedback(err instanceof Error ? err.message : 'Erro desconhecido.');
@@ -90,62 +83,62 @@ export default function PerfilPage(): React.JSX.Element {
             }
         };
 
-        carregarDadosDoPerfil();
+        loadProfileData();
 
     }, [navigate]);
 
 
     // --- Função para Atualizar o Progresso ---
-    const handleProgressoChange = async (trilhaId: number, novoProgresso: TrilhaInscrita['progresso']) => {
-        if (!usuario) return;
+    const handleProgressoChange = async (pivotId: number, newProgress: Trail['progress']) => {
+        if (!user) return;
 
-        // Otimização: Atualiza a UI primeiro para uma resposta mais rápida
-        const trilhasAntigas = [...trilhas];
-        setTrilhas(trilhas.map(t => t.id === trilhaId ? { ...t, progresso: novoProgresso } : t));
+        const oldTrail = [...trails];
+        const alreadyUpdate = trails.find(t => t.pivot.id === pivotId);
+        if (alreadyUpdate && alreadyUpdate.pivot.progress === newProgress) { return };
+
 
         try {
-            const response = await fetch(`${BASE_URL}/atualizar_progresso.php`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+            const response = await apiFetch(`/trailUser/${pivotId}`, {
+                method: 'PATCH',
                 body: JSON.stringify({
-                    alunoId: usuario.id,
-                    trilhaId: trilhaId,
-                    progresso: novoProgresso,
+                    user_id: user.id,
+                    // pivot_id: pivotId,
+                    progress: newProgress,
                 }),
             });
-            if (!response.ok) throw new Error('Falha ao atualizar o progresso.');
+
+            if (response.status !== 'success') throw new Error('Falha ao atualizar o progresso.');
+
+            const result = response.data as { progress: Trail['progress'], status: string, message: string };
+
+            // Otimização: Atualiza a UI para exibir o dado atializado sem recarregar o componente pelo loadProfileData() (request mais cara).
+            setTrails(trails.map(t => t.pivot.id === pivotId ? { ...t, pivot: { ...t.pivot, progress: result.progress } } : t));
+
+            showAlert(result.status, result.message);
+
         } catch (err) {
-            showAlert("Não foi possível atualizar o progresso.", "error");
-            setTrilhas(trilhasAntigas);
+            showAlert("error", "Não foi possível atualizar o progresso!");
+            setTrails(oldTrail);
         }
     };
 
-    const handleDelete = async (trilhaId: number) => {
-        if (!window.confirm("Tem certeza que deseja excluir esta trilha?")) return;
+    const handleDelete = async (trail: Trail) => {
+        window.confirm("Tem certeza que deseja excluir esta trilha?");
 
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`${BASE_URL}/delete_user_trail.php?trilhaId=${trilhaId}`, {
+            const response = await apiFetch(`/trailUser/${trail.pivot.id}`, {
                 method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
             });
-            const result = await response.json();
-            if (!response.ok) throw new Error(result.mensagem || 'Falha ao excluir a trilha.');
+            const result = response.data as { status: string, message: string };
+            if (response.status !== 'success') throw new Error(result.message || 'Falha ao excluir a trilha.');
 
             // Exibir mensagem de sucesso
-            showAlert(result.mensagem || "Trilha excluída com sucesso.", "success");
+            showAlert("success", result.message);
 
-            setTrilhas(trilhas.filter(t => t.id !== trilhaId));
+            setTrails(trails.filter(t => t.id !== trail.id));
         } catch (err) {
-            showAlert(err instanceof Error ? err.message : "Erro ao excluir trilha.", "error");
+            showAlert(err instanceof Error ? err.message : "error", "Erro ao excluir trilha.");
         }
-    };
-
-    const handleLogout = () => {
-        localStorage.removeItem('usuarioLogado');
-        navigate('/login');
     };
 
     if (status === 'loading') {
@@ -156,7 +149,7 @@ export default function PerfilPage(): React.JSX.Element {
         );
     }
 
-    if (status === 'error' || !usuario) {
+    if (status === 'error' || !user) {
         return (
             <div className="centralize">
                 <AlertCircle className="w-16 h-16 text-red-400 mb-4" />
@@ -170,24 +163,20 @@ export default function PerfilPage(): React.JSX.Element {
     return (
 
         <>
-            <ParticleBackground />
             <div className="max-w-6xl mx-auto p-4 sm:p-8">
                 {/* Cabeçalho do Perfil */}
 
                 <header className="itemsJustify">
                     <div>
-                        <h1 className="title text-5xl">Olá, {usuario.nome.split(' ')[0]}!</h1>
+                        <h1 className="title text-5xl">Olá, {user.name.split(' ')[0]}!</h1>
                         <p className="">Aqui está o resumo da sua jornada de aprendizado.</p>
                     </div>
 
-                    <button onClick={handleLogout} className="buttonNav">
-                        <LogOut size={16} />
-                        Sair
-                    </button>
+                    <LogoutButton />
 
                 </header>
                 {alert && (
-                    <div className={`${alert.type === 'error' ? 'warningError' : 'warningSuccess'}`}>
+                    <div className={`${alert.status === 'error' ? 'warningError' : 'warningSuccess'}`}>
                         {alert.message}
                     </div>
                 )}
@@ -200,21 +189,21 @@ export default function PerfilPage(): React.JSX.Element {
                         Minhas Trilhas
                     </h2>
 
-                    {trilhas.length > 0 ? (
+                    {trails.length > 0 ? (
                         <div className="containerGrid ">
-                            {trilhas.map(trilha => (
-                                <div key={trilha.id} className="card1">
+                            {trails.map(trail => (
+                                <div key={trail.id} className="card1">
                                     <div>
                                         <h3 className="textCard3">
                                             <Link
-                                                to={`/aulas/${trilha.id}`}
+                                                to={`/aulas/${trail.id}`}
                                                 className="textLink"
                                             >
-                                                {trilha.nome}
+                                                {trail.name}
                                             </Link>
                                         </h3>
-                                        <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${statusColors[trilha.progresso]}`}>
-                                            {trilha.progresso}
+                                        <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${statusColors[trail.pivot.progress]}`}>
+                                            {trail.pivot.progress}
                                         </div>
                                     </div>
                                     <div className="mt-6 relative">
@@ -228,7 +217,7 @@ export default function PerfilPage(): React.JSX.Element {
                                                     <button
                                                         key={statusKey}
                                                         onClick={(e) => {
-                                                            handleProgressoChange(trilha.id, statusKey as TrilhaInscrita['progresso']);
+                                                            handleProgressoChange(trail.pivot.id, statusKey as Trail['progress']);
                                                             (e.target as HTMLElement).closest('details')?.removeAttribute('open');
                                                         }}
                                                         className="centralize2 linkGreen"
@@ -240,7 +229,7 @@ export default function PerfilPage(): React.JSX.Element {
                                         </details>
                                         <button
                                             className="itemsJustify linkRed"
-                                            onClick={() => handleDelete(trilha.id)}
+                                            onClick={() => handleDelete(trail)}
                                         >
                                             Excluir
                                             <Trash2 />
@@ -263,4 +252,3 @@ export default function PerfilPage(): React.JSX.Element {
         </>
     );
 }
-

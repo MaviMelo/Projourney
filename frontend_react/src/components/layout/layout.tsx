@@ -2,7 +2,7 @@
 
 import {Outlet} from 'react-router-dom';
 import Header from './header';
-import ParticleBackground from '../effects/particlebackground';
+import ParticleBackground from '../effects/particleBackground';
 
 
 export default function Layout() {
