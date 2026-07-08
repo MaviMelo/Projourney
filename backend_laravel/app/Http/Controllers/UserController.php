@@ -7,11 +7,16 @@ use App\Models\User;
 use Inertia\Inertia;
 use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\Hash;
-use Inertia\Response;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\View;
+
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Auth;
+
+// use Illuminate\Support\Facades\DB;
+// use Illuminate\Database\Eloquent\ModelNotFoundException;
+// use Inertia\Response;
+// use Illuminate\Support\Facades\View;
+
 
 
 class UserController extends Controller
@@ -36,6 +41,10 @@ class UserController extends Controller
 
     public function indexCollaborators()
     {
+        $user = Auth::user();
+        // Gate: Only root 
+        Gate::authorize('manage-users', $user);
+
         $users = User::whereIn('role', ['root', 'admin'])->latest()->paginate(15);
 
         return Inertia::render('dashboard', [
@@ -100,6 +109,7 @@ class UserController extends Controller
      */
     public function edit(string $id)
     {
+        Gate::authorize('manage-users');
 
         $user = User::findOrFail($id);
 
@@ -113,6 +123,8 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        Gate::authorize('manage-users');
+
         $user = User::findOrFail($id);
 
         $validated = $request->validate([
@@ -144,9 +156,7 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
-        // Optional: authorize via Gate or Policy
-        // $this->authorize('delete', $user);
-
+        Gate::authorize('manage-users');
 
         try {
             $user = User::findOrFail($id);
@@ -175,7 +185,7 @@ class UserController extends Controller
 
             return redirect()->back()->with('message', [
                 'status'  => 'error',
-                'msg' => 'Erro ao tentar excluir (código: '. $statusCode.').',
+                'msg' => 'Erro ao tentar excluir (código: ' . $statusCode . ').',
             ]);
         }
     }

@@ -8,7 +8,7 @@ use App\Http\Controllers\UserController;
 
 Route::inertia('/', 'welcome')->name('home');
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     
     Route::inertia('/register', 'register')->name('register');
     
@@ -28,7 +28,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         'trail' => TrailController::class,
         'trailCourse' => TrailCourseController::class,
     ]);
+
+    require __DIR__ . '/settings.php';
 });
-
-
-require __DIR__ . '/settings.php';

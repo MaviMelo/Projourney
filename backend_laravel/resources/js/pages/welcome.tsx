@@ -404,7 +404,7 @@ export default function Welcome() {
                     <br/>
                     ou
                     <br/>
-                     adm@email.com (senha: adm1234567890).
+                     adm@email.com (senha: adm1234567890), *com credenciais limitadas.
                     <br/>
                 </div>
             </div>

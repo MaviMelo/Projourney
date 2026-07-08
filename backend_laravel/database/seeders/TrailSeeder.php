@@ -22,16 +22,10 @@ class TrailSeeder extends Seeder
         ]);
 
         Trail::insert([
-            ['name' => 'Computação em Nuvem (AWS)'],
+            ['name' => 'Desenvolvimento Backend'],
+            ['name' => 'Desenvolvimento Full Stack'],
             ['name' => 'Interconexão e Serviços de Redes (ISR)'],
 
         ]);
     }
 }
-
-
-/* 
-(3,'Desenvolvimento Backend'),
-(4,'Desenvolvimento Mobile'),
-(5,'Desenvolvimento Full Stack')
-*/
