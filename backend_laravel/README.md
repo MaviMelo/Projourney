@@ -1,12 +1,253 @@
 # Migração do Backend para Laravel
 
+## Status: MIGRAÇÃO CONCLUÍDA
+
+Backend migration completed as of 2026-07-07. All CRUD operations, authentication, and authorization implemented.
+
 ## Índice
 
-- [Recursos Instalados no Laravel](#recursos-instalados-no-laravel)
-- [Backlog](documentations/backlog.md)
-- [Documentação das Tabelas do Baco de Dados](documentations/database.md)
+- [Arquitetura Atual](#arquitetura-atual)
+- [Dependências](#dependências)
+- [Comandos](#comandos-para-desenvolvimento)
+- [Recursos Implementados](#recursos-implementados)
+- [Autorização](#configuração-de-autorização)
+- [Rotas Protegidas](#rotas-protegidas)
+- [Documentação](#documentação)
+- [Histórico: PHP Vanilla](#histórico-relatório-php-vanilla)
 
-## Relatório Projourney (PHP Vanila)
+---
+
+## Arquitetura Atual (Laravel 13)
+
+### Stack
+
+| Camada | Tecnologia |
+|--------|------------|
+| Backend | Laravel 13 + PHP 8.2 + MySQL/MariaDB |
+| Frontend Admin | Inertia.js + React 19 + TypeScript + Vite |
+| Frontend SPA | React 19 + TypeScript + Vite + Tailwind |
+| Autenticação (SPA) | Laravel Sanctum (HttpOnly cookie + CSRF token) |
+| Autorização | Gates + Policies (roles: user, adm, root) |
+| Senhas | Argon2ID (via Laravel Hash) |
+
+### Diagrama de Arquitetura
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│                    ARQUITETURA DO BACKEND LARAVEL - ProJourney   │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌──────────────────────────────────────────────────────────┐    │
+│  │                   ROTAS (routes/)                        │    │
+│  │                                                          │    │
+│  │  ┌─────────────────────┐  ┌────────────────────────────┐ │    │
+│  │  │  web.php (Inertia)  │  │  api.php (SPA Backend)     │ │    │
+│  │  │  /dashboard         │  │  /api/v1/login             │ │    │
+│  │  │  /user              │  │  /api/v1/profile           │ │    │
+│  │  │  /settings          │  │  /api/v1/trails            │ │    │
+│  │  │  /courses           │  │  /api/v1/enrollments       │ │    │
+│  │  │  /trails            │  │                            │ │    │
+│  │  └─────────────────────┘  └────────────────────────────┘ │    │
+│  └──────────────────────────────────────────────────────────┘    │
+│            │                                  │                  │
+│            ▼                                  ▼                  │
+│  ┌─────────────────────┐            ┌─────────────────────┐      │
+│  │  MIDDLEWARES        │            │  CONTROLLERS        │      │
+│  │                     │            │                     │      │
+│  │  • auth (Sanctum)   │            │  UserController     │      │
+│  │  • verified         │            │  TrailController    │      │
+│  │  • admin            │            │  CourseController   │      │
+│  │  • EnsureCsrfToken  │            │  AuthController     │      │
+│  └─────────────────────┘            └─────────────────────┘      │
+│            │                                  │                  │
+│            └─────────────┬────────────────────┘                  │
+│                          ▼                                       │
+│  ┌──────────────────────────────────────────────────────────┐    │
+│  │                   MODELS (app/Models/)                   │    │
+│  │                                                          │    │
+│  │  User ──<sessions>── Trail >───< courses                 │    │
+│  │         └── role: user/adm/root ──┘   └── level          │    │
+│  │                                      └── link_course     │    │
+│  └──────────────────────────────────────────────────────────┘    │
+│                          │                                       │
+│                          ▼                                       │
+│  ┌──────────────────────────────────────────────────────────┐    │
+│  │           MYSQL (projourney_laravel)                     │    │
+│  │  users | trails | courses | trail_courses | sessions     │    │
+│  └──────────────────────────────────────────────────────────┘    │
+│                                                                  │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+### Fluxo Inertia (Admin) vs API (SPA)
+
+```
+INERTIA (Admin Panel - routes/web.php)
+─────────────────────────────────────
+Browser GET /dashboard ──► Route (web.php + middleware)
+                         ──► UserController@index
+                         ──► Inertia::render('dashboard', $props)
+                         ──► Response: HTML (1ª visita) ou JSON (SPA nav)
+                         ──► React component renderiza
+
+API (SPA - routes/api.php)
+─────────────────────────────────────
+POST /api/v1/login ──► Route (api.php)
+                     ──► AuthController@login
+                     ──► Auth::attempt() → Session + XSRF-TOKEN
+                     ──► Response: 204 No Content + Cookies
+                     
+GET /api/v1/profile ──► Route (api.php + auth:sanctum)
+                      ──► ProfileController
+                      ──► Response: JSON { user, trails }
+```
+
+---
+
+## Dependências
+
+### Requisitos do Sistema
+
+| Dependência | Versão | Função |
+|-------------|--------|--------|
+| PHP | ^8.3 | Linguagem do backend |
+| Composer | - | Gerenciador de pacotes PHP |
+| MySQL/MariaDB | - | Banco de dados |
+| php-mysql | - | Extensão PHP para MySQL |
+
+### Pacotes Laravel Principais
+
+| Pacote | Versão | Função |
+|--------|--------|--------|
+| `laravel/framework` | ^13.7 | Framework Laravel |
+| `inertiajs/inertia-laravel` | ^3.0 | Ponte Laravel + React (admin) |
+| `laravel/sanctum` | ^4.3 | Autenticação SPA (HttpOnly + CSRF) |
+| `laravel/fortify` | ^1.37.2 | Autenticação backend |
+| `tightenco/ziggy` | * | Rotas Laravel no React |
+| `laravel/boost` | ^2.2 | Ferramentas de desenvolvimento |
+
+### Dependências de Desenvolvimento
+
+| Pacote | Função |
+|--------|--------|
+| `fakerphp/faker` | Geração de dados falsos |
+| `laravel/pail` | Log viewer em tempo real |
+| `laravel/pint` | Code formatter |
+| `laravel/sail` | Docker development |
+| `pestphp/pest` | Testing framework |
+| `mockery/mockery` | Mock objects para testes |
+
+---
+
+## Comandos para Desenvolvimento
+
+### Instalação
+
+```bash
+# Entrar no diretório
+cd backend_laravel
+
+# Instalar dependências PHP
+composer install
+
+# Copiar arquivo de ambiente
+cp .env.example .env
+
+# Gerar chave da aplicação
+php artisan key:generate
+
+# Configurar banco de dados no .env
+# DB_DATABASE=projourney_laravel
+# DB_USERNAME=seu_usuario
+# DB_PASSWORD=sua_senha
+```
+
+### Banco de Dados
+
+```bash
+# Rodar migrações
+php artisan migrate
+
+# Popular banco com dados seed
+php artisan db:seed
+
+# Criar backup do banco
+mysqldump -u root -p projourney_laravel > backup.sql
+```
+
+### Servidor de Desenvolvimento
+
+```bash
+# Iniciar servidor artisan
+php artisan serve
+# → http://localhost:8000
+
+# Alternativa (PHP built-in)
+php -S localhost:8000 -t public
+
+# Logs em tempo real
+php artisan pail
+```
+
+### Comandos Úteis
+
+```bash
+# Limpar caches
+php artisan cache:clear
+php artisan config:clear
+php artisan view:clear
+
+# Otimizar produção
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+# Gerar IDE helper (opcional)
+composer require --dev barryvdh/laravel-ide-helper
+php artisan ide-helper:generate
+```
+
+---
+
+### Recursos Implementados
+
+| Módulo | Status | Detalhes |
+|--------|--------|----------|
+| Autenticação | ✅ | Login/registro com sessão HttpOnly + CSRF (Sanctum SPA mode) |
+| Token Rotation | ✅ | Refresh automático de tokens com validade de 24h |
+| Gates/Policies | ✅ | Autorização baseada em roles (`user`, `adm`, `root`) |
+| CRUD Usuários | ✅ | Gerenciamento apenas por usuários `root` |
+| CRUD Trilhas | ✅ | Admins (`adm` + `root`) podem gerenciar |
+| CRUD Cursos | ✅ | Admins (`adm` + `root`) podem gerenciar |
+| Relacionamento N:N | ✅ | Tabela pivô `trail_courses` populada |
+| Seed de Dados | ✅ | 8 trilhas, 19 cursos, 50+ relações importadas do legado |
+
+### Configuração de Autorização
+
+| Role | Permissões |
+|------|------------|
+| `user` | Operações de usuário comum (perfil, settings pessoais) |
+| `adm` | Painel admin + visualização de usuários/cursos/trilhas |
+| `root` | Todos privilégios de `adm` + criar/editar/excluir usuários |
+
+### Rotas Protegidas
+
+```php
+// Middleware: ['auth', 'verified', 'admin']
+- GET  /settings          → Settings page (apenas admins)
+- GET  /dashboard         → Dashboard com listagem de usuários
+- GET  /user              → Listar usuários comuns
+- GET  /user/create       → Form创建 usuário
+- POST /user              → Store usuário
+- GET  /user/{id}/edit    → Editar usuário (apenas root via Gate)
+- PUT  /user/{id}         → Update usuário (apenas root via Gate)
+- DELETE /user/{id}       → Delete usuário (apenas root via Gate)
+- Resource: trails, courses → CRUD completo para admins
+```
+
+---
+
+## Histórico: Relatório PHP Vanilla
 
   ---
   Projourney — Plataforma de Trilhas de Cursos Online Gratuitos
@@ -64,24 +305,20 @@
   - Estado: localStorage (token JWT + dados do usuário)
   - UI: shadcn/ui + Radix + Lucide icons + Tailwind
 
-  3. Branch atual: migration/api-laravel-2
+  ## Documentação
 
-  Em processo de migração do backend PHP puro para Laravel.
+| Documento | Descrição |
+|-----------|-----------|
+| [Database Schema](documentations/database.md) | Estrutura das tabelas do banco de dados |
+| [Backlog](documentations/backlog.md) | Histórico de tarefas da migração |
+| [Inertia + React Stack](documentations/inertia-react-stack.md) | Arquitetura frontend com Inertia.js |
+| [CSRF + HttpOnly Implementation](documentations/csrf-http-only-implementation.md) | Implementação de segurança com Sanctum SPA |
+| [Gate/Policy Authorization](documentations/gate-policy-admin-authorization.md) | Sistema de autorização baseado em roles |
+| [Database Seeding (Legacy)](documentations/populate-database-legacy-backup.md) | Importação de dados do PHP Vanilla |
 
-  ---
+---
 
-  ---
-
-  🏗 Stack
-
-  |    Camada    |                     Tecnologia                      |
-  |--------------|-----------------------------------------------------|
-  | Backend      | PHP 8+ (puro, sem framework) + MySQL 8              |
-  | Frontend     | React 19 + TypeScript + Vite + Tailwind + shadcn/ui |
-  | Autenticação | JWT (firebase/php-jwt, HS256)                       |
-  | Senhas       | Argon2ID                                            |
-
-  📁 Estrutura
+## Histórico: Backend PHP Vanilla (Legado)
 ```bash
   Projourney/
   ├── api_php/                  # Backend PHP puro
@@ -226,5 +463,22 @@ Projourney$ laravel new backend_laravel
  New to Laravel? Check out our documentation. Build something amazing!
  
 ```
+
+---
+
+## Documentação do Projeto
+
+| Documento | Descrição |
+|-----------|-----------|
+| [📄 Database Schema](documentations/database.md) | Estrutura das tabelas do banco de dados |
+| [📋 Backlog](documentations/backlog.md) | Histórico de tarefas da migração (concluída) |
+| [⚛️ Inertia + React Stack](documentations/inertia-react-stack.md) | Arquitetura frontend com Inertia.js |
+| [🔐 CSRF + HttpOnly](documentations/csrf-http-only-implementation.md) | Implementação de segurança com Sanctum SPA |
+| [👥 Gate/Policy Authorization](documentations/gate-policy-admin-authorization.md) | Sistema de autorização baseado em roles |
+| [📦 Database Seeding](documentations/populate-database-legacy-backup.md) | Importação de dados do PHP Vanilla |
+
+---
+
+*README atualizado em 2026-07-07 — Migração concluída.*
 
 

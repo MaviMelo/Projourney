@@ -2,21 +2,22 @@
 ---
 # Documentação das Tabelas do Banco de Dados  
 
-Este documento descreve, com nível de detalhe adequado para desenvolvedores, as tabelas criadas pelas migrations iniciais de um projeto Laravel. Cada seção inclui:  
+Este documento descreve, com nível de detalhe adequado para desenvolvedores, as tabelas criadas pelas migrations iniciais de um projeto Laravel.
 
-- **Objetivo** da tabela no ecossistema Laravel  
-- **Colunas-chave** e seu significado  
-- **Índices, constraints e relacionamentos** relevantes  
-- **Como o Laravel utiliza** essa tabela internamente  
-- **Observações de uso ou customização**  
----
+## Índice
 
-## Índece 
-- [Índice Principal (Home)](../README.md)
 - [Tabelas Padrão do Laravel](#tabelas-padrão-do-laravel)
+  - [users](#1-users)
+  - [password_reset_tokens](#2-password_reset_tokens)
+  - [sessions](#3-sessions)
+  - [cache](#4-cache)
+  - [cache_locks](#5-cache_locks)
+  - [jobs](#6-jobs)
+- [Documentação Principal](../README.md)
 
 ---
-# Tabelas Padrão do Laravel
+
+## Tabelas Padrão do Laravel
 
 ## 1. users  
 
@@ -206,3 +207,20 @@ Fila de jobs a serem processados por workers (comando `php artisan queue:work`).
 - **Enfileiramento**: `Job::dispatch()` grava na tabela `jobs` com `payload` contendo o nome da classe do job e seus atributos serializados.  
 - **Processamento**: Workers executam um loop:  
   1. Selecionam o job mais antigo disponível (`available_at <= NOW()`)
+
+---
+
+## Navegação na Documentação
+
+| Documento | Link |
+|-----------|------|
+| [README.md (Principal)](../README.md) | Visão geral do projeto |
+| [inertia-react-stack.md](./inertia-react-stack.md) | Arquitetura frontend com Inertia |
+| [gate-policy-admin-authorization.md](./gate-policy-admin-authorization.md) | Autorização baseada em roles |
+| [csrf-http-only-implementation.md](./csrf-http-only-implementation.md) | Segurança com Sanctum SPA |
+| [backlog.md](./backlog.md) | Histórico de tarefas |
+| [populate-database-legacy-backup.md](./populate-database-legacy-backup.md) | Importação de dados do legado |
+
+---
+
+*Documentação atualizada em 2026-07-07.*

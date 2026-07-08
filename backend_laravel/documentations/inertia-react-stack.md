@@ -1,51 +1,112 @@
 # Stack Inertia.js + Laravel + React - Documentação Técnica
 
+**Atualizado:** 2026-07-07 | **Status:** Implementação Concluída
+
+## Índice
+
+- [Visão Geral](#visão-geral)
+- [Arquitetura do Sistema](#arquitetura-de-alto-nível)
+- [Fluxo Detalhado](#fluxo-detalhado-primeira-visita-vs-navegação-spa)
+- [Template Root](#1-root-template---resourcesviewsappbladephp)
+- [Entry Point React](#2-entry-point-react---resourcesjsapptsx)
+- [Middleware Inertia](#3-middleware-inertia---apphttpmiddlewarehandleinertiarequestsphp)
+- [Controllers](#4-controllers---retornando-inertiarender)
+- [Fluxo de Requisição](#fluxo-de-requisição)
+- [Rotas](#rotas---routeswebphp-sistema-admin)
+- [Ziggy](#ziggy---rotas-laravel-no-react)
+- [Layouts](#layouts-e-estrutura-de-páginas)
+- [Dados Compartilhados](#dados-compartilhados-global-props)
+- [Flash Messages](#flash-messages)
+- [Validação](#validação-de-formulários)
+- [Asset Versioning](#asset-versioning-cache-busting)
+- [Scripts](#scripts-de-desenvolvimento)
+- [Checklist Nova Página](#checklist-para-nova-página)
+- [Problemas Comuns](#problemas-comuns-gotchas)
+- [Referências](#referências-úteis)
+
+---
+
 ## Visão Geral
 
-Este projeto utiliza o **Inertia.js** como ponte entre o backend Laravel (API) e o frontend React para o **sistema do administrador da aplicação**, permitindo criar aplicações single-page (SPA) para o sistema do **Projourney Server** sem a complexidade de uma API REST tradicional + cliente separado, é utilizado no sistema frontend do usuário comum **Projourney**. O Inertia funciona como "o glue" que conecta controllers Laravel diretamente a componentes React.
+Este projeto utiliza o **Inertia.js** como ponte entre o backend Laravel e o frontend React para o **sistema administrativo do Projourney**, permitindo criar aplicações single-page (SPA) sem a complexidade de uma API REST tradicional + cliente separado.
+
+O frontend do **usuário comum (Projourney App)** usa `routes/api.php` com Sanctum (HttpOnly cookie + CSRF) — documentação separada em [csrf-http-only-implementation.md](./csrf-http-only-implementation.md).
 
 ---
 
-## Arquitetura de Alto Nível - Sistema Admin (Inertia)
+## Arquitetura de Alto Nível
+
+### Contexto Geral do Sistema
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    LARAVEL BACKEND (Admin)                      │
-│  ┌──────────────┐   ┌──────────────┐   ┌────────────────────┐   │
-│  │   Routes     │──▶│  Controllers │──▶│   Inertia::render  │   │
-│  │  (web.php)   │   │  (PHP)       │   │   ('page', props)  │   │
-│  └──────────────┘   └──────────────┘   └─────────┬──────────┘   │
-│                                                  │              │
-│                          ┌───────────────────────┘              │
-│                          ▼                                      │
-│              ┌────────────────────────┐                         │
-│              │  HandleInertiaRequests │  (Middleware)           │
-│              │  - rootView: 'app'     │                         │
-│              │  - share() data        │                         │
-│              └───────────┬────────────┘                         │
-└──────────────────────────┼──────────────────────────────────────┘
-                           │ JSON Response com { component, props, version, url }
-                           ▼
-┌───────────────────────────────────────────────────────────────────┐
-│                    FRONTEND REACT ADMIN (Vite)                    │
-│  ┌──────────────┐   ┌─────────────────┐   ┌────────────────────┐  │
-│  │  app.tsx     │──▶│ createInertiaApp│──▶│  Páginas React     │  │
-│  │  (entry)     │   │  (config)       │   │  (pages/*.tsx)     │  │
-│  └──────────────┘   └─────────────────┘   └────────────────────┘  │
-│                          │                                        │
-│                          ▼                                        │
-│              ┌───────────────────────┐                            │
-│              │  Layouts (AppLayout,  │                            │
-│              │   AuthLayout, etc)    │                            │
-│              └───────────────────────┘                            │
-└───────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│                    ARQUITETURA COMPLETA ProJourney                  │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  ┌────────────────────────┐      ┌──────────────────────────────┐   │
+│  │   SPA React (User)     │      │   Inertia (Admin Panel)      │   │
+│  │   localhost:5174       │      │   localhost:8000             │   │
+│  │                        │      │                              │   │
+│  │   • Axios + CORS       │      │   • Inertia.js Adapter       │   │
+│  │   • X-XSRF-TOKEN       │      │   • SSR na 1ª visita         │   │
+│  │   • Cookie HttpOnly    │      │   • JSON nas navegações      │   │
+│  │   • /api/v1/*          │      │   • web.php routes           │   │
+│  └───────────┬────────────┘      └─────────────┬────────────────┘   │
+│              │                                 │                    │
+│              │         ┌───────────────────────┘                    │
+│              │         │                                            │
+│              ▼         ▼                                            │
+│  ┌──────────────────────────────────────────────────────────────┐   │
+│  │                LARAVEL 13 (localhost:8000)                   │   │
+│  │                                                              │   │
+│  │  ┌──────────────────┐  ┌─────────────────────────────────┐   │   │
+│  │  │  routes/api.php  │  │  routes/web.php                 │   │   │
+│  │  │                  │  │                                 │   │   │
+│  │  │  /api/v1/login   │  │  /dashboard  (Inertia)          │   │   │
+│  │  │  /api/v1/profile │  │  /user/*     (Inertia)          │   │   │
+│  │  │  /api/v1/trails  │  │  /course/*   (Inertia)          │   │   │
+│  │  │  /api/v1/...     │  │  /settings/* (Inertia)          │   │   │
+│  │  │                  │  │                                 │   │   │
+│  │  │  Middleware:     │  │  Middleware:                    │   │   │
+│  │  │  • auth:sanctum  │  │  • auth (Sanctum SPA)           │   │   │
+│  │  │  • CORS          │  │  • admin (EnsureUserIsAdmin)    │   │   │
+│  │  │  • XSRF check    │  │  • XSRF check                   │   │   │
+│  │  └──────────────────┘  └─────────────────────────────────┘   │   │
+│  │                                                              │   │
+│  │  ┌──────────────────────────────────────────────────────┐    │   │
+│  │  │  Controllers                                         │    │   │
+│  │  │                                                      │    │   │
+│  │  │  AuthController  → login, register, logout           │    │   │
+│  │  │  UserController  → CRUD users (root via Gate)        │    │   │
+│  │  │  TrailController → CRUD trails (admin)               │    │   │
+│  │  │  CourseController→ CRUD courses (admin)              │    │   │
+│  │  │  ProfileController → user profile data               │    │   │
+│  │  └──────────────────────────────────────────────────────┘    │   │
+│  │                                                              │   │
+│  │  ┌──────────────────────────────────────────────────────┐    │   │
+│  │  │  Models + Relations                                  │    │   │
+│  │  │                                                      │    │   │
+│  │  │  User ──< sessions >── Trail >───< courses           │    │   │
+│  │  │       role: user/adm/root         level              │    │   │
+│  │  │                                 link_course          │    │   │
+│  │  └──────────────────────────────────────────────────────┘    │   │
+│  └──────────────────────────────────────────────────────────────┘   │
+│                          │                                          │
+│                          ▼                                          │
+│  ┌──────────────────────────────────────────────────────────────┐   │
+│  │              MySQL (projourney_laravel)                      │   │
+│  │                                                              │   │
+│  │  users | trails | courses | trail_courses | sessions | ...   │   │
+│  └──────────────────────────────────────────────────────────────┘   │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
-> **Nota**: O sistema frontend do usuário (Projourney App) usa `routes/api.php` com Sanctum JWT - documentação separada.
+[[← Voltar ao README.md](../README.md)]
 
 ---
 
-## Componentes Principais
+## Fluxo Detalhado (Primeira Visita vs Navegação SPA)
 
 ### 1. Root Template - `resources/views/app.blade.php`
 
@@ -73,16 +134,13 @@ Configuração principal do lado cliente:
 
 ```tsx
 createInertiaApp({
-    // Título da página
     title: (title) => (title ? `${title} - ${appName}` : appName),
     
-    // Resolve componente página por nome (ex: 'dashboard' → ./pages/dashboard.tsx)
     resolve: (name) => resolvePageComponent(
         `./pages/${name}.tsx`, 
         import.meta.glob('./pages/**/*.tsx')
     ),
     
-    // Seleção de layout baseada no nome da página
     layout: (name) => {
         if (name === 'welcome') return null;           // Sem layout
         if (name.startsWith('auth/')) return AuthLayout;
@@ -90,19 +148,28 @@ createInertiaApp({
         return AppLayout;                               // Default
     },
     
-    // Setup global (Ziggy, providers, etc)
     withApp(app) {
         if (typeof window !== 'undefined') window.Ziggy = Ziggy;
         return (
-            <TooltipProvider>
+            <TooltipProvider delayDuration={0}>
                 {app}
                 <Toaster />
             </TooltipProvider>
         );
     },
-    progress: { color: '#4B5563' },  // Barra de progresso Inertia
+    progress: { color: '#4B5563' },
+    strictMode: true,
 });
 ```
+
+**Layouts por página:**
+
+| Página | Layout |
+|--------|--------|
+| `welcome` | null (página pública landing) |
+| `auth/*` | `AuthLayout` (card centralizado) |
+| `settings/*` | `[AppLayout, SettingsLayout]` (nested) |
+| Demais | `AppLayout` (sidebar + header) |
 
 ### 3. Middleware Inertia - `app/Http/Middleware/HandleInertiaRequests.php`
 
@@ -114,9 +181,13 @@ public function share(Request $request): array
     return [
         ...parent::share($request),
         'name' => config('app.name'),
-        'auth' => ['user' => $request->user()],      // User autenticado
-        'sidebarOpen' => !$request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
-        'flash' => ['message' => fn() => $request->session()->get('message')],
+        'auth' => ['user' => $request->user()],
+        'sidebarOpen' => ! $request->hasCookie('sidebar_state') 
+            || $request->cookie('sidebar_state') === 'true',
+        'flash' => [
+            'dbData' => fn() => $request->session()->get('dbData'),
+            'message' => fn() => $request->session()->get('message'),
+        ],
     ];
 }
 ```
@@ -128,10 +199,30 @@ public function share(Request $request): array
 Em vez de `return view()`, controllers retornam componentes React com props:
 
 ```php
-// Exemplo: UserController@index
+// UserController@index (apenas listagem - qualquer admin)
 public function index()
 {
-    $users = User::latest()->paginate(15);
+    $users = User::where('role', 'user')->latest()->paginate(25);
+
+    return Inertia::render('dashboard', [
+        'users' => $users,
+        'activeView' => 'users',
+        'stats' => [
+            'total_users' => User::where('role', 'user')->count(),
+            'total_collaborators' => User::whereIn('role', ['admin', 'root'])->count(),
+        ],
+    ]);
+}
+
+// UserController@edit (apenas root - Gate: manage-users)
+public function edit(string $id)
+{
+    Gate::authorize('manage-users'); // aborta 403 se não for root
+    
+    $user = User::findOrFail($id);
+    return Inertia::render('user/edit', ['user' => $user]);
+}
+```
     
     return Inertia::render('dashboard', [
         'users' => $users,                    // Collection/Lazy loading
@@ -395,4 +486,17 @@ composer dev
 
 ---
 
-*Documentação gerada em 2026-06-13 para a equipe Projourney.*
+## Navegação na Documentação
+
+| Documento | Link |
+|-----------|------|
+| [README.md (Principal)](../README.md) | Visão geral do projeto |
+| [database.md](./database.md) | Schema do banco de dados |
+| [backlog.md](./backlog.md) | Histórico de tarefas |
+| [csrf-http-only-implementation.md](./csrf-http-only-implementation.md) | Segurança com Sanctum SPA |
+| [gate-policy-admin-authorization.md](./gate-policy-admin-authorization.md) | Autorização baseada em roles |
+| [populate-database-legacy-backup.md](./populate-database-legacy-backup.md) | Importação de dados do legado |
+
+---
+
+*Documentação atualizada em 2026-07-07 para a equipe Projourney.*

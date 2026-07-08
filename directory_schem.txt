@@ -1,0 +1,195 @@
+## Arquitetura do Software Para Essa Versão:
+```
+Projourney
+.
+├── backend_laravel
+│   ├── app
+│   │   ├── Actions
+│   │   ├── Http          <──── sub-diretórios com controllers para rotas WEB e API.
+│   │   ├── Models
+│   │   ├── ...
+│   │   
+│   ├── artisan
+│   ├── boost.json
+│   ├── bootstrap
+│   │   ├── app.php
+│   │   ├── cache
+│   │   └── providers.php
+│   ├── components.json
+│   ├── composer.json
+│   ├── composer.lock
+│   ├── config
+│   │   ├── auth.php       --+
+│   │   ├── cors.php         │
+│   │   ├── database.php     │
+│   │   ├── fortify.php      │  
+│   │   ├── inertia.php      ├── arquivos importantes de configurações para regras de autenticação/conecção.
+│   │   ├── logging.php      │  
+│   │   ├── sanctum.php      │
+│   │   ├── session.php      │
+│   │   ├── ...            --+
+│   │   
+│   ├── cookies2.txt
+│   ├── cookies.txt
+│   ├── database
+│   │   ├── backups        <──── diretório para backups de banco de dados.
+│   │   ├── migrations
+│   │   ├── ...
+│   │   
+│   ├── Dockerfile
+│   ├── documentations
+│   │   ├── backlog.                              --+  
+│   │   ├── csrf-http-only-implementation.          │   
+│   │   ├── database.                               ├── documentação.
+│   │   ├── gate-policy-admin-authorization.        │  
+│   │   ├── inertia-react-stack.                    │   
+│   │   └── populate-database-legacy-backup.      --+    
+│   ├── eslint.config.js
+│   ├── node_modules
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── phpunit.xml
+│   ├── pint.json
+│   ├── pnpm-workspace.yaml
+│   ├── public
+│   │   ├── build
+│   │   ├── favicon.ico
+│   │   ├── index.php
+│   │   ├── pj_image.jpeg
+│   │   ├── ...
+│   │   
+│   ├── README.md      <──── documentação.
+│   ├── resources
+│   │   ├── css
+│   │   ├── js
+│   │   └── views
+│   ├── routes
+│   │   ├── api.php
+│   │   ├── console.php
+│   │   ├── settings.php
+│   │   └── web.php
+│   ├── storage
+│   │   ├── app
+│   │   ├── framework
+│   │   ├── logs
+│   │   └── pail
+│   ├── tests
+│   │   ├── Pest.php
+│   │   ├── ...
+│   │   
+│   ├── tsconfig.json
+│   ├── vendor
+│   └── vite.config.ts
+├── directory_schem.txt
+├── frontend_react
+│   ├── dist
+│   │   ├── assets
+│   │   ├── image
+│   │   └── index.html
+│   ├── Dockerfile
+│   ├── index.html
+│   ├── node_modules
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── postcss.config.js
+│   ├── public
+│   │   └── image
+│   ├── README.md
+│   ├── src
+│   │   ├── app.tsx
+│   │   ├── assets
+│   │   ├── components
+│   │   ├── config
+│   │   ├── lib
+│   │   ├── main.tsx
+│   │   ├── pages
+│   │   └── types
+│   ├── tailwind.config.js
+│   ├── tsconfig.json
+│   └── vite.config.ts
+└── README.md        <──── documentação.
+
+```
+
+
+
+
+> Podemos teste a API com ferramentas como Postman ou via teminal com o curl ou simila
+
+res:                                                                                  
+
+
+
+```bash                                                                               
+
+                                                                                      
+
+# Cadastrar novo usuário:                                                             
+
+                                                                                      
+
+curl -X POST http://localhost:8000/api/register \                                     
+
+-H "Content-Type: application/json" \                                                 
+
+-H "Accept: application/json" \                                                       
+
+-d '{                                                                                 
+
+"name":"Nome do Usuário",                                                             
+
+"email":"exemplo@email.com",                                                          
+
+"password":"minha-senha-segura",                                                      
+
+"password_confirmation":"minha-senha-segura",                                         
+
+"phone":"(11) 99999-9999",                                                            
+
+"birth_date":"1990-01-30"                                                             
+
+}'                                                                                    
+
+                                                                                      
+
+# Logar usuário cadastrado:                                                           
+
+                                                                                      
+
+curl -X POST http://localhost:8000/api/login \                                        
+
+-H "Content-Type: application/json" \                                                 
+
+-H "Accept: application/json" \                                                       
+
+-d '{                                                                                 
+
+"email":"exemplo@email.com",                                                          
+
+"password":"minha-senha-segura",                                                      
+
+}'                                                                                    
+
+                                                                                      
+
+# Realizar Logout no dispositivo silicitante da requisição:                           
+
+                                                                                      
+
+curl -X POST http://localhost:8000/api/logout \                                       
+
+-H "Content-Type: application/json" \                                                 
+
+-H "Accept: application/json" \                                                       
+
+-H "Authorization: Bearer 19|MAFGgQvc0wW3vY43IlZcjBRAoIqQMiwRqMPQmF**********"        
+
+-d '{"id": 7}'                                                                        
+
+                                                                                      
+
+    # Exemplo de retorno:                                                             
+
+    {"status":"success","message":"Logout realizado com sucesso.","user":null}        
+
+``` 

@@ -1,5 +1,17 @@
 # Autorização com Gate/Policy para Admin
 
+## Índice
+
+- [Visão Geral](#visão-geral)
+- [Níveis de Acesso](#níveis-de-acesso)
+- [Componentes](#componentes)
+- [Configuração do Gate](#configuração-do-gate)
+- [Middleware Admin](#middleware-admin)
+- [Uso em Controllers](#uso-em-controllers)
+- [Documentação Principal](../README.md)
+
+---
+
 ## Visão Geral
 
 Este documento descreve como o Laravel Gates é usado para restringir operações sensíveis de gerenciamento de usuários apenas para usuários com role `root`.
@@ -223,6 +235,19 @@ php artisan tinker
 - [Laravel 13 Authorization Docs](https://laravel.com/docs/13.x/authorization)
 - [Laravel Gates](https://laravel.com/docs/13.x/authorization#gates)
 - [Laravel Policies](https://laravel.com/docs/13.x/authorization#policies)
+
+---
+
+## Navegação na Documentação
+
+| Documento | Link |
+|-----------|------|
+| [README.md (Principal)](../README.md) | Visão geral do projeto |
+| [inertia-react-stack.md](./inertia-react-stack.md) | Arquitetura frontend com Inertia |
+| [database.md](./database.md) | Schema do banco de dados |
+| [backlog.md](./backlog.md) | Histórico de tarefas |
+| [csrf-http-only-implementation.md](./csrf-http-only-implementation.md) | Segurança com Sanctum SPA |
+| [populate-database-legacy-backup.md](./populate-database-legacy-backup.md) | Importação de dados do legado |
 
 ---
 

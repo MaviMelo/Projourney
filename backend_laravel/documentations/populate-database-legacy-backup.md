@@ -1,5 +1,17 @@
 # Popular Banco de Dados com Backup Legado (PHP Vanilla)
 
+## Índice
+
+- [Visão Geral](#visão-geral)
+- [Mapeamento de Tabelas](#mapeamento-de-tabelas)
+- [Dados Importados](#dados-importados)
+- [Procedimento de Importação](#procedimento-de-importação)
+- [Valididação](#validação)
+- [Rollback](#rollback-se-necessário)
+- [README Principal](../README.md)
+
+---
+
 ## Visão Geral
 
 Este documento descreve o procedimento para popular o banco de dados atual (Laravel, tabelas em inglês) com os dados do backup do sistema antigo em PHP Vanilla (`api_php database/db_backup_projourney_php.sql`).
@@ -120,3 +132,16 @@ mysql -u <usuário> -p projourney_laravel < backend_laravel/database/backups/pro
 ---
 
 *Documentação criada em 2026-07-07. Importação realizada com sucesso.*
+
+---
+
+## Navegação na Documentação
+
+| Documento | Link |
+|-----------|------|
+| [README.md (Principal)](../README.md) | Visão geral do projeto |
+| [inertia-react-stack.md](./inertia-react-stack.md) | Arquitetura frontend com Inertia |
+| [gate-policy-admin-authorization.md](./gate-policy-admin-authorization.md) | Autorização baseada em roles |
+| [csrf-http-only-implementation.md](./csrf-http-only-implementation.md) | Segurança com Sanctum SPA |
+| [database.md](./database.md) | Schema do banco de dados |
+| [backlog.md](./backlog.md) | Histórico de tarefas |

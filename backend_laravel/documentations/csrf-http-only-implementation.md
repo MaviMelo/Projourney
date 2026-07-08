@@ -1,5 +1,17 @@
 # Implementação de HttpOnly + X‑XSRF‑TOKEN
 
+## Índice
+
+- [Visão Geral](#visão-geral)
+- [Componentes](#componentes-envolvidos)
+- [Configuração de Cookies](#configuração-de-cookies)
+- [Middlewares](#middlewares)
+- [Fluxo de Requisição](#fluxo-completo)
+- [Validação](#validação)
+- [Documentação Principal](../README.md)
+
+---
+
 ## Visão Geral
 
 Esta documentação descreve como o Laravel implementa a proteção contra CSRF usando:
@@ -92,3 +104,16 @@ protected $except = [
 ---
 
 *Documentação criada em 2026‑07‑07, baseada na implementação atual do Laravel 13 e nas especificações de segurança adotadas no projeto Projourney.*
+
+---
+
+## Navegação na Documentação
+
+| Documento | Link |
+|-----------|------|
+| [README.md (Principal)](../README.md) | Visão geral do projeto |
+| [inertia-react-stack.md](./inertia-react-stack.md) | Arquitetura frontend com Inertia |
+| [gate-policy-admin-authorization.md](./gate-policy-admin-authorization.md) | Autorização baseada em roles |
+| [database.md](./database.md) | Schema do banco de dados |
+| [backlog.md](./backlog.md) | Histórico de tarefas |
+| [populate-database-legacy-backup.md](./populate-database-legacy-backup.md) | Importação de dados do legado |
