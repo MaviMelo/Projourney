@@ -182,11 +182,11 @@ export default function LoginPage(): React.ReactElement {
 
                             <p className=" itemsJustify">
                                 Não tem uma conta?
-                                <a href="/cadastrar"
+                                <Link to="/cadastrar"
                                     className=" textLink"
                                 >
                                     Cadastre-se aqui!
-                                </a>
+                                </Link>
                             </p>
                         </CardContent>
                     </Card>
