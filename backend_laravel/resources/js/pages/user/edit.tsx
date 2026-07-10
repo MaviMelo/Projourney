@@ -104,7 +104,7 @@ export default function EditUser({ user }) {
                             <label htmlFor="role">
                                 Tipo de Usuário
                             </label>
-                            <select
+                            <select 
                                 id="role"
                                 value={data.role}
                                 onChange={(e) => setData('role', e.currentTarget.value)}

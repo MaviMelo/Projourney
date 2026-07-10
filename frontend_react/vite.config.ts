@@ -10,7 +10,7 @@ import path from 'path'; // Importa o módulo 'path' do Node.js
 
 export default defineConfig({
   plugins: [react()],
-  base: '/spa/', // define a base URL do projeto para facilitar a separação de rotas no proxy reverso, de acordo com a estrutura definida no doker com Nginx.
+  base: '/spa', // define a base URL do projeto para facilitar a separação de rotas no proxy reverso, de acordo com a estrutura definida no doker com Nginx.
   root: './',  // define a raiz do projeto para o vite.
   build: {
     outDir: 'dist', // onde os arquivos de build serão gerados

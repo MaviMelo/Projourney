@@ -16,14 +16,14 @@ export default function Header() {
             <div className=" itemsJustify">
                 {theme === 'dark' ? (
                     <img
-                        src="image/pj1.png"
+                        src="/spa/image/pj1.png"
                         alt="projourney logo" className="w-16 h-16"
                     />
 
                 ) : (
 
                     <img
-                        src="image/pj.png"
+                        src="/spa/image/pj.png"
                         alt="projourney logo" className="w-16 h-16"
                     />
                 )}
