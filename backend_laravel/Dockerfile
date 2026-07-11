@@ -7,11 +7,11 @@ COPY composer.json composer.lock ./
 
 # Instala as dependências do Laravel sem pacotes de desenvolvimento e otimiza o autoloader
 RUN composer install \
-    --no-dev \
     --no-interaction \
     --prefer-dist \
     --no-scripts \
     --optimize-autoloader
+    # --no-dev 
 
 # --- Estágio 2: Produção (Aplicação) ---
 FROM php:8.4-fpm-alpine
@@ -23,6 +23,9 @@ RUN apk add --no-cache \
     libzip-dev \
     zip \
     unzip \
+    git \
+    curl \
+    iputils-ping \
  && docker-php-ext-install pdo_mysql bcmath gd zip
 
 # Copia as dependências geradas no Estágio 1

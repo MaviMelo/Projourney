@@ -1,0 +1,49 @@
+services:
+  db:
+    image: mariadb:11
+    container_name: projourney-db
+    restart: unless-stopped
+    ports:
+      - "3307:3306"  # mapear para cesso externo apenas para debug enquanto em desenvolvimento.
+    environment:
+      MARIADB_ROOT_PASSWORD: root    # --+                                  
+      MARIADB_DATABASE : projourney  #   |--> credenciais genéricas         
+      MARIADB_USER : proj            #   |    apenas para desenvolvimento.  
+      MARIADB_PASSWORD : proj        # --+    produção usar um .env         
+    volumes: 
+      - db_data:/var/lib/mysql    # persistir dados do banco de dados em um volume
+
+  backend:
+    build:
+      context: ./backend_laravel
+      dockerfile: Dockerfile
+    container_name: projourney-backend
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./backend_laravel:/var/www/html  # bind mount do código para hot reload em dev
+      - /var/www/html/vendor    # não sobrescrever o vendor do container 
+    ports:
+      - "8080:8000"   # expor porta para debug ou uso sem proxy reverso 
+    environment:
+      DB_HOST: db                  # --+    credenciais genéricas        
+      DB_PORT: 3306               #   |--> apenas para desenvolvimento.                           
+      DB_DATABASE: projourney     #   |    produção usar o .env do        
+      DB_USERNAME: proj           #   |    Laravel   
+      DB_PASSWORD: proj           # --+      
+    depends_on:
+      - db
+    command: php artisan serve --host=0.0.0.0 --port=8000
+
+  frontend:
+    build: 
+      context: ./frontend_react
+      dockerfile: Dockerfile
+    container_name: projourney-frontend
+    ports:
+      - "5174:80"
+    depends_on:
+      - backend
+
+volumes: 
+  db_data: 
