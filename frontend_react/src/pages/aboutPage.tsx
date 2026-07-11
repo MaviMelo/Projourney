@@ -7,7 +7,7 @@ export default function About() {
       <h1 className="textBanner">Sobre o sistema:</h1>
       <p>
 
-        O <a href="https://github.com/MaviMelo/Projourney" className="linkGreen2">Projourney</a> é um projeto acadêmico desenvolvido por estudantes do curso de Tecnologia de Sistemas para a Internet - TSI - do Instituto Federal de Pernambuco, Campos Igarassu. O mesmo tem, na sua origem, como principal objetivo o redirecionamento de seus usuários para cursos onlines gratuitos com boa aprovação ou avaliação popular. Permitindo seguir uma sequência de cursos online, denominadas como <strong>Trilhas</strong>, que formam o conteúdo educacional necessário para uma determinada formação profissional/pessoal.
+        O <a href="https://github.com/MaviMelo/Projourney" className="linkGreen2">ProJourney</a> é um projeto acadêmico desenvolvido por estudantes do curso de Tecnologia de Sistemas para a Internet - TSI - do Instituto Federal de Pernambuco, Campos Igarassu. O mesmo tem, na sua origem, como principal objetivo o redirecionamento de seus usuários para cursos onlines gratuitos com boa aprovação ou avaliação popular. Permitindo seguir uma sequência de cursos online, denominadas como <strong>Trilhas</strong>, que formam o conteúdo educacional necessário para uma determinada formação profissional/pessoal.
 
       </p>
 
