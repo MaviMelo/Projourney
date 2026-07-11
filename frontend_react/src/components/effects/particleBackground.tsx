@@ -42,21 +42,19 @@ class Particle implements ParticleProps {
         if (this.y > canvasHeight) this.y = 0;
     }
 
-    // Reposiciona a partícula proporcionalmente quando o canvas muda de tamanho
     rescale(oldW: number, oldH: number, newW: number, newH: number): void {
         this.x = (this.x / oldW) * newW;
         this.y = (this.y / oldH) * newH;
     }
 
-    draw(ctx: CanvasRenderingContext2D): void {
+    draw(ctx: CanvasRenderingContext2D, color1: string, color2: string): void {
         const gradient = ctx.createRadialGradient(
             this.x, this.y, 0,
             this.x, this.y, this.size * 2
         );
-        const particleColor1 = getComputedStyle(document.documentElement).getPropertyValue('--particle1').trim();
-        const particleColor2 = getComputedStyle(document.documentElement).getPropertyValue('--particle2').trim();
-        gradient.addColorStop(0, `hsl(${particleColor1})`);
-        gradient.addColorStop(1, `hsl(${particleColor2})`);
+        
+        gradient.addColorStop(0, `hsla(${color1}, ${this.opacity})`);
+        gradient.addColorStop(1, `hsla(${color2}, ${this.opacity})`);
 
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
@@ -65,7 +63,6 @@ class Particle implements ParticleProps {
     }
 }
 
-// Densidade alvo: 1 partícula a cada N px² (ajuste esse valor a gosto)
 const PARTICLE_DENSITY = 12000;
 const MIN_PARTICLES = 30;
 const MAX_PARTICLES = 140;
@@ -89,7 +86,6 @@ export default function ParticleBackground(): JSX.Element {
 
         const dpr = window.devicePixelRatio || 1;
 
-        // Define o tamanho inicial do canvas (em px de CSS, escalado pelo devicePixelRatio)
         const setCanvasSize = (): void => {
             canvas.width = window.innerWidth * dpr;
             canvas.height = window.innerHeight * dpr;
@@ -99,7 +95,6 @@ export default function ParticleBackground(): JSX.Element {
         };
         setCanvasSize();
 
-        // Cria as partículas com base na densidade da tela
         let particles: Particle[] = [];
         const initParticles = (): void => {
             const count = getParticleCount(window.innerWidth, window.innerHeight);
@@ -110,7 +105,6 @@ export default function ParticleBackground(): JSX.Element {
         };
         initParticles();
 
-        // Redimensionamento: reposiciona partículas proporcionalmente em vez de perdê-las
         let resizeTimeout: ReturnType<typeof setTimeout>;
         const handleResize = (): void => {
             clearTimeout(resizeTimeout);
@@ -128,10 +122,8 @@ export default function ParticleBackground(): JSX.Element {
                 canvas.style.height = `${newH}px`;
                 ctx.setTransform(newDpr, 0, 0, newDpr, 0, 0);
 
-                // Reposiciona as partículas existentes proporcionalmente
                 particles.forEach((p: Particle): void => p.rescale(oldW, oldH, newW, newH));
 
-                // Ajusta a quantidade de partículas para a nova área da tela
                 const targetCount = getParticleCount(newW, newH);
                 if (particles.length < targetCount) {
                     const toAdd = targetCount - particles.length;
@@ -141,11 +133,10 @@ export default function ParticleBackground(): JSX.Element {
                 } else if (particles.length > targetCount) {
                     particles = particles.slice(0, targetCount);
                 }
-            }, 150); // debounce para não recalcular a cada pixel de resize
+            }, 150);
         };
         window.addEventListener("resize", handleResize);
 
-        // Interação com o mouse
         const mouse: MousePosition = { x: 0, y: 0 };
         const handleMouseMove = (e: MouseEvent): void => {
             const rect = canvas.getBoundingClientRect();
@@ -154,7 +145,18 @@ export default function ParticleBackground(): JSX.Element {
         };
         canvas.addEventListener("mousemove", handleMouseMove);
 
-        // Loop de animação
+        const isLight = theme === "light";
+        
+        const color1 = isLight ? "214, 98%, 46%" : "61, 100%, 86%";
+        const color2 = isLight ? "0, 0%, 0%" : "0, 0%, 100%";
+        const color3 = isLight ? "0, 0%, 0%" : "0, 0%, 100%"; // Cor das linhas
+        const color4 = isLight ? "0, 0%, 0%" : "0, 0%, 100%"; // Cor da linha do mouse
+
+        const lineOpacityMax = isLight ? 0.35 : 0.25; 
+        const mouseLineOpacityMax = isLight ? 0.5 : 0.35; 
+        const baseLineWidth = isLight ? 1.2 : 0.8; 
+        const mouseLineWidth = isLight ? 1.5 : 1.0;
+
         const animate = (): void => {
             const w = window.innerWidth;
             const h = window.innerHeight;
@@ -162,33 +164,32 @@ export default function ParticleBackground(): JSX.Element {
 
             particles.forEach((particle: Particle, i: number): void => {
                 particle.update(w, h);
-                particle.draw(ctx);
+                particle.draw(ctx, color1, color2);
 
                 for (let j = i + 1; j < particles.length; j++) {
                     const otherParticle = particles[j];
                     const dx: number = particle.x - otherParticle.x;
                     const dy: number = particle.y - otherParticle.y;
                     const distance: number = Math.sqrt(dx * dx + dy * dy);
-                    const particleColor3 = getComputedStyle(document.documentElement).getPropertyValue('--particle3').trim();
 
                     if (distance < 160) {
                         ctx.beginPath();
                         ctx.moveTo(particle.x, particle.y);
                         ctx.lineTo(otherParticle.x, otherParticle.y);
-                        ctx.strokeStyle = `hsla(${particleColor3}, ${0.1 * (1 - distance / 160)})`;
-                        ctx.lineWidth = 0.7;
+                        ctx.strokeStyle = `hsla(${color3}, ${lineOpacityMax * (1 - distance / 160)})`;
+                        ctx.lineWidth = baseLineWidth;
                         ctx.stroke();
                     }
                 }
 
                 const mouseDistance: number = Math.sqrt((particle.x - mouse.x) ** 2 + (particle.y - mouse.y) ** 2);
-                const particleColor4 = getComputedStyle(document.documentElement).getPropertyValue('--particle4').trim();
+                
                 if (mouseDistance < 180) {
                     ctx.beginPath();
                     ctx.moveTo(particle.x, particle.y);
                     ctx.lineTo(mouse.x, mouse.y);
-                    ctx.strokeStyle = `hsla(${particleColor4}, ${0.2 * (1 - mouseDistance / 180)})`;
-                    ctx.lineWidth = 0.9;
+                    ctx.strokeStyle = `hsla(${color4}, ${mouseLineOpacityMax * (1 - mouseDistance / 180)})`;
+                    ctx.lineWidth = mouseLineWidth;
                     ctx.stroke();
                 }
             });
