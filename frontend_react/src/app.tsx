@@ -14,12 +14,11 @@ import AulasPage from './pages/classesPage';
 import { CoursesPage, CourseDetailPage } from './pages/coursesPage';
 import SobrePage from './pages/aboutPage';
 
-import AccessibilityToolbar from './components/acessibilities/AcessibilityToolbar';
-import VLibras from './components/acessibilities/VLibras';
+import AccessibilityToolbar from './components/accessibilities/AcessibilityToolbar';
+import VLibras from './components/accessibilities/VLibras';
 
 function App() {
     return (
-      // Wrap the siblings in a Fragment
       <>
         <AccessibilityToolbar />
 
