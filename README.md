@@ -2,12 +2,12 @@
 
 ## Índice
 
+- [Documentação](#documentação)
 - [Sobre o Projeto](#sobre-o-projeto)
 - [Recursos](#recursos-disponíveis)
 - [Dependências](#principais-dependências)
 - [Instalação](#instalação)
 - [Arquitetura](#arquitetura-do-sistema)
-- [Documentação](#documentação)
 - [Contribuidores](#desenvolvedores-que-contribuíram-e-os-que-ainda-contribuem-para-o-projeto)
 
 ---
@@ -210,6 +210,7 @@ php artisan db:seed
 | [Database Schema](backend_laravel/documentations/database.md) | Estrutura do banco de dados |
 | [CSRF + HttpOnly](backend_laravel/documentations/csrf-http-only-implementation.md) | Segurança com Sanctum SPA |
 | [Gate/Policy Authorization](backend_laravel/documentations/gate-policy-admin-authorization.md) | Autorização baseada em roles |
+| [Dockerização](DOCKER.md) | Containerização com proxy reverso (4 containers, porta 8080) |
 
 ---
 

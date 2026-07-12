@@ -5,6 +5,7 @@ namespace App\Providers;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -26,8 +27,22 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $this->configureAppUrl();
         $this->configureDefaults();
         $this->configureGates();
+    }
+
+    /**
+     * Força a URL base a usar APP_URL quando atrás de proxy reverso.
+     * Necessário porque o TrustProxies não está inferindo a porta externa 8080
+     * da cadeia proxy externo (8080) -> nginx backend (80) -> PHP-FPM.
+     */
+    protected function configureAppUrl(): void
+    {
+        if (config('app.url')) {
+            URL::forceRootUrl(config('app.url'));
+            URL::forceScheme(parse_url(config('app.url'), PHP_URL_SCHEME) ?? 'http');
+        }
     }
 
     /**
