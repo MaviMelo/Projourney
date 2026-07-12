@@ -37,10 +37,12 @@ export async function initAuth(): Promise<void> {
 
 // ── Generic API fetch (session-based, no Bearer token) ─────────────────────────
 
+export type ApiStatus = 'success' | 'error';
+
 interface ApiResponse<T = unknown> {
     data?: T;
     message?: string;
-    status?: string;
+    status: ApiStatus;
 }
 
 export async function apiFetch<T = unknown>(
