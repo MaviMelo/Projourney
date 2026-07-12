@@ -31,8 +31,12 @@ COPY . .
 # Permissões
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Gera APP_KEY (importante!)
-RUN php artisan key:generate --force 2>/dev/null || true
+# Copia e dá permissão ao script de inicialização
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 EXPOSE 9000
+
+# O ENTRYPOINT prepara o terreno, o CMD roda o processo principal
+ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["php-fpm"]
