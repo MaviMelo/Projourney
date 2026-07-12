@@ -1,11 +1,8 @@
-# --- Estágio 1: Build (Composer) ---
+# --- Estágio 1: Composer ---
 FROM composer:latest AS vendor
 WORKDIR /app
 
-# Copia apenas os arquivos de dependências para aproveitar o cache
 COPY composer.json composer.lock ./
-
-# Instala as dependências do Laravel sem pacotes de desenvolvimento e otimiza o autoloader
 RUN composer install \
     --no-dev \
     --no-interaction \
@@ -13,11 +10,11 @@ RUN composer install \
     --no-scripts \
     --optimize-autoloader
 
-# --- Estágio 2: Produção (Aplicação) ---
+# --- Estágio 2: Produção (PHP-FPM) ---
 FROM php:8.4-fpm-alpine
 WORKDIR /var/www/html
 
-# Instala extensões PHP essenciais para o Laravel (ex: pdo_mysql, bcmath, zip)
+# Instala extensões PHP
 RUN apk add --no-cache \
     libpng-dev \
     libzip-dev \
@@ -25,16 +22,17 @@ RUN apk add --no-cache \
     unzip \
  && docker-php-ext-install pdo_mysql bcmath gd zip
 
-# Copia as dependências geradas no Estágio 1
+# Copia dependências do Composer
 COPY --from=vendor /app/vendor ./vendor
 
-# Copia o restante do código-fonte do Laravel
+# Copia código
 COPY . .
 
-# Ajusta as permissões das pastas de cache e storage para o usuário do PHP-FPM (www-data)
+# Permissões
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Expõe a porta padrão do PHP-FPM
-EXPOSE 9000
+# Gera APP_KEY (importante!)
+RUN php artisan key:generate --force 2>/dev/null || true
 
+EXPOSE 9000
 CMD ["php-fpm"]

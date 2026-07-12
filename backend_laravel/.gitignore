@@ -1,29 +1,66 @@
-/.phpunit.cache
-/bootstrap/ssr
-/node_modules
-/public/build
-/public/fonts-manifest.dev.json
-/public/hot
-/public/storage
-/storage/*.key
-/storage/pail
-/resources/js/actions
-/resources/js/routes
-/resources/js/wayfinder
-/vendor
-.DS_Store
-.env
-.env.backup
-.env.production
-.phpactor.json
-.phpunit.result.cache
-Homestead.json
-Homestead.yaml
+.dockerignore
+.gitignore
+.git
+.github
+.env.example
+.editorconfig
+.eslintignore
+
+# Node/Frontend
+node_modules
 npm-debug.log
+pnpm-debug.log
 yarn-error.log
-/auth.json
-/.fleet
-/.idea
-/.nova
-/.vscode
-/.zed
+dist
+build
+
+# PHP/Composer
+vendor
+.php-cs-fixer.cache
+
+# Testing
+tests
+phpunit.xml
+coverage
+*.test.ts
+*.spec.ts
+
+# IDE & Editors
+.vscode
+.idea
+.sublime-project
+.sublime-workspace
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+storage/logs
+bootstrap/cache
+*.log
+
+# Temporary files
+tmp
+temp
+.cache
+cookies*.txt
+
+# Documentation & Config
+documentations
+README.md
+pint.json
+eslint.config.js
+components.json
+boost.json
+
+# Development only
+.env
+.env.local
+.env.*.local
+cookie*.txt
+
+# OS
+Thumbs.db
+.AppleDouble
+.LS_Store
