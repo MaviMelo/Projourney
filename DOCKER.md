@@ -271,6 +271,69 @@ docker compose exec proxy nginx -t
 
 ---
 
+## Problema: Vite Manifest não encontrado (Erro 500 no Dashboard Inertia)
+
+**Sintoma:** Ao acessar `http://localhost:8080/` (Dashboard Laravel + Inertia), retorna **HTTP 500** com erro no log:
+
+```
+Illuminate\Foundation\ViteException: Vite manifest not found at: /var/www/html/public/build/manifest.json
+```
+
+**Causa:** O Laravel (via Inertia) procura o manifest em `public/build/manifest.json`, mas o Vite do backend gera o arquivo em `public/build/.vite/manifest.json` (subdiretório `.vite/`).
+
+---
+
+### Diagnóstico
+
+1. O `vite.config.ts` do backend configura `build.manifest: true` mas não define `outDir` explícito.
+2. O Vite padrão cria o manifest em `public/build/.vite/manifest.json`.
+3. O helper `@vite()` do Blade (Laravel) procura em `public/build/manifest.json` (sem o `.vite/`).
+4. No Docker, o `npm run build` não era executado automaticamente no build da imagem.
+
+---
+
+### Solução aplicada (commit permanente no Dockerfile)
+
+**Arquivo:** `backend_laravel/Dockerfile`
+
+```dockerfile
+# Copia o restante do código-fonte do Laravel
+COPY . .
+
+# Instala dependências do frontend e faz build do Vite (para Inertia/manifest.json)
+RUN npm ci && npm run build && cp public/build/.vite/manifest.json public/build/manifest.json 2>/dev/null || true
+
+# Ajusta as permissões das pastas de cache e storage para o usuário do PHP-FPM (www-data)
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+```
+
+**O que faz:**
+- `npm ci` → instala dependências do `package-lock.json` (reprodutível)
+- `npm run build` → compila assets Vite (gera `public/build/.vite/manifest.json`)
+- `cp public/build/.vite/manifest.json public/build/manifest.json` → copia para onde o Laravel espera
+- `2>/dev/null || true` → não falha o build se o arquivo não existir (ex: primeira vez)
+
+---
+
+### Alternativa (configuração no Vite)
+
+Se preferir corrigir na configuração do Vite em vez do Dockerfile, ajuste `backend_laravel/vite.config.ts`:
+
+```ts
+export default defineConfig({
+    // ...
+    build: {
+        outDir: 'public/build',        // saída direta em public/build/
+        manifest: true,                // gera manifest.json na raiz de outDir
+        emptyOutDir: true,
+    },
+});
+```
+
+Com isso, o Vite gera direto em `public/build/manifest.json` e a cópia no Dockerfile se torna desnecessária.
+
+---
+
 ## Justificativas arquiteturais
 
 ### Por que o SPA React tem seu próprio container Nginx?
