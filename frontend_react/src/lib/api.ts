@@ -95,8 +95,11 @@ export async function register(
     name: string,
     email: string,
     password: string,
-    passwordConfirmation: string
+    passwordConfirmation: string,
+    birthDate?: string,
+    phoneNumber?: string
 ): Promise<ApiResponse<{ user: { id: number; name: string; email: string } }>> {
+    
     const response = await fetch(`${BASE_URL}/register`, {
         method: 'POST',
         headers: {
@@ -105,16 +108,23 @@ export async function register(
             'X-XSRF-TOKEN': getXsrfToken() ?? '',
         },
         credentials: 'include',
-        body: JSON.stringify({ name, email, password, password_confirmation: passwordConfirmation }),
+        body: JSON.stringify({ 
+            name, 
+            email, 
+            password, 
+            password_confirmation: passwordConfirmation,
+            birth_date: birthDate || null,
+            phone_number: phoneNumber || null
+        }),
     });
 
     const data = await response.json();
 
-    if (response.ok && data.user) {
+    if (response.ok && data?.user) {
         localStorage.setItem('loggedUser', JSON.stringify(data.user));
     }
 
-    return { data, status: response.ok ? 'success' : 'error', message: data.message };
+    return { data, status: response.ok ? 'success' : 'error', message: data?.message };
 }
 
 export async function logout(full = false): Promise<ApiResponse> {

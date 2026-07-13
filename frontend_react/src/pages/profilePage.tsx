@@ -1,9 +1,7 @@
-// src/pages/perfilPage.tsx
-
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { BASE_URL } from "@/config/api";
-import { BookOpen, MoreVertical, Loader2, AlertCircle, CheckCircle, Trash2, Plus } from "lucide-react"; // Importado o Plus aqui
+import { apiFetch, initAuth } from '@/lib/api';
+import { BookOpen, MoreVertical, Loader2, AlertCircle, CheckCircle, Trash2, Plus } from "lucide-react";
 
 // --- Interfaces para Tipagem dos Dados ---
 interface User {
@@ -43,6 +41,8 @@ export default function PerfilPage(): React.JSX.Element {
     };
 
     useEffect(() => {
+        initAuth(); // Inicializa o CSRF token
+        
         const userData = localStorage.getItem('loggedUser');
         if (!userData) {
             navigate('/login');
@@ -54,29 +54,22 @@ export default function PerfilPage(): React.JSX.Element {
         const loadProfileData = async () => {
             setStatus('loading');
             try {
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    navigate('/login');
-                    return; 
-                };
+                const response = await apiFetch('/profile');
 
-                const response = await fetch(`${BASE_URL}/profile?email=${encodeURIComponent(loggedUser.email)}`, {
-                    method: 'GET',
-                    headers: { 'Authorization': `Bearer ${token}` },
-                });
-                if (!response.ok) {
-                    if (response.status === 401 || response.status === 403) {
+                if (response.status !== 'success') {
+                    if (response.data === 401 || response.data === 403) {
                         window.alert("Sua sessão expirou ou é inválida. Faça login novamente.");
-                        localStorage.removeItem('token'); 
                         localStorage.removeItem('loggedUser');
                         navigate('/login');
                         return;
                     }
-                    throw new Error('Falha ao carregar dados do perfil.');
+                    throw new Error(response.message || 'Falha ao carregar dados do perfil.');
                 }
-                const data = await response.json();
+                
+                const data = response.data as { user: { trails: Trail[] }, status: 'loading' | 'success' | 'idle' | 'error', message: string };
                 setTrails(data.user.trails || []);
                 setStatus('success');
+                
             } catch (err) {
                 setFeedback(err instanceof Error ? err.message : 'Erro desconhecido.');
                 setStatus('error');
@@ -88,26 +81,26 @@ export default function PerfilPage(): React.JSX.Element {
 
     const handleProgressoChange = async (pivotId: number, newProgress: Trail['pivot']['progress']) => {
         if (!user) return;
+        
         const oldTrail = [...trails];
+        const alreadyUpdate = trails.find(t => t.pivot.id === pivotId);
+        if (alreadyUpdate && alreadyUpdate.pivot.progress === newProgress) return;
         
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`${BASE_URL}/trailUser/${pivotId}`, {
+            const response = await apiFetch(`/trailUser/${pivotId}`, {
                 method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
                 body: JSON.stringify({
                     user_id: user.id,
                     progress: newProgress,
                 }),
             });
 
-            if (!response.ok) throw new Error('Falha ao atualizar o progresso.');
+            if (response.status !== 'success') throw new Error('Falha ao atualizar o progresso.');
             
-            setTrails(trails.map(t => t.pivot.id === pivotId ? { ...t, pivot: { ...t.pivot, progress: newProgress } } : t));
-            showAlert('success', 'Progresso atualizado com sucesso!');
+            const result = response.data as { progress: Trail['pivot']['progress'], status: string, message: string };
+            
+            setTrails(trails.map(t => t.pivot.id === pivotId ? { ...t, pivot: { ...t.pivot, progress: result.progress || newProgress } } : t));
+            showAlert('success', result.message || 'Progresso atualizado com sucesso!');
 
         } catch (err) {
             showAlert("error", "Não foi possível atualizar o progresso!");
@@ -119,15 +112,15 @@ export default function PerfilPage(): React.JSX.Element {
         if(!window.confirm("Tem certeza que deseja excluir esta trilha?")) return;
 
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`${BASE_URL}/trailUser/${trail.pivot.id}`, {
+            const response = await apiFetch(`/trailUser/${trail.pivot.id}`, {
                 method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}` }
             });
-            const result = await response.json();
-            if (!response.ok) throw new Error(result.message || 'Falha ao excluir a trilha.');
+            
+            const result = response.data as { status: string, message: string };
+            
+            if (response.status !== 'success') throw new Error(result?.message || 'Falha ao excluir a trilha.');
 
-            showAlert("success", "Trilha excluída com sucesso.");
+            showAlert("success", result?.message || "Trilha excluída com sucesso.");
             setTrails(trails.filter(t => t.id !== trail.id));
         } catch (err) {
             showAlert("error", err instanceof Error ? err.message : "Erro ao excluir trilha.");
@@ -190,7 +183,6 @@ export default function PerfilPage(): React.JSX.Element {
                 </div>
 
                 {trails.length > 0 ? (
-                    /* Alterado aqui: Envolvendo a estrutura em uma div flex para alinhar o botão no final */
                     <div className="flex flex-col gap-8">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {trails.map(trail => (
@@ -243,7 +235,7 @@ export default function PerfilPage(): React.JSX.Element {
                             ))}
                         </div>
 
-                        {/* NOVO: Botão de Mais Trilhas condicional (aparece apenas quando trails.length > 0) */}
+                        {/* Botão de Mais Trilhas condicional */}
                         <div className="flex justify-center mt-4">
                             <Link 
                                 to="/trilhas" 
@@ -255,7 +247,7 @@ export default function PerfilPage(): React.JSX.Element {
                         </div>
                     </div>
                 ) : (
-                    /* Estado vazio (Mantido intacto) */
+                    /* Estado vazio */
                     <div className="flex flex-col items-center justify-center !bg-white dark:!bg-[#1a1a1a]/80 backdrop-blur-md border border-dashed border-gray-300 dark:border-gray-700 rounded-2xl p-12 text-center shadow-lg">
                         <h3 className="text-2xl font-bold !text-gray-900 dark:!text-white mb-2">Você ainda não se inscreveu em nenhuma trilha.</h3>
                         <p className="!text-gray-600 dark:!text-gray-400 mb-6">Que tal começar uma nova jornada agora mesmo?</p>

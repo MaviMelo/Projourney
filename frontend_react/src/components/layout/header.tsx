@@ -1,26 +1,26 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Moon, Sun, Menu, X, LogOut } from "lucide-react";
 import SimpleLink from "../common/simpleLink";
 import { Button } from "../ui/button";
 import { APP_TITLE } from "@/config/api";
 import { useTheme } from "../effects/themeProvider";
+import { logout } from "@/lib/api";
 
 export default function Header() {
     const { theme, toggleTheme } = useTheme();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    
-    // --- LÓGICA DE AUTENTICAÇÃO ---
+
     const location = useLocation();
     const navigate = useNavigate();
-    const isAuthenticated = !!localStorage.getItem('token');
+ 
+    const isAuthenticated = !!localStorage.getItem('loggedUser');
 
     const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
     const closeMenu = () => setIsMenuOpen(false);
 
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('loggedUser');
+    const handleLogout = async () => {
+        await logout(); 
         navigate('/login');
         closeMenu();
     };

@@ -1,17 +1,16 @@
 import { JSX, useState } from "react";
 import type React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { BASE_URL } from "@/config/api";
 import { ArrowLeft, Loader2, AlertCircle, CheckCircle, User, Mail, Lock, Calendar, Phone, Eye, EyeOff } from "lucide-react";
 import ParticleBackground from "@/components/effects/particleBackground";
-
+import { register, initCsrf } from '@/lib/api';
 interface AlunoFormData {
     name: string;
     email: string;
     password: string;
     password_confirmation: string;
     birth_date: string;
-    phone: string;
+    phone_number: string; 
 }
 
 export default function CadastrarAlunoPage(): JSX.Element {
@@ -22,14 +21,13 @@ export default function CadastrarAlunoPage(): JSX.Element {
         password: "",
         password_confirmation: "",
         birth_date: "",
-        phone: "",
+        phone_number: "", 
     });
 
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
     
-    // Estados independentes para visualizar senhas
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -51,32 +49,28 @@ export default function CadastrarAlunoPage(): JSX.Element {
         setLoading(true);
 
         try {
-            const response = await fetch(`${BASE_URL}/register`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                },
-                body: JSON.stringify({
-                    name: formData.name,
-                    email: formData.email,
-                    password: formData.password,
-                    password_confirmation: formData.password_confirmation,
-                    birth_date: formData.birth_date || null,
-                    phone: formData.phone || null,
-                }),
-            });
+            await initCsrf();
 
-            const result = await response.json();
+            const response = await register(
+                formData.name,
+                formData.email,
+                formData.password,
+                formData.password_confirmation,
+                formData.birth_date,
+                formData.phone_number
+            );
 
-            if (!response.ok) {
-                throw new Error(result.message || `Erro ${response.status}`);
+
+            if (response.status !== 'success') {
+                throw new Error(response.message || `Erro no cadastro`);
             }
 
-            setSuccess(result.message);
+            setSuccess(response.message ?? 'Cadastro realizado com sucesso!');
+            
+            // Redireciona rapidamente para o login após sucesso
             setTimeout(() => {
                 navigate('/login');
-            }, 500);
+            }, 1000);
 
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Falha na comunicação com o servidor.';
@@ -113,7 +107,7 @@ export default function CadastrarAlunoPage(): JSX.Element {
                     </p>
                 </div>
 
-                {/* Card de Registro (Estilo Vidro/Sólido sincronizado com Login) */}
+                {/* Card de Registro */}
                 <div className="w-full max-w-2xl bg-white dark:bg-[#1a1a1a]/80 backdrop-blur-md border border-gray-200 dark:border-gray-700/60 rounded-2xl shadow-2xl p-8 mb-8">
                     
                     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
@@ -180,7 +174,7 @@ export default function CadastrarAlunoPage(): JSX.Element {
                                         onClick={() => setShowPassword(!showPassword)}
                                         className="absolute right-3 text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white transition-colors"
                                     >
-                                        {showPassword ? <EyeOff w-5 h-5 /> : <Eye w-5 h-5 />}
+                                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                                     </button>
                                 </div>
                             </div>
@@ -206,7 +200,7 @@ export default function CadastrarAlunoPage(): JSX.Element {
                                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                                         className="absolute right-3 text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white transition-colors"
                                     >
-                                        {showConfirmPassword ? <EyeOff w-5 h-5 /> : <Eye w-5 h-5 />}
+                                        {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                                     </button>
                                 </div>
                             </div>
@@ -218,7 +212,6 @@ export default function CadastrarAlunoPage(): JSX.Element {
                                 </label>
                                 <div className="relative flex items-center">
                                     <Calendar className="absolute left-3 text-gray-400 dark:text-gray-500 w-5 h-5 pointer-events-none" />
-                                    {/* Ajuste de padding especial para inputs de type date renderizarem melhor o ícone nativo */}
                                     <input
                                         id="birth_date"
                                         type="date"
@@ -231,15 +224,15 @@ export default function CadastrarAlunoPage(): JSX.Element {
 
                             {/* Telefone */}
                             <div className="flex flex-col gap-1.5">
-                                <label htmlFor="phone" className="text-sm font-medium text-gray-800 dark:text-gray-200 ml-1 text-left">
+                                <label htmlFor="phone_number" className="text-sm font-medium text-gray-800 dark:text-gray-200 ml-1 text-left">
                                     Telefone (Opcional)
                                 </label>
                                 <div className="relative flex items-center">
                                     <Phone className="absolute left-3 text-gray-400 dark:text-gray-500 w-5 h-5 pointer-events-none" />
                                     <input
-                                        id="phone"
+                                        id="phone_number"
                                         type="tel"
-                                        value={formData.phone}
+                                        value={formData.phone_number}
                                         onChange={handleChange}
                                         placeholder="(11) 99999-9999"
                                         className="w-full bg-gray-50 dark:bg-black/40 border border-gray-300 dark:border-gray-600 rounded-lg py-3 pl-10 pr-4 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-[hsl(var(--button-2))] focus:ring-1 focus:ring-[hsl(var(--button-2))] transition-all"
@@ -272,7 +265,7 @@ export default function CadastrarAlunoPage(): JSX.Element {
                             </button>
                         </div>
                         
-                        {/* Link extra para Login (Melhoria de UX) */}
+                        {/* Link extra para Login */}
                         <div className="text-center text-sm text-gray-600 dark:text-gray-300 mt-2">
                             Já possui uma conta?{" "}
                             <Link

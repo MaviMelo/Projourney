@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Loader2, AlertCircle, ExternalLink, ArrowLeft, GraduationCap, PlayCircle, BookX } from 'lucide-react';
-import { BASE_URL } from "@/config/api";
+import { apiFetch, initAuth } from '@/lib/api';
 import ParticleBackground from "@/components/effects/particleBackground";
 
 interface Course {
@@ -17,32 +17,28 @@ export default function AulasPage(): React.JSX.Element {
     const [courses, setCourses] = useState<Course[]>([]);
     const [status, setStatus] = useState<'loading' | 'error' | 'success'>('loading');
     
-    // Verifica se o usuário está logado ao acessar a página
+
     useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (!token) {
+        initAuth();
+        const loggedUser = localStorage.getItem('loggedUser');
+        if (!loggedUser) {
             navigate('/login');
         }
     }, [navigate]);
 
-    // Busca os cursos na API
     useEffect(() => {
         if (!trailId) return;
 
         const fetchCursos = async () => {
             try {
-                const response = await fetch(`${BASE_URL}/trail/${trailId}`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
-                });
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`Erro do Servidor: ${errorText}`);
+
+                const response = await apiFetch(`/trail/${trailId}`);
+                
+                if (response.status !== 'success') {
+                    throw new Error(`Erro do Servidor: ${response.message}`);
                 }
 
-                const result = await response.json();
+                const result = response.data as { trail: { courses: Course[] } };
                 setCourses(result.trail.courses);
                 setStatus('success');
 

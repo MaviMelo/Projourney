@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, Code, Database, Shield, Smartphone, Globe, Cpu, Brain, Zap, Loader2, AlertCircle, CheckCircle } from "lucide-react";
-import { BASE_URL } from "@/config/api";
 import ParticleBackground from "@/components/effects/particleBackground";
+import { apiFetch, initAuth } from '@/lib/api';
 
 // --- Interfaces e Mapeamento de Ícones ---
 interface Trail {
@@ -30,16 +30,16 @@ const iconMap: { [key: string]: React.ElementType } = {
 export default function TrailsPage(): React.JSX.Element {
   const navigate = useNavigate();
 
-  // --- Estados do Componente ---
   const [trails, setTrails] = useState<Trail[]>([]);
   const [trailSelected, setTrailSelected] = useState<number | null>(null);
   const [user, setUser] = useState<userLogged | null>(null);
   const [status, setStatus] = useState<'loading' | 'idle' | 'error' | 'success'>('loading');
   const [feedback, setFeedback] = useState<string>('');
 
-  // 1. Verifica Autenticação
   useEffect(() => {
+    initAuth();
     const dataUser = localStorage.getItem('loggedUser');
+    
     if (dataUser) {
       setUser(JSON.parse(dataUser));
     } else {
@@ -48,24 +48,22 @@ export default function TrailsPage(): React.JSX.Element {
     }
   }, [navigate]);
 
-  // 2. Busca a lista de trilhas na API 
   useEffect(() => {
     const fetchTrails = async () => {
       setStatus('loading');
       setFeedback('');
+      
       try {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`${BASE_URL}/trail`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json'
-          }
-        });
-        if (!response.ok) throw new Error('Não foi possível carregar as trilhas.');
+        const response = await apiFetch('/trail');
         
-        const data: { trails: Trail[] } = await response.json();
-        setTrails(data.trails);
+        if (response.status !== 'success') {
+          throw new Error(response.message || 'Não foi possível carregar as trilhas.');
+        }
+        
+        const data = (response.data as { trails: Trail[] })?.trails || [];
+        setTrails(data);
         setStatus('idle');
+        
       } catch (err) {
         setFeedback(err instanceof Error ? err.message : 'Falha na comunicação com o servidor.');
         setStatus('error');
@@ -95,26 +93,22 @@ export default function TrailsPage(): React.JSX.Element {
     setFeedback('');
 
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${BASE_URL}/trailUser`, {
+      const response = await apiFetch('/trailUser', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
         body: JSON.stringify({
           user_id: user.id,
           trail_id: trailSelected,
         }),
       });
 
-      const result = await response.json();
+      if (response.status !== 'success') {
+        throw new Error(response.message || 'Erro ao realizar inscrição.');
+      }
 
-      if (!response.ok) throw new Error(result.message || `Erro ${response.status}`);
-
-      setFeedback(result.message);
+      setFeedback(response.message || 'Inscrição realizada com sucesso!');
       setStatus('success');
 
+      // Redirecionamento após o sucesso
       setTimeout(() => {
         navigate('/perfil');
       }, 2000);
