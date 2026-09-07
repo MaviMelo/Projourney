@@ -1,7 +1,4 @@
-// src/app.tsx
-
 import { Routes, Route } from 'react-router-dom';
-
 
 // Importa os componentes de página existentes
 import Layout from './components/layout/layout'
@@ -14,18 +11,17 @@ import AulasPage from './pages/classesPage';
 import { CoursesPage, CourseDetailPage } from './pages/coursesPage';
 import SobrePage from './pages/aboutPage';
 import { BrowserRouter } from 'react-router-dom';
-
-import AccessibilityToolbar from './components/acessibilities/AcessibilityToolbar';
-import VLibras from './components/acessibilities/VLibras';
+import AccessibilityToolbar from './components/accessibilities/AcessibilityToolbar';
+import VLibras from './components/accessibilities/VLibras';
 
 function MyRoutes() {
   return (
     // Wrap the siblings in a Fragment
     <>
-
       <BrowserRouter basename="/spa">  {/* redefine a base URL para http://<domínio>/spa para configuração do proxy reverso no Docker*/}
 
         <AccessibilityToolbar />
+ 
         <VLibras />
 
         <Routes>
@@ -33,7 +29,7 @@ function MyRoutes() {
           <Route path="/cadastrar" element={<CadastrarPage />} /> {/* Rota para a página de cadastro */}
           <Route path="/login" element={<LoginPage />} /> {/* Rota para a página de login */}
           <Route element={<Layout />}>
-            <Route path="/" element={<HomePage />} /> {/* rota para ... */}
+            <Route path="/" element={<HomePage />} /> {/* Rota para ... */}
             <Route path="/cursos" element={<CoursesPage />} />
             <Route path="/cursos/:id" element={<CourseDetailPage />} />
             <Route path="/trilhas" element={<TrilhasPage />} />

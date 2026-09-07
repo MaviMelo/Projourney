@@ -20,7 +20,6 @@ body {
 
 @layer base {
   :root {
-    --teste: hsl(194, 94%, 25%);
     --background: 0, 0%, 80%;
     --foreground: 0 0% 3.9%;
     --header: 209, 56%, 59%, 0.5;
@@ -67,11 +66,10 @@ body {
 
   .dark {
 
-    --teste: #076e18;
-    --background: 0, 0%, 3%;
+ --background: 0, 0%, 3%;
     --foreground: 0 0% 98%;
     --header: 224, 64%, 33%, 0.4;
-    --particle1: 61, 100%, 86%, 0.6;
+    --particle1: 61, 100%, 86%; /* CORRIGIDO AQUI */
     --particle2: 0, 0%, 100%;
     --particle3: 0, 0%, 100%;
     --particle4: 0, 0%, 100%;
@@ -337,4 +335,12 @@ html.large-text {
 html.large-text button[aria-label="Abrir menu de acessibilidade"],
 html.large-text button[aria-label="Abrir menu de acessibilidade"] + div {
   zoom: 0.8;
+}
+
+html.large-text button[aria-label="Abrir menu de acessibilidade"] + div button {
+  zoom: 1.2;
+}
+
+html.large-text button[aria-label="Abrir menu de acessibilidade"] + div button svg {
+  zoom: 1.2;
 }

@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { apiFetch, initAuth } from '@/lib/api';
-import { User, BookOpen, MoreVertical, Loader2, AlertCircle, CheckCircle, LogOut, Trash2 } from "lucide-react";
-import { LogoutButton } from "@/components/effects/logout";
+import { BookOpen, MoreVertical, Loader2, AlertCircle, CheckCircle, Trash2, Plus } from "lucide-react";
 
 // --- Interfaces para Tipagem dos Dados ---
 interface User {
@@ -14,50 +13,44 @@ interface User {
 interface Trail {
     id: number;
     name: string;
-    progress: 'Inscrito' | 'Cursando' | 'Suspenso' | 'Concluído';
     pivot: {
         id: number;
         progress: 'Inscrito' | 'Cursando' | 'Suspenso' | 'Concluído';
     };
 }
 
-// Mapeamento de cores para os status
 const statusColors: { [key: string]: string } = {
-    Inscrito: 'bg-blue-700/20 text-blue-300 border-blue-500/30',
-    Cursando: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30',
-    Suspenso: 'bg-gray-100/20 text-gray-300 border-gray-500/30',
-    Concluído: 'bg-green-500/20 text-green-300 border-green-500/30',
+    Inscrito: 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300 border-blue-500/30',
+    Cursando: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-700/40 dark:text-yellow-300 border-yellow-500/30',
+    Suspenso: 'bg-gray-200 text-gray-800 dark:bg-gray-700/40 dark:text-gray-300 border-gray-500/30',
+    Concluído: 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300 border-green-500/30',
 };
 
 export default function PerfilPage(): React.JSX.Element {
     const navigate = useNavigate();
 
-    // --- Estados do Componente ---
     const [user, setUser] = useState<User | null>(null);
     const [trails, setTrails] = useState<Trail[]>([]);
     const [status, setStatus] = useState<'loading' | 'success' | 'idle' | 'error'>('loading');
     const [feedback, setFeedback] = useState<string>('');
     const [alert, setAlert] = useState<{ status: string, message: string } | null>(null);
 
-    // --- Função para disparar alertas (Fora de qualquer outro hook/função) ---
     const showAlert = (status: string, message: string) => {
         setAlert({ status, message });
         setTimeout(() => setAlert(null), 5000);
     };
 
-    // --- Função para Buscar Dados do Perfil ---
     useEffect(() => {
-        initAuth();
+        initAuth(); // Inicializa o CSRF token
+        
         const userData = localStorage.getItem('loggedUser');
-
         if (!userData) {
             navigate('/login');
-            return; // Se não houver usuário
+            return; 
         }
         const loggedUser: User = JSON.parse(userData);
-        setUser(loggedUser); // Define o usuário no estado
+        setUser(loggedUser); 
 
-        // Função interna para buscar os dados
         const loadProfileData = async () => {
             setStatus('loading');
             try {
@@ -72,11 +65,11 @@ export default function PerfilPage(): React.JSX.Element {
                     }
                     throw new Error(response.message || 'Falha ao carregar dados do perfil.');
                 }
+                
                 const data = response.data as { user: { trails: Trail[] }, status: 'loading' | 'success' | 'idle' | 'error', message: string };
                 setTrails(data.user.trails || []);
-                setStatus(data.status);
-                showAlert(data.status, data.message);
-
+                setStatus('success');
+                
             } catch (err) {
                 setFeedback(err instanceof Error ? err.message : 'Erro desconhecido.');
                 setStatus('error');
@@ -84,37 +77,30 @@ export default function PerfilPage(): React.JSX.Element {
         };
 
         loadProfileData();
-
     }, [navigate]);
 
-
-    // --- Função para Atualizar o Progresso ---
-    const handleProgressoChange = async (pivotId: number, newProgress: Trail['progress']) => {
+    const handleProgressoChange = async (pivotId: number, newProgress: Trail['pivot']['progress']) => {
         if (!user) return;
-
+        
         const oldTrail = [...trails];
         const alreadyUpdate = trails.find(t => t.pivot.id === pivotId);
-        if (alreadyUpdate && alreadyUpdate.pivot.progress === newProgress) { return };
-
-
+        if (alreadyUpdate && alreadyUpdate.pivot.progress === newProgress) return;
+        
         try {
             const response = await apiFetch(`/trailUser/${pivotId}`, {
                 method: 'PATCH',
                 body: JSON.stringify({
                     user_id: user.id,
-                    // pivot_id: pivotId,
                     progress: newProgress,
                 }),
             });
 
             if (response.status !== 'success') throw new Error('Falha ao atualizar o progresso.');
-
-            const result = response.data as { progress: Trail['progress'], status: string, message: string };
-
-            // Otimização: Atualiza a UI para exibir o dado atializado sem recarregar o componente pelo loadProfileData() (request mais cara).
-            setTrails(trails.map(t => t.pivot.id === pivotId ? { ...t, pivot: { ...t.pivot, progress: result.progress } } : t));
-
-            showAlert(result.status, result.message);
+            
+            const result = response.data as { progress: Trail['pivot']['progress'], status: string, message: string };
+            
+            setTrails(trails.map(t => t.pivot.id === pivotId ? { ...t, pivot: { ...t.pivot, progress: result.progress || newProgress } } : t));
+            showAlert('success', result.message || 'Progresso atualizado com sucesso!');
 
         } catch (err) {
             showAlert("error", "Não foi possível atualizar o progresso!");
@@ -123,132 +109,154 @@ export default function PerfilPage(): React.JSX.Element {
     };
 
     const handleDelete = async (trail: Trail) => {
-        window.confirm("Tem certeza que deseja excluir esta trilha?");
+        if(!window.confirm("Tem certeza que deseja excluir esta trilha?")) return;
 
         try {
             const response = await apiFetch(`/trailUser/${trail.pivot.id}`, {
                 method: 'DELETE',
             });
+            
             const result = response.data as { status: string, message: string };
-            if (response.status !== 'success') throw new Error(result.message || 'Falha ao excluir a trilha.');
+            
+            if (response.status !== 'success') throw new Error(result?.message || 'Falha ao excluir a trilha.');
 
-            // Exibir mensagem de sucesso
-            showAlert("success", result.message);
-
+            showAlert("success", result?.message || "Trilha excluída com sucesso.");
             setTrails(trails.filter(t => t.id !== trail.id));
         } catch (err) {
-            showAlert(err instanceof Error ? err.message : "error", "Erro ao excluir trilha.");
+            showAlert("error", err instanceof Error ? err.message : "Erro ao excluir trilha.");
         }
     };
 
     if (status === 'loading') {
         return (
-            <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-                <Loader2 className="w-16 h-16 text-blue-400 animate-spin" />
+            <div className="min-h-[calc(100vh-80px)] flex items-center justify-center">
+                <Loader2 className="w-16 h-16 text-[hsl(var(--button-2))] animate-spin" />
             </div>
         );
     }
 
     if (status === 'error' || !user) {
         return (
-            <div className="centralize">
-                <AlertCircle className="w-16 h-16 text-red-400 mb-4" />
-                <h1 className="textCard">Ocorreu um Erro</h1>
-                <p className="warningError">{feedback || "Não foi possível carregar os dados do perfil."}</p>
-                <button onClick={() => navigate('/login')} className="buttonPrimary">Voltar para o Login</button>
+            <div className="min-h-[calc(100vh-80px)] flex flex-col items-center justify-center p-4">
+                <AlertCircle className="w-16 h-16 text-red-500 mb-4" />
+                <h1 className="text-3xl font-bold !text-gray-900 dark:!text-gray-100 mb-2">Ocorreu um Erro</h1>
+                <p className="text-red-600 dark:text-red-400 font-medium mb-6">{feedback || "Não foi possível carregar os dados do perfil."}</p>
+                <button onClick={() => navigate('/login')} className="bg-[hsl(var(--button-1))] hover:bg-[hsl(var(--button-1-foreground))] text-white font-bold py-3 px-6 rounded-lg transition-colors">
+                    Voltar para o Login
+                </button>
             </div>
         );
     }
 
     return (
+        <div className="max-w-6xl mx-auto p-4 sm:p-8 min-h-[calc(100vh-80px)] relative z-10">
+            
+            {/* Cabeçalho do Perfil */}
+            <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10 mt-4">
+                <div>
+                    <h1 className="text-4xl md:text-5xl font-bold !text-black-900 mb-2">
+                        Olá, {user.name.split(' ')[0]}!
+                    </h1>
+                    <p className="!text-black-700 text-lg">
+                        Aqui está o resumo da sua jornada de aprendizado.
+                    </p>
+                </div>
+            </header>
 
-        <>
-            <div className="max-w-6xl mx-auto p-4 sm:p-8">
-                {/* Cabeçalho do Perfil */}
+            {/* Alertas Flutuantes */}
+            {alert && (
+                <div className={`mb-6 p-4 rounded-lg flex items-center gap-3 font-medium shadow-md border ${
+                    alert.status === 'error' ? 'bg-red-100 text-red-700 border-red-200' : 'bg-green-100 text-green-700 border-green-200'
+                }`}>
+                    {alert.status === 'error' ? <AlertCircle size={24} /> : <CheckCircle size={24} />}
+                    {alert.message}
+                </div>
+            )}
 
-                <header className="itemsJustify">
-                    <div>
-                        <h1 className="title text-5xl">Olá, {user.name.split(' ')[0]}!</h1>
-                        <p className="">Aqui está o resumo da sua jornada de aprendizado.</p>
-                    </div>
-
-                    <LogoutButton />
-
-                </header>
-                {alert && (
-                    <div className={`${alert.status === 'error' ? 'warningError' : 'warningSuccess'}`}>
-                        {alert.message}
-                    </div>
-                )}
-
-
-                {/* Seção de Trilhas */}
-                <section>
-                    <h2 className="textCard itemsJustify2">
-                        <BookOpen className="text-blue-400" />
+            {/* Seção de Trilhas */}
+            <section>
+                <div className="flex items-center gap-3 mb-8 pb-4 border-b border-gray-300 dark:border-gray-700/50">
+                    <BookOpen className="text-[hsl(var(--button-2))] dark:text-blue-400 w-8 h-8" />
+                    <h2 className="text-3xl font-bold !text-black-900">
                         Minhas Trilhas
                     </h2>
+                </div>
 
-                    {trails.length > 0 ? (
-                        <div className="containerGrid ">
+                {trails.length > 0 ? (
+                    <div className="flex flex-col gap-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {trails.map(trail => (
-                                <div key={trail.id} className="card1">
+                                <div key={trail.id} className="!bg-white dark:!bg-[#1a1a1a]/90 backdrop-blur-md border border-gray-200 dark:border-gray-700 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow flex flex-col justify-between">
+                                    
+                                    {/* Topo do Card */}
                                     <div>
-                                        <h3 className="textCard3">
-                                            <Link
-                                                to={`/aulas/${trail.id}`}
-                                                className="textLink"
-                                            >
-                                                {trail.name}
-                                            </Link>
-                                        </h3>
-                                        <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${statusColors[trail.pivot.progress]}`}>
+                                        <Link to={`/aulas/${trail.id}`} className="block text-xl font-bold !text-gray-900 dark:!text-white hover:!text-[hsl(var(--button-2))] dark:hover:!text-blue-400 transition-colors mb-4">
+                                            {trail.name}
+                                        </Link>
+                                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${statusColors[trail.pivot.progress]}`}>
                                             {trail.pivot.progress}
-                                        </div>
+                                        </span>
                                     </div>
-                                    <div className="mt-6 relative">
-                                        <details className="group">
-                                            <summary className=" itemsJustify2 justify-end textLink">
+
+                                    {/* Base do Card */}
+                                    <div className="mt-8 flex items-center justify-between border-t border-gray-200 dark:border-gray-700/50 pt-4">
+                                        
+                                        <details className="group relative">
+                                            <summary className="flex items-center gap-1 text-sm font-medium !text-gray-600 dark:!text-gray-400 hover:!text-blue-600 dark:hover:!text-blue-400 cursor-pointer list-none transition-colors">
                                                 <span>Alterar Status</span>
-                                                <MoreVertical size={20} />
+                                                <MoreVertical size={16} />
                                             </summary>
-                                            <div className=" dropDown centralize2">
+                                            
+                                            <div className="absolute bottom-full left-0 mb-2 w-40 !bg-white dark:!bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl py-2 z-20 hidden group-open:block">
                                                 {Object.keys(statusColors).map(statusKey => (
                                                     <button
                                                         key={statusKey}
                                                         onClick={(e) => {
-                                                            handleProgressoChange(trail.pivot.id, statusKey as Trail['progress']);
+                                                            handleProgressoChange(trail.pivot.id, statusKey as Trail['pivot']['progress']);
                                                             (e.target as HTMLElement).closest('details')?.removeAttribute('open');
                                                         }}
-                                                        className="centralize2 linkGreen"
+                                                        className="w-full text-left px-4 py-2 text-sm !text-gray-700 dark:!text-gray-200 hover:!bg-gray-100 dark:hover:!bg-gray-700 transition-colors"
                                                     >
                                                         {statusKey}
                                                     </button>
                                                 ))}
                                             </div>
                                         </details>
+                                        
                                         <button
-                                            className="itemsJustify linkRed"
                                             onClick={() => handleDelete(trail)}
+                                            className="flex items-center gap-1 text-sm font-medium !text-red-600 dark:!text-red-400 hover:!text-red-800 dark:hover:!text-red-300 transition-colors"
                                         >
+                                            <Trash2 size={16} />
                                             Excluir
-                                            <Trash2 />
                                         </button>
                                     </div>
                                 </div>
                             ))}
                         </div>
-                    ) : (
-                        <div className=" centralize card2">
-                            <h3 className="textCard2">Você ainda não se inscreveu em nenhuma trilha.</h3>
-                            <p className="">Que tal começar uma nova jornada?</p>
-                            <Link to="/trilhas" className="buttonOutline">
-                                Explorar Trilhas
+
+                        {/* Botão de Mais Trilhas condicional */}
+                        <div className="flex justify-center mt-4">
+                            <Link 
+                                to="/trilhas" 
+                                className="inline-flex items-center gap-2 border-2 border-[hsl(var(--button-2))] text-[hsl(var(--button-2))] hover:bg-[hsl(var(--button-2))] hover:text-white dark:border-blue-400 dark:text-blue-400 dark:hover:bg-blue-400 dark:hover:text-gray-950 font-bold py-3 px-8 rounded-full transition-all shadow-md hover:scale-105 active:scale-95"
+                            >
+                                <Plus size={18} />
+                                <span>Adicionar Mais Trilhas</span>
                             </Link>
                         </div>
-                    )}
-                </section>
-            </div>
-        </>
+                    </div>
+                ) : (
+                    /* Estado vazio */
+                    <div className="flex flex-col items-center justify-center !bg-white dark:!bg-[#1a1a1a]/80 backdrop-blur-md border border-dashed border-gray-300 dark:border-gray-700 rounded-2xl p-12 text-center shadow-lg">
+                        <h3 className="text-2xl font-bold !text-gray-900 dark:!text-white mb-2">Você ainda não se inscreveu em nenhuma trilha.</h3>
+                        <p className="!text-gray-600 dark:!text-gray-400 mb-6">Que tal começar uma nova jornada agora mesmo?</p>
+                        <Link to="/trilhas" className="bg-transparent border-2 border-[hsl(var(--button-2))] text-[hsl(var(--button-2))] hover:bg-[hsl(var(--button-2))] hover:text-white font-bold py-3 px-8 rounded-full transition-all">
+                            Explorar Trilhas
+                        </Link>
+                    </div>
+                )}
+            </section>
+        </div>
     );
 }
