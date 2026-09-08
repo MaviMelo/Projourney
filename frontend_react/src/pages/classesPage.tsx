@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Loader2, AlertCircle, ExternalLink, ArrowLeft, GraduationCap, PlayCircle, BookX } from 'lucide-react';
 import { apiFetch, initAuth } from '@/lib/api';
 import ParticleBackground from "@/components/effects/particleBackground";
+import StarRatingPage from '@/components/layout/StarRatingPage';
 
 interface Course {
     id: number;
@@ -124,17 +125,22 @@ export default function AulasPage(): React.JSX.Element {
                                     <div className="p-4 rounded-full bg-gray-100 dark:bg-gray-800 text-[hsl(var(--button-2))] dark:text-blue-400 group-hover:bg-[hsl(var(--button-2))] group-hover:text-white dark:group-hover:bg-blue-500 transition-colors">
                                         <PlayCircle className="w-8 h-8" />
                                     </div>
-                                    <div className="flex flex-col justify-center">
+                                    <div className="flex flex-col justify-center gap-2">
                                         <h3 className="text-2xl font-bold !text-gray-900 dark:!text-white group-hover:text-[hsl(var(--button-2))] dark:group-hover:text-blue-300 transition-colors">
                                             {course.name}
                                         </h3>
+                                        
                                         {/* Tag/Badge de Nível */}
-                                        <span className="mt-2 w-fit inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 border-gray-300 dark:border-gray-600 uppercase tracking-wider">
+                                        <span className="w-fit inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 border-gray-300 dark:border-gray-600 uppercase tracking-wider">
                                             {course.level}
                                         </span>
+
+                                        {/* Componente de Avaliação por curso (usando course.id e stopPropagation para não abrir o link ao clicar nas estrelas) */}
+                                        <div onClick={(e) => e.stopPropagation()} className="mt-2">
+                                            <StarRatingPage Courseid={course.id} />
+                                        </div>
                                     </div>
                                 </div>
-
                                 <div className="flex items-center gap-2 text-[hsl(var(--button-2))] dark:text-blue-400 font-bold group-hover:translate-x-2 transition-transform self-end sm:self-auto mt-4 sm:mt-0 px-4 py-2 rounded-lg group-hover:bg-blue-50 dark:group-hover:bg-blue-900/30">
                                     <span>Acessar Aula</span>
                                     <ExternalLink size={20} />
