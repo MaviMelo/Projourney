@@ -4,6 +4,7 @@ import { Loader2, AlertCircle, ExternalLink, ArrowLeft, GraduationCap, PlayCircl
 import { apiFetch, initAuth } from '@/lib/api';
 import ParticleBackground from "@/components/effects/particleBackground";
 import StarRatingPage from '@/components/layout/StarRatingPage';
+import CommentList from '@/components/layout/CommentList';
 
 interface Course {
     id: number;
@@ -114,8 +115,8 @@ export default function AulasPage(): React.JSX.Element {
                 <div className="flex flex-col gap-6">
                     {courses.length > 0 ? (
                         courses.map(course => (
+                          <React.Fragment key={course.id}>
                             <a
-                                key={course.id}
                                 href={course.link_course}
                                 target="_blank"
                                 rel="noopener noreferrer"
@@ -135,18 +136,21 @@ export default function AulasPage(): React.JSX.Element {
                                             {course.level}
                                         </span>
 
-                                        {/* Componente de Avaliação por curso (usando course.id e stopPropagation para não abrir o link ao clicar nas estrelas) */}
-                                        <div onClick={(e) => e.stopPropagation()} className="mt-2">
-                                            <StarRatingPage Courseid={course.id} />
                                         </div>
-                                    </div>
                                 </div>
                                 <div className="flex items-center gap-2 text-[hsl(var(--button-2))] dark:text-blue-400 font-bold group-hover:translate-x-2 transition-transform self-end sm:self-auto mt-4 sm:mt-0 px-4 py-2 rounded-lg group-hover:bg-blue-50 dark:group-hover:bg-blue-900/30">
                                     <span>Acessar Aula</span>
                                     <ExternalLink size={20} />
                                 </div>
                             </a>
-                        ))
+                         {/* Componente de Avaliação por curso (usando course.id e stopPropagation para não abrir o link ao clicar nas estrelas) */}
+                         <div onClick={(e) => e.stopPropagation()} className="mt-2">
+                            <StarRatingPage Courseid={course.id} />
+                        </div>
+                        {/*criar e ver comentarios*/}
+                        <CommentList Courseid={course.id} />
+                        </React.Fragment>
+                      ))
                     ) : (
                         <div className="flex flex-col items-center justify-center !bg-white dark:!bg-[#1a1a1a]/80 backdrop-blur-md border border-dashed border-gray-300 dark:border-gray-700 rounded-2xl p-12 text-center shadow-lg">
                             <BookX className="w-16 h-16 text-gray-400 mb-4" />

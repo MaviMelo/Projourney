@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\V1\TrailUserController;
 use App\Http\Controllers\Api\V1\CourseController;
 use Illuminate\Routing\ResolvesRouteDependencies;
 use App\Http\Controllers\RatingController;
+use App\Http\Controllers\CommentController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -26,4 +27,8 @@ Route::middleware('auth:sanctum')->name('api.')->group(function () {
     // Rotas de rating integradas no grupo autenticado e com o prefixo /api correto
     Route::get('/items/{Courseid}/ratings', [RatingController::class, 'show']);
     Route::post('/ratings', [RatingController::class, 'store']);
+
+    // Rotas de rating integradas no grupo autenticado e com o prefixo /api correto
+    Route::get('/courses/{courseId}/comments', [CommentController::class, 'show']);
+    Route::post('/comments', [CommentController::class, 'store']);
 });
