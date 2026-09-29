@@ -32,7 +32,7 @@ class RatingController extends Controller
 
         Rating::updateOrCreate(
             [
-                'user_id' => $request->user()->id, 
+                'user_id' => $request->user()->id,
                 'Course_id' => $validated['Course_id']
             ],
             [

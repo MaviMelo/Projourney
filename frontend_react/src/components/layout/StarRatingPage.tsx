@@ -5,11 +5,14 @@ interface StarRatingProps {
     Courseid: number | string;
 }
 
-// 1. Defina o formato dos dados retornados pelo backend
 interface RatingResponse {
-    user_rating?: number;
-    average_rating?: number;
-    new_average?: number;
+    data: {
+        user_rating?: number;
+        average_rating?: number;
+        new_average?: number;
+    };
+    status: string;
+    message?: string;
 }
 
 export default function StarRatingPage({ Courseid }: StarRatingProps) {
@@ -22,24 +25,28 @@ export default function StarRatingPage({ Courseid }: StarRatingProps) {
     useEffect(() => {
         async function fetchRatings() {
             try {
-                // 2. Tipando o retorno com "as RatingResponse"
                 const data = await apiFetch(`/items/${Courseid}/ratings`, {
                     method: 'GET',
                 }) as RatingResponse;
-                
-                setRating(data.user_rating || 0);
-                setAverage(data.average_rating || 0);
+
+                console.log("Resposta da API:", data);
+                console.log("Média recebida:", data.data.average_rating);
+
+                setRating(data.data.user_rating || 0);
+                setAverage(data.data.average_rating || 0);
+
             } catch (error) {
                 console.error("Erro ao carregar avaliações", error);
             }
         }
+
         fetchRatings();
     }, [Courseid]);
 
     const handleRate = async (value: number) => {
         setLoading(true);
+
         try {
-            // 3. Tipando o retorno da mutação também
             const data = await apiFetch('/ratings', {
                 method: 'POST',
                 body: JSON.stringify({
@@ -47,13 +54,19 @@ export default function StarRatingPage({ Courseid }: StarRatingProps) {
                     rating: value,
                 }),
             }) as RatingResponse;
-            
+
+            console.log("Resposta ao avaliar:", data);
+
             setRating(value);
-            if (data.new_average !== undefined) {
-                setAverage(data.new_average);
+
+            if (data.data.average_rating !== undefined) {
+                setAverage(data.data.average_rating);
             }
+
             setMessage('Avaliação salva com sucesso!');
+
             setTimeout(() => setMessage(''), 3000);
+
         } catch (error) {
             setMessage('Erro ao salvar avaliação.');
         } finally {
@@ -76,8 +89,14 @@ export default function StarRatingPage({ Courseid }: StarRatingProps) {
                         type="button"
                         disabled={loading}
                         className={`text-2xl transition-colors ${
-                            star <= (hover || rating) ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600'
-                        } ${loading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                            star <= (hover || rating)
+                                ? 'text-yellow-400'
+                                : 'text-gray-300 dark:text-gray-600'
+                        } ${
+                            loading
+                                ? 'opacity-50 cursor-not-allowed'
+                                : 'cursor-pointer'
+                        }`}
                         onClick={() => handleRate(star)}
                         onMouseEnter={() => setHover(star)}
                         onMouseLeave={() => setHover(0)}
@@ -87,7 +106,11 @@ export default function StarRatingPage({ Courseid }: StarRatingProps) {
                 ))}
             </div>
 
-            {message && <p className="text-xs text-green-600">{message}</p>}
+            {message && (
+                <p className="text-xs text-green-600">
+                    {message}
+                </p>
+            )}
         </div>
     );
 }
