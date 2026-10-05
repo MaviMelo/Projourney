@@ -8,112 +8,51 @@ use Illuminate\Support\Facades\Log;
 
 class TrailCourseController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'trail_id' => ['required', 'integer'],
-            'course_id' => ['required', 'integer']
+            'trail_id'  => ['required', 'integer', 'exists:trails,id'],
+            'course_id' => ['required', 'integer', 'exists:courses,id'],
         ]);
 
-        $existingTrailCourse = TrailCourse::where('trail_id', $validated['trail_id'])
-            ->where('course_id', $validated['course_id'])
-            ->first();
+        // Evita duplicação de forma atômica
+        $trailCourse = TrailCourse::firstOrCreate(
+            [
+                'trail_id'  => $validated['trail_id'],
+                'course_id' => $validated['course_id'],
+            ]
+        );
 
-        if($existingTrailCourse){
+        // Se o registro já existia (não foi recém-criado)
+        if (!$trailCourse->wasRecentlyCreated) {
             return redirect()->route('trail.edit', $validated['trail_id'])->with([
                 'message' => [
                     'status' => 'error',
-                    'msg' => 'O curso já está associado à trilha.'
+                    'msg'    => 'O curso já está associado à trilha.',
                 ]
             ]);
         }
-
-        $trailCourse = TrailCourse::create($validated);
 
         return redirect()->route('trail.edit', $trailCourse->trail_id)->with([
             'message' => [
                 'status' => 'success',
-                'msg' => 'Curso adicionado à trilha com sucesso.'
+                'msg'    => 'Curso adicionado à trilha com sucesso.',
             ]
         ]);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(TrailCourse $trailCourse)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(TrailCourse $trailCourse)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, TrailCourse $trailCourse)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(int $id)
     {
+        $trailCourse = TrailCourse::findOrFail($id);
+        $trailId = $trailCourse->trail_id;
 
-        try {
-            $trailCourse = TrailCourse::findOrFail($id);
-            $trail = $trailCourse->trail_id;
-            $trailCourse->delete();
+        $trailCourse->delete();
 
-            return redirect()->route('trail.edit', $trail)->with([
-                'message' => [
-                    'status' => 'success',
-                    'msg' => 'Curso excluido da trilha com sucesso.'
-                ]
-            ]);
-        } catch (\Throwable $th) {
-            $statusCode = $th->getCode() ?: 500;
-
-            Log::error('Falha ao excluir a instâcia de TrailCourse', [
-                'dados' => $id,
-                'erro'  => $th->getMessage(),
-                'arquivo' => $th->getFile(),
-                'linha'   => $th->getLine(),
-            ]);
-
-            return redirect()->back()->with([
-                'message' => [
-                    'status' => 'error',
-                    'msg' => 'O curso não pôde ser exclúido. Tente novamente mais tarde (código: '.$statusCode.').'
-                ]
-            ]);
-        }
+        return redirect()->route('trail.edit', $trailId)->with([
+            'message' => [
+                'status' => 'success',
+                'msg'    => 'Curso excluído da trilha com sucesso.',
+            ]
+        ]);
     }
 }

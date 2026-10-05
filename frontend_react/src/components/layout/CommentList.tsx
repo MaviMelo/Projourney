@@ -148,7 +148,7 @@ export default function CommentList({ Courseid }: CommentListProps) {
                             key={comment.id}
                             className="p-4 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900"
                         >
-                            <p className="font-semibold">
+                            <p className="mt-1 text-gray-700 dark:text-gray-300">
                                 {comment.user.name}
                             </p>
 

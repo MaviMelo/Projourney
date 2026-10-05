@@ -6,23 +6,19 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('trails', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 150)->unique();
-            // $table->foreignId('category_id')->constrained('categories')->nullable() ;
+            $table->string('name', 150);
+            // NULL = Trilha do Sistema | Preenchido = Trilha Customizada do Usuário
+            $table->foreignId('user_id')->nullable()->constrained('users')->cascadeOnDelete();
+            // Evita que o *mesmo usuário* crie duas trilhas com o mesmo nome
+            $table->unique(['user_id', 'name']);
             $table->timestamps();
-            // $table->softDeletes();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('trails');

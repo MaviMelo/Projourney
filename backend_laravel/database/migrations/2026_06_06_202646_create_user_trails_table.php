@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('trail_id')->constrained('trails')->onDelete('cascade');
             $table->enum('progress', ['Inscrito', 'Cursando', 'Suspenso', 'Concluído'])->default('Inscrito');
-            $table->index(['user_id', 'trail_id']); 
+            $table->index(['user_id', 'trail_id']);
             $table->timestamps();
         });
     }
