@@ -35,13 +35,17 @@ export default function PerfilPage(): React.JSX.Element {
     const [feedback, setFeedback] = useState<string>('');
     const [alert, setAlert] = useState<{ status: string, message: string } | null>(null);
 
+    // Estados para o Modal de Curso Externo
+    const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
+    const [novoCurso, setNovoCurso] = useState({ name: '', link: '' });
+
     const showAlert = (status: string, message: string) => {
         setAlert({ status, message });
         setTimeout(() => setAlert(null), 5000);
     };
 
     useEffect(() => {
-        initAuth(); // Inicializa o CSRF token
+        initAuth();
         
         const userData = localStorage.getItem('loggedUser');
         if (!userData) {
@@ -125,6 +129,16 @@ export default function PerfilPage(): React.JSX.Element {
         } catch (err) {
             showAlert("error", err instanceof Error ? err.message : "Erro ao excluir trilha.");
         }
+    };
+
+    const handleCreateCustomCourse = (e: React.FormEvent) => {
+        e.preventDefault();
+        // Lógica para enviar o link e nome para a API ou salvar no estado
+        console.log("Curso externo criado:", novoCurso);
+        
+        setNovoCurso({ name: '', link: '' });
+        setIsOpenModal(false);
+        showAlert('success', 'Curso externo adicionado com sucesso!');
     };
 
     if (status === 'loading') {
@@ -235,8 +249,8 @@ export default function PerfilPage(): React.JSX.Element {
                             ))}
                         </div>
 
-                        {/* Botão de Mais Trilhas condicional */}
-                        <div className="flex justify-center mt-4">
+                        {/* Botões de Ação */}
+                        <div className="flex flex-wrap justify-center gap-4 mt-4">
                             <Link 
                                 to="/trilhas" 
                                 className="inline-flex items-center gap-2 border-2 border-[hsl(var(--button-2))] text-[hsl(var(--button-2))] hover:bg-[hsl(var(--button-2))] hover:text-white dark:border-blue-400 dark:text-blue-400 dark:hover:bg-blue-400 dark:hover:text-gray-950 font-bold py-3 px-8 rounded-full transition-all shadow-md hover:scale-105 active:scale-95"
@@ -244,6 +258,14 @@ export default function PerfilPage(): React.JSX.Element {
                                 <Plus size={18} />
                                 <span>Adicionar Mais Trilhas</span>
                             </Link>
+
+                            <button 
+                                onClick={() => setIsOpenModal(true)}
+                                className="inline-flex items-center gap-2 bg-[hsl(var(--button-2))] text-white font-bold py-3 px-6 rounded-full transition-all shadow-md hover:opacity-90"
+                            >
+                                <Plus size={18} />
+                                <span>Adicionar Curso Externo</span>
+                            </button>
                         </div>
                     </div>
                 ) : (
@@ -251,12 +273,72 @@ export default function PerfilPage(): React.JSX.Element {
                     <div className="flex flex-col items-center justify-center !bg-white dark:!bg-[#1a1a1a]/80 backdrop-blur-md border border-dashed border-gray-300 dark:border-gray-700 rounded-2xl p-12 text-center shadow-lg">
                         <h3 className="text-2xl font-bold !text-gray-900 dark:!text-white mb-2">Você ainda não se inscreveu em nenhuma trilha.</h3>
                         <p className="!text-gray-600 dark:!text-gray-400 mb-6">Que tal começar uma nova jornada agora mesmo?</p>
-                        <Link to="/trilhas" className="bg-transparent border-2 border-[hsl(var(--button-2))] text-[hsl(var(--button-2))] hover:bg-[hsl(var(--button-2))] hover:text-white font-bold py-3 px-8 rounded-full transition-all">
-                            Explorar Trilhas
-                        </Link>
+                        
+                        <div className="flex flex-wrap justify-center gap-4">
+                            <Link to="/trilhas" className="bg-transparent border-2 border-[hsl(var(--button-2))] text-[hsl(var(--button-2))] hover:bg-[hsl(var(--button-2))] hover:text-white font-bold py-3 px-8 rounded-full transition-all">
+                                Explorar Trilhas
+                            </Link>
+                            <button 
+                                onClick={() => setIsOpenModal(true)}
+                                className="bg-[hsl(var(--button-2))] text-white font-bold py-3 px-8 rounded-full transition-all"
+                            >
+                                Adicionar Curso Externo
+                            </button>
+                        </div>
                     </div>
                 )}
             </section>
+
+            {/* Modal para Adicionar Curso/Link Externo */}
+            {isOpenModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+                    <div className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-700 rounded-2xl p-6 w-full max-w-md shadow-2xl">
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Adicionar Novo Curso/Link</h3>
+                        
+                        <form onSubmit={handleCreateCustomCourse} className="flex flex-col gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nome do Curso</label>
+                                <input 
+                                    type="text" 
+                                    required
+                                    value={novoCurso.name}
+                                    onChange={(e) => setNovoCurso({ ...novoCurso, name: e.target.value })}
+                                    className="w-full px-4 py-2 border rounded-lg dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                                    placeholder="Ex: Arquitetura Limpa"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Link de Acesso</label>
+                                <input 
+                                    type="url" 
+                                    required
+                                    value={novoCurso.link}
+                                    onChange={(e) => setNovoCurso({ ...novoCurso, link: e.target.value })}
+                                    className="w-full px-4 py-2 border rounded-lg dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                                    placeholder="https://..."
+                                />
+                            </div>
+
+                            <div className="flex justify-end gap-3 mt-4">
+                                <button 
+                                    type="button" 
+                                    onClick={() => setIsOpenModal(false)}
+                                    className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                                >
+                                    Cancelar
+                                </button>
+                                <button 
+                                    type="submit" 
+                                    className="px-4 py-2 bg-[hsl(var(--button-2))] text-white font-bold rounded-lg transition-all"
+                                >
+                                    Salvar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
