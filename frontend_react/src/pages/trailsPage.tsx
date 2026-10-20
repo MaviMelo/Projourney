@@ -25,7 +25,7 @@ const iconMap: { [key: string]: React.ElementType } = {
   "Inteligência Artificial": Zap,
   "Desenvolvimento Full Stack": Code,
   "Interconexão e Serviços de Redes (ISR)": Globe,
-  "Minhas trilha": UsersRound,
+  "Minha trilha": UsersRound,
 };
 
 export default function TrailsPage(): React.JSX.Element {

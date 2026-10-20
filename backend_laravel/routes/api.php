@@ -23,6 +23,7 @@ Route::middleware('auth:sanctum')->name('api.')->group(function () {
         'trail' => TrailController::class,
         'course' => CourseController::class,
         'trailUser' => TrailUserController::class,
+        'comments' => CommentController::class,
     ]);
 
     Route::post('/trail-courses', [TrailCourseController::class, 'store']);
@@ -31,8 +32,4 @@ Route::middleware('auth:sanctum')->name('api.')->group(function () {
     // Rotas de rating integradas no grupo autenticado e com o prefixo /api correto
     Route::get('/items/{Courseid}/ratings', [RatingController::class, 'show']);
     Route::post('/ratings', [RatingController::class, 'store']);
-
-    // Rotas de rating integradas no grupo autenticado e com o prefixo /api correto
-    Route::get('/courses/{courseId}/comments', [CommentController::class, 'show']);
-    Route::post('/comments', [CommentController::class, 'store']);
 });
