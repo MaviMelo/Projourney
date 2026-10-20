@@ -25,7 +25,6 @@ class TrailSeeder extends Seeder
             ['name' => 'Desenvolvimento Backend'],
             ['name' => 'Desenvolvimento Full Stack'],
             ['name' => 'Interconexão e Serviços de Redes (ISR)'],
-            ['name' => 'Minhas trilha']
         ]);
     }
 }

@@ -13,6 +13,7 @@ class Course extends Model
         'name',
         'level',
         'link_course',
+        'user_id',
     ];
 
     protected $casts = [
@@ -24,7 +25,16 @@ class Course extends Model
 
     protected $dates = ['deleted_at'];
 
-    // Relacionamento com a tabela Trail (se houver relação many-to-many)
+    /**
+     * Relacionamento com o usuário criador (caso seja um curso personalizado do usuário).
+     * Se user_id for null, o curso pertence ao sistema.
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    // Relacionamento com a tabela Trail (Many-to-Many)
     public function trails()
     {
         return $this->belongsToMany(Trail::class, 'trail_courses', 'course_id', 'trail_id');

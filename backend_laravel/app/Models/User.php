@@ -23,6 +23,19 @@ class User extends Authenticatable implements PasskeyUser
     use HasFactory, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable, HasApiTokens;
 
     /**
+     * Boot do Model para registrar eventos automáticos (como a criação da trilha padrão).
+     */
+    protected static function booted()
+    {
+        static::created(function (User $user) {
+            // Cria automaticamente a trilha personalizada padrão para o novo usuário
+            $user->trails()->create([
+                'name' => 'Minha Trilha Personalizada',
+            ]);
+        });
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -37,6 +50,11 @@ class User extends Authenticatable implements PasskeyUser
     }
 
     public function trails(){
-        return $this->belongsToMany(Trail::class, 'user_trails', 'user_id', 'trail_id')->withPivot('progress', 'id');
+        return $this->hasMany(Trail::class); // Alterado para hasMany, já que agora a trilha pertence diretamente ao usuário via user_id
+    }
+
+    public function courses()
+    {
+        return $this->hasMany(Course::class);
     }
 }

@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Course;
-use App\Models\Trail;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Validation\Rule;
 
 class CourseController extends Controller
 {
@@ -15,15 +16,27 @@ class CourseController extends Controller
      */
     public function index()
     {
-        $courses = Course::with('trails')->latest()->paginate(25);
+        $userId = Auth::id();
+
+        // Lista cursos do sistema (user_id null) e os cursos customizados do usuário logado
+        $courses = Course::with('trails')
+            ->where(function ($query) use ($userId) {
+                $query->whereNull('user_id')
+                      ->orWhere('user_id', $userId);
+            })
+            ->latest()
+            ->paginate(25);
+
+        $totalCourses = Course::whereNull('user_id')
+            ->orWhere('user_id', $userId)
+            ->count();
 
         return Inertia::render('dashboard', [
             'courses' => $courses,
             'activeView' => 'courses',
             'status' => [
-                'total_courses' => Course::count(),
+                'total_courses' => $totalCourses,
             ],
-
         ]);
     }
 
@@ -40,18 +53,26 @@ class CourseController extends Controller
      */
     public function store(Request $request)
     {
+        $userId = Auth::id();
+
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:150', 'unique:courses,name'],
+            'name' => [
+                'required',
+                'string',
+                'max:150',
+                // Garante unicidade do nome para o mesmo escopo (sistema ou usuário logado)
+                Rule::unique('courses')->where(fn ($query) => $query->where('user_id', $userId))
+            ],
             'level' => ['required', 'string', 'in:intermediário,básico,avançado'],
-            'link_course' => ['required', 'string', 'max:250', 'unique:courses,link_course'],
+            'link_course' => ['required', 'string', 'max:250'],
         ]);
 
         try {
+            $validated['user_id'] = $userId;
             $course = Course::create($validated);
 
             return redirect()->back()->with([
                 'dbData' => $course,
-
                 'message' => [
                     'status'  => 'success',
                     'msg' => 'Curso ' . $course->name . ' criado com sucesso.',
@@ -69,7 +90,7 @@ class CourseController extends Controller
 
             return redirect()->back()->with('message', [
                 'status'  => 'error',
-                'msg' => 'O curso ' . $validated['name'] . ' não pôde ser criado. (Codigo: ' . $statusCode . ')',
+                'msg' => 'O curso não pôde ser criado. (Codigo: ' . $statusCode . ')',
             ]);
         }
     }
@@ -87,9 +108,12 @@ class CourseController extends Controller
      */
     public function edit(string $id)
     {
-        $course = Course::findOrFail($id);
+        // Permite editar apenas se o curso for do usuário logado
+        $course = Course::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
 
-        return inertia::render('course/edit', compact('course'));
+        return Inertia::render('course/edit', compact('course'));
     }
 
     /**
@@ -97,17 +121,24 @@ class CourseController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $course = Course::findOrFail($id);
+        // Garante que o usuário só atualiza cursos que pertencem a ele
+        $course = Course::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
 
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:150', 'unique:courses,name,'. $id],
+            'name' => [
+                'required',
+                'string',
+                'max:150',
+                Rule::unique('courses')->where(fn ($query) => $query->where('user_id', Auth::id()))->ignore($course->id)
+            ],
             'level' => ['required', 'string', 'in:básico,intermediário,avançado'],
-            'link_course' => ['required', 'string', 'max:250', 'unique:courses,link_course,'.$id],
+            'link_course' => ['required', 'string', 'max:250'],
         ]);
 
         try {
-            $course->fill($validated);
-            $course->save();
+            $course->update($validated);
 
             return redirect()->back()->with('message', [
                 'status'  => 'success',
@@ -125,7 +156,7 @@ class CourseController extends Controller
 
             return redirect()->back()->with('message', [
                 'status'  => 'error',
-                'msg' => 'O curso ' . $validated['name'] . ' não pôde ser atualizado. (Codigo: ' . $statusCode . ')',
+                'msg' => 'O curso não pôde ser atualizado. (Codigo: ' . $statusCode . ')',
             ]);
         }
     }
@@ -135,25 +166,31 @@ class CourseController extends Controller
      */
     public function destroy(Course $course)
     {
+        // Bloqueia caso o curso não pertença ao usuário logado (ex: cursos do sistema)
+        if ($course->user_id !== Auth::id()) {
+            abort(403, 'Ação não autorizada.');
+        }
+
         try {
-            $course = Course::findOrFail($course->id);
+            $courseName = $course->name;
             $course->delete();
 
             return redirect()->back()->with('message', [
                 'status'  => 'success',
-                'msg' => 'Curso ' . $course->name . ' excluído com sucesso.',
+                'msg' => 'Curso ' . $courseName . ' excluído com sucesso.',
             ]);
         } catch (\Throwable $e) {
-            log::error('Erro ao tentar excluír curso: ', [
-                'Dados: ' => $course,
-                'Erro: ' => $e->getMessage,
-                'Arquivo: ' => $e->getFile,
-                'Linha: ' => $e->getLine,
+            // Corrigido para chamar os métodos com parênteses corretos
+            Log::error('Erro ao tentar excluir curso: ', [
+                'Dados' => $course->toArray(),
+                'Erro' => $e->getMessage(),
+                'Arquivo' => $e->getFile(),
+                'Linha' => $e->getLine(),
             ]);
 
             return redirect()->back()->with('message', [
                 'status'  => 'error',
-                'msg' => 'Erro ao tentar excluir:',
+                'msg' => 'Erro ao tentar excluir o curso.',
             ]);
         }
     }

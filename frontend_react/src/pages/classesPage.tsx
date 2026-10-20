@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Loader2, AlertCircle, ExternalLink, ArrowLeft, GraduationCap, PlayCircle, BookX } from 'lucide-react';
+import { Loader2, AlertCircle, ExternalLink, ArrowLeft, GraduationCap, PlayCircle, BookX, Plus } from 'lucide-react';
 import { apiFetch, initAuth } from '@/lib/api';
 import ParticleBackground from "@/components/effects/particleBackground";
 import StarRatingPage from '@/components/layout/StarRatingPage';
@@ -19,6 +19,10 @@ export default function AulasPage(): React.JSX.Element {
     const [courses, setCourses] = useState<Course[]>([]);
     const [status, setStatus] = useState<'loading' | 'error' | 'success'>('loading');
     
+    // 1. Estados para o Modal e para identificar se a trilha é personalizada
+    const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
+    const [isCustomTrail, setIsCustomTrail] = useState<boolean>(false);
+    const [novoCurso, setNovoCurso] = useState({ name: '', link: '' });
 
     useEffect(() => {
         initAuth();
@@ -33,15 +37,16 @@ export default function AulasPage(): React.JSX.Element {
 
         const fetchCursos = async () => {
             try {
-
                 const response = await apiFetch(`/trail/${trailId}`);
                 
                 if (response.status !== 'success') {
                     throw new Error(`Erro do Servidor: ${response.message}`);
                 }
 
-                const result = response.data as { trail: { courses: Course[] } };
+                // 2. Ajuste conforme o retorno da sua API (ex: response.data.trail.is_custom)
+                const result = response.data as { trail: { courses: Course[]; is_custom?: boolean } };
                 setCourses(result.trail.courses);
+                setIsCustomTrail(result.trail.is_custom ?? false);
                 setStatus('success');
 
             } catch (error) {
@@ -53,7 +58,14 @@ export default function AulasPage(): React.JSX.Element {
         fetchCursos();
     }, [trailId]);
 
-    // --- Renderização de Loading (Estilizada com o tema global) ---
+    // Função para lidar com a criação do curso personalizado
+    const handleCreateCustomCourse = async (e: React.FormEvent) => {
+        e.preventDefault();
+        // Lógica de envio para a API...
+        setIsOpenModal(false);
+        setNovoCurso({ name: '', link: '' });
+    };
+
     if (status === 'loading') {
         return (
             <>
@@ -65,7 +77,6 @@ export default function AulasPage(): React.JSX.Element {
         );
     }
 
-    // --- Renderização de Erro (Estilizada com o tema global) ---
     if (status === 'error') {
         return (
             <>
@@ -82,15 +93,13 @@ export default function AulasPage(): React.JSX.Element {
         );
     }
 
-    // --- Renderização Principal ---
     return (
         <>
             <ParticleBackground />
 
             <main className="max-w-5xl mx-auto p-4 sm:p-8 min-h-[calc(100vh-80px)] relative z-10 flex flex-col">
                 
-                {/* Botão de Voltar */}
-                <div className="mb-6 mt-4">
+                <div className="mb-6 mt-4 flex justify-between items-center">
                     <Link 
                         to="/perfil" 
                         className="inline-flex items-center gap-2 text-[hsl(var(--button-2))] hover:text-[hsl(var(--button-2-foreground))] font-semibold transition-colors"
@@ -98,9 +107,19 @@ export default function AulasPage(): React.JSX.Element {
                         <ArrowLeft size={20} />
                         Voltar para Minhas Trilhas
                     </Link>
+
+                    {/* 3. Exibir botão de adicionar aula apenas se for trilha personalizada */}
+                    {isCustomTrail && (
+                        <button
+                            onClick={() => setIsOpenModal(true)}
+                            className="flex items-center gap-2 bg-[hsl(var(--button-2))] hover:opacity-90 text-white font-bold py-2 px-4 rounded-xl transition-all"
+                        >
+                            <Plus size={20} />
+                            Adicionar Aula
+                        </button>
+                    )}
                 </div>
 
-                {/* Cabeçalho da Página */}
                 <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-10 pb-6 border-b border-gray-300 dark:border-gray-700/50">
                     <div className="p-4 bg-blue-100 dark:bg-blue-900/40 rounded-2xl w-fit">
                         <GraduationCap className="text-[hsl(var(--button-2))] dark:text-blue-400 w-10 h-10" />
@@ -111,7 +130,6 @@ export default function AulasPage(): React.JSX.Element {
                     </div>
                 </div>
 
-                {/* Lista de Cursos */}
                 <div className="flex flex-col gap-6">
                     {courses.length > 0 ? (
                         courses.map(course => (
@@ -130,27 +148,22 @@ export default function AulasPage(): React.JSX.Element {
                                         <h3 className="text-2xl font-bold !text-gray-900 dark:!text-white group-hover:text-[hsl(var(--button-2))] dark:group-hover:text-blue-300 transition-colors">
                                             {course.name}
                                         </h3>
-                                        
-                                        {/* Tag/Badge de Nível */}
                                         <span className="w-fit inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 border-gray-300 dark:border-gray-600 uppercase tracking-wider">
                                             {course.level}
                                         </span>
-
-                                        </div>
+                                    </div>
                                 </div>
                                 <div className="flex items-center gap-2 text-[hsl(var(--button-2))] dark:text-blue-400 font-bold group-hover:translate-x-2 transition-transform self-end sm:self-auto mt-4 sm:mt-0 px-4 py-2 rounded-lg group-hover:bg-blue-50 dark:group-hover:bg-blue-900/30">
                                     <span>Acessar Aula</span>
                                     <ExternalLink size={20} />
                                 </div>
                             </a>
-                         {/* Componente de Avaliação por curso (usando course.id e stopPropagation para não abrir o link ao clicar nas estrelas) */}
-                         <div onClick={(e) => e.stopPropagation()} className="mt-2">
-                            <StarRatingPage Courseid={course.id} />
-                        </div>
-                        {/*criar e ver comentarios*/}
-                        <CommentList Courseid={course.id} />
-                        </React.Fragment>
-                      ))
+                            <div onClick={(e) => e.stopPropagation()} className="mt-2">
+                                <StarRatingPage Courseid={course.id} />
+                            </div>
+                            <CommentList Courseid={course.id} />
+                          </React.Fragment>
+                        ))
                     ) : (
                         <div className="flex flex-col items-center justify-center !bg-white dark:!bg-[#1a1a1a]/80 backdrop-blur-md border border-dashed border-gray-300 dark:border-gray-700 rounded-2xl p-12 text-center shadow-lg">
                             <BookX className="w-16 h-16 text-gray-400 mb-4" />
@@ -160,6 +173,57 @@ export default function AulasPage(): React.JSX.Element {
                     )}
                 </div>
             </main>
+
+            {/* 4. Modal de Adicionar Curso/Link renderizado condicionalmente */}
+            {isOpenModal && isCustomTrail && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+                    <div className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-700 rounded-2xl p-6 w-full max-w-md shadow-2xl">
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Adicionar Novo Curso/Link</h3>
+                        
+                        <form onSubmit={handleCreateCustomCourse} className="flex flex-col gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nome do Curso</label>
+                                <input 
+                                    type="text" 
+                                    required
+                                    value={novoCurso.name}
+                                    onChange={(e) => setNovoCurso({ ...novoCurso, name: e.target.value })}
+                                    className="w-full px-4 py-2 border rounded-lg dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                                    placeholder="Ex: Arquitetura Limpa"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Link de Acesso</label>
+                                <input 
+                                    type="url" 
+                                    required
+                                    value={novoCurso.link}
+                                    onChange={(e) => setNovoCurso({ ...novoCurso, link: e.target.value })}
+                                    className="w-full px-4 py-2 border rounded-lg dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                                    placeholder="https://..."
+                                />
+                            </div>
+
+                            <div className="flex justify-end gap-3 mt-4">
+                                <button 
+                                    type="button" 
+                                    onClick={() => setIsOpenModal(false)}
+                                    className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                                >
+                                    Cancelar
+                                </button>
+                                <button 
+                                    type="submit" 
+                                    className="px-4 py-2 bg-[hsl(var(--button-2))] text-white font-bold rounded-lg transition-all"
+                                >
+                                    Salvar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </>
     );
 }

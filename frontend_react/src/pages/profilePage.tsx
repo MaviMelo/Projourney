@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { apiFetch, initAuth } from '@/lib/api';
 import { BookOpen, MoreVertical, Loader2, AlertCircle, CheckCircle, Trash2, Plus } from "lucide-react";
 
-// --- Interfaces para Tipagem dos Dados ---
 interface User {
     id: number;
     name: string;
@@ -13,7 +12,8 @@ interface User {
 interface Trail {
     id: number;
     name: string;
-    pivot: {
+    user_id: number | null; // Identifica se é do sistema (null) ou do usuário
+    pivot?: {
         id: number;
         progress: 'Inscrito' | 'Cursando' | 'Suspenso' | 'Concluído';
     };
@@ -34,10 +34,6 @@ export default function PerfilPage(): React.JSX.Element {
     const [status, setStatus] = useState<'loading' | 'success' | 'idle' | 'error'>('loading');
     const [feedback, setFeedback] = useState<string>('');
     const [alert, setAlert] = useState<{ status: string, message: string } | null>(null);
-
-    // Estados para o Modal de Curso Externo
-    const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
-    const [novoCurso, setNovoCurso] = useState({ name: '', link: '' });
 
     const showAlert = (status: string, message: string) => {
         setAlert({ status, message });
@@ -61,16 +57,10 @@ export default function PerfilPage(): React.JSX.Element {
                 const response = await apiFetch('/profile');
 
                 if (response.status !== 'success') {
-                    if (response.data === 401 || response.data === 403) {
-                        window.alert("Sua sessão expirou ou é inválida. Faça login novamente.");
-                        localStorage.removeItem('loggedUser');
-                        navigate('/login');
-                        return;
-                    }
                     throw new Error(response.message || 'Falha ao carregar dados do perfil.');
                 }
                 
-                const data = response.data as { user: { trails: Trail[] }, status: 'loading' | 'success' | 'idle' | 'error', message: string };
+                const data = response.data as { user: { trails: Trail[] } };
                 setTrails(data.user.trails || []);
                 setStatus('success');
                 
@@ -83,62 +73,27 @@ export default function PerfilPage(): React.JSX.Element {
         loadProfileData();
     }, [navigate]);
 
-    const handleProgressoChange = async (pivotId: number, newProgress: Trail['pivot']['progress']) => {
-        if (!user) return;
-        
-        const oldTrail = [...trails];
-        const alreadyUpdate = trails.find(t => t.pivot.id === pivotId);
-        if (alreadyUpdate && alreadyUpdate.pivot.progress === newProgress) return;
-        
-        try {
-            const response = await apiFetch(`/trailUser/${pivotId}`, {
-                method: 'PATCH',
-                body: JSON.stringify({
-                    user_id: user.id,
-                    progress: newProgress,
-                }),
-            });
-
-            if (response.status !== 'success') throw new Error('Falha ao atualizar o progresso.');
-            
-            const result = response.data as { progress: Trail['pivot']['progress'], status: string, message: string };
-            
-            setTrails(trails.map(t => t.pivot.id === pivotId ? { ...t, pivot: { ...t.pivot, progress: result.progress || newProgress } } : t));
-            showAlert('success', result.message || 'Progresso atualizado com sucesso!');
-
-        } catch (err) {
-            showAlert("error", "Não foi possível atualizar o progresso!");
-            setTrails(oldTrail);
-        }
-    };
-
     const handleDelete = async (trail: Trail) => {
-        if(!window.confirm("Tem certeza que deseja excluir esta trilha?")) return;
+        // Se for trilha do sistema (user_id === null), o usuário comum não deve poder excluir
+        if (trail.user_id === null) {
+            showAlert("error", "Você não pode excluir trilhas oficiais do sistema.");
+            return;
+        }
+
+        if (!window.confirm("Tem certeza que deseja excluir sua trilha personalizada?")) return;
 
         try {
-            const response = await apiFetch(`/trailUser/${trail.pivot.id}`, {
+            const response = await apiFetch(`/trails/${trail.id}`, {
                 method: 'DELETE',
             });
             
-            const result = response.data as { status: string, message: string };
-            
-            if (response.status !== 'success') throw new Error(result?.message || 'Falha ao excluir a trilha.');
+            if (response.status !== 'success') throw new Error('Falha ao excluir a trilha.');
 
-            showAlert("success", result?.message || "Trilha excluída com sucesso.");
+            showAlert("success", "Trilha excluída com sucesso.");
             setTrails(trails.filter(t => t.id !== trail.id));
         } catch (err) {
             showAlert("error", err instanceof Error ? err.message : "Erro ao excluir trilha.");
         }
-    };
-
-    const handleCreateCustomCourse = (e: React.FormEvent) => {
-        e.preventDefault();
-        // Lógica para enviar o link e nome para a API ou salvar no estado
-        console.log("Curso externo criado:", novoCurso);
-        
-        setNovoCurso({ name: '', link: '' });
-        setIsOpenModal(false);
-        showAlert('success', 'Curso externo adicionado com sucesso!');
     };
 
     if (status === 'loading') {
@@ -153,9 +108,9 @@ export default function PerfilPage(): React.JSX.Element {
         return (
             <div className="min-h-[calc(100vh-80px)] flex flex-col items-center justify-center p-4">
                 <AlertCircle className="w-16 h-16 text-red-500 mb-4" />
-                <h1 className="text-3xl font-bold !text-gray-900 dark:!text-gray-100 mb-2">Ocorreu um Erro</h1>
-                <p className="text-red-600 dark:text-red-400 font-medium mb-6">{feedback || "Não foi possível carregar os dados do perfil."}</p>
-                <button onClick={() => navigate('/login')} className="bg-[hsl(var(--button-1))] hover:bg-[hsl(var(--button-1-foreground))] text-white font-bold py-3 px-6 rounded-lg transition-colors">
+                <h1 className="text-3xl font-bold mb-2">Ocorreu um Erro</h1>
+                <p className="text-red-600 font-medium mb-6">{feedback}</p>
+                <button onClick={() => navigate('/login')} className="bg-[hsl(var(--button-1))] text-white font-bold py-3 px-6 rounded-lg">
                     Voltar para o Login
                 </button>
             </div>
@@ -164,20 +119,17 @@ export default function PerfilPage(): React.JSX.Element {
 
     return (
         <div className="max-w-6xl mx-auto p-4 sm:p-8 min-h-[calc(100vh-80px)] relative z-10">
-            
-            {/* Cabeçalho do Perfil */}
             <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10 mt-4">
                 <div>
-                    <h1 className="text-4xl md:text-5xl font-bold !text-black-900 mb-2">
+                    <h1 className="text-4xl md:text-5xl font-bold mb-2">
                         Olá, {user.name.split(' ')[0]}!
                     </h1>
-                    <p className="!text-black-700 text-lg">
-                        Aqui está o resumo da sua jornada de aprendizado.
+                    <p className="text-lg opacity-80">
+                        Aqui estão suas trilhas do sistema e personalizadas.
                     </p>
                 </div>
             </header>
 
-            {/* Alertas Flutuantes */}
             {alert && (
                 <div className={`mb-6 p-4 rounded-lg flex items-center gap-3 font-medium shadow-md border ${
                     alert.status === 'error' ? 'bg-red-100 text-red-700 border-red-200' : 'bg-green-100 text-green-700 border-green-200'
@@ -187,158 +139,52 @@ export default function PerfilPage(): React.JSX.Element {
                 </div>
             )}
 
-            {/* Seção de Trilhas */}
             <section>
                 <div className="flex items-center gap-3 mb-8 pb-4 border-b border-gray-300 dark:border-gray-700/50">
-                    <BookOpen className="text-[hsl(var(--button-2))] dark:text-blue-400 w-8 h-8" />
-                    <h2 className="text-3xl font-bold !text-black-900">
-                        Minhas Trilhas
-                    </h2>
+                    <BookOpen className="text-[hsl(var(--button-2))] w-8 h-8" />
+                    <h2 className="text-3xl font-bold">Trilhas Disponíveis e Suas</h2>
                 </div>
 
                 {trails.length > 0 ? (
-                    <div className="flex flex-col gap-8">
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {trails.map(trail => (
-                                <div key={trail.id} className="!bg-white dark:!bg-[#1a1a1a]/90 backdrop-blur-md border border-gray-200 dark:border-gray-700 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow flex flex-col justify-between">
-                                    
-                                    {/* Topo do Card */}
-                                    <div>
-                                        <Link to={`/aulas/${trail.id}`} className="block text-xl font-bold !text-gray-900 dark:!text-white hover:!text-[hsl(var(--button-2))] dark:hover:!text-blue-400 transition-colors mb-4">
-                                            {trail.name}
-                                        </Link>
-                                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${statusColors[trail.pivot.progress]}`}>
-                                            {trail.pivot.progress}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {trails.map(trail => (
+                            <div key={trail.id} className="bg-white dark:bg-[#1a1a1a]/95 border border-gray-200 dark:border-gray-700 rounded-2xl p-6 shadow-lg flex flex-col justify-between">
+                                <div>
+                                    <div className="flex justify-between items-start mb-2">
+                                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${statusColors[trail.pivot?.progress ?? 'Inscrito']}`}>
+                                          {trail.pivot?.progress ?? 'Inscrito'}
                                         </span>
                                     </div>
+                                    <Link to={`/aulas/${trail.id}`} className="block text-xl font-bold hover:text-blue-500 transition-colors mb-4">
+                                        {trail.name}
+                                    </Link>
+                                </div>
 
-                                    {/* Base do Card */}
-                                    <div className="mt-8 flex items-center justify-between border-t border-gray-200 dark:border-gray-700/50 pt-4">
-                                        
-                                        <details className="group relative">
-                                            <summary className="flex items-center gap-1 text-sm font-medium !text-gray-600 dark:!text-gray-400 hover:!text-blue-600 dark:hover:!text-blue-400 cursor-pointer list-none transition-colors">
-                                                <span>Alterar Status</span>
-                                                <MoreVertical size={16} />
-                                            </summary>
-                                            
-                                            <div className="absolute bottom-full left-0 mb-2 w-40 !bg-white dark:!bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl py-2 z-20 hidden group-open:block">
-                                                {Object.keys(statusColors).map(statusKey => (
-                                                    <button
-                                                        key={statusKey}
-                                                        onClick={(e) => {
-                                                            handleProgressoChange(trail.pivot.id, statusKey as Trail['pivot']['progress']);
-                                                            (e.target as HTMLElement).closest('details')?.removeAttribute('open');
-                                                        }}
-                                                        className="w-full text-left px-4 py-2 text-sm !text-gray-700 dark:!text-gray-200 hover:!bg-gray-100 dark:hover:!bg-gray-700 transition-colors"
-                                                    >
-                                                        {statusKey}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </details>
-                                        
+                                <div className="mt-8 flex items-center justify-between border-t border-gray-200 dark:border-gray-700/50 pt-4">
+                                    <Link to={`/aulas/${trail.id}`} className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline">
+                                        Acessar Trilha
+                                    </Link>
+                                    
+                                    {/* Botão de excluir apenas para trilhas personalizadas do usuário */}
+                                    {trail.user_id !== null && (
                                         <button
                                             onClick={() => handleDelete(trail)}
-                                            className="flex items-center gap-1 text-sm font-medium !text-red-600 dark:!text-red-400 hover:!text-red-800 dark:hover:!text-red-300 transition-colors"
+                                            className="flex items-center gap-1 text-sm font-medium text-red-600 hover:text-red-800 transition-colors"
                                         >
                                             <Trash2 size={16} />
                                             Excluir
                                         </button>
-                                    </div>
+                                    )}
                                 </div>
-                            ))}
-                        </div>
-
-                        {/* Botões de Ação */}
-                        <div className="flex flex-wrap justify-center gap-4 mt-4">
-                            <Link 
-                                to="/trilhas" 
-                                className="inline-flex items-center gap-2 border-2 border-[hsl(var(--button-2))] text-[hsl(var(--button-2))] hover:bg-[hsl(var(--button-2))] hover:text-white dark:border-blue-400 dark:text-blue-400 dark:hover:bg-blue-400 dark:hover:text-gray-950 font-bold py-3 px-8 rounded-full transition-all shadow-md hover:scale-105 active:scale-95"
-                            >
-                                <Plus size={18} />
-                                <span>Adicionar Mais Trilhas</span>
-                            </Link>
-
-                            <button 
-                                onClick={() => setIsOpenModal(true)}
-                                className="inline-flex items-center gap-2 bg-[hsl(var(--button-2))] text-white font-bold py-3 px-6 rounded-full transition-all shadow-md hover:opacity-90"
-                            >
-                                <Plus size={18} />
-                                <span>Adicionar Curso Externo</span>
-                            </button>
-                        </div>
+                            </div>
+                        ))}
                     </div>
                 ) : (
-                    /* Estado vazio */
-                    <div className="flex flex-col items-center justify-center !bg-white dark:!bg-[#1a1a1a]/80 backdrop-blur-md border border-dashed border-gray-300 dark:border-gray-700 rounded-2xl p-12 text-center shadow-lg">
-                        <h3 className="text-2xl font-bold !text-gray-900 dark:!text-white mb-2">Você ainda não se inscreveu em nenhuma trilha.</h3>
-                        <p className="!text-gray-600 dark:!text-gray-400 mb-6">Que tal começar uma nova jornada agora mesmo?</p>
-                        
-                        <div className="flex flex-wrap justify-center gap-4">
-                            <Link to="/trilhas" className="bg-transparent border-2 border-[hsl(var(--button-2))] text-[hsl(var(--button-2))] hover:bg-[hsl(var(--button-2))] hover:text-white font-bold py-3 px-8 rounded-full transition-all">
-                                Explorar Trilhas
-                            </Link>
-                            <button 
-                                onClick={() => setIsOpenModal(true)}
-                                className="bg-[hsl(var(--button-2))] text-white font-bold py-3 px-8 rounded-full transition-all"
-                            >
-                                Adicionar Curso Externo
-                            </button>
-                        </div>
+                    <div className="text-center p-12 border border-dashed rounded-2xl">
+                        <h3 className="text-xl font-bold mb-2">Nenhuma trilha encontrada.</h3>
                     </div>
                 )}
             </section>
-
-            {/* Modal para Adicionar Curso/Link Externo */}
-            {isOpenModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-                    <div className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-700 rounded-2xl p-6 w-full max-w-md shadow-2xl">
-                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Adicionar Novo Curso/Link</h3>
-                        
-                        <form onSubmit={handleCreateCustomCourse} className="flex flex-col gap-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nome do Curso</label>
-                                <input 
-                                    type="text" 
-                                    required
-                                    value={novoCurso.name}
-                                    onChange={(e) => setNovoCurso({ ...novoCurso, name: e.target.value })}
-                                    className="w-full px-4 py-2 border rounded-lg dark:bg-gray-800 dark:border-gray-700 dark:text-white"
-                                    placeholder="Ex: Arquitetura Limpa"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Link de Acesso</label>
-                                <input 
-                                    type="url" 
-                                    required
-                                    value={novoCurso.link}
-                                    onChange={(e) => setNovoCurso({ ...novoCurso, link: e.target.value })}
-                                    className="w-full px-4 py-2 border rounded-lg dark:bg-gray-800 dark:border-gray-700 dark:text-white"
-                                    placeholder="https://..."
-                                />
-                            </div>
-
-                            <div className="flex justify-end gap-3 mt-4">
-                                <button 
-                                    type="button" 
-                                    onClick={() => setIsOpenModal(false)}
-                                    className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-                                >
-                                    Cancelar
-                                </button>
-                                <button 
-                                    type="submit" 
-                                    className="px-4 py-2 bg-[hsl(var(--button-2))] text-white font-bold rounded-lg transition-all"
-                                >
-                                    Salvar
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

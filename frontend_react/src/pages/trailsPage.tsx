@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { UsersRound, ArrowLeft, Code, Database, Shield, Smartphone, Globe, Cpu, Brain, Zap, Loader2, AlertCircle, CheckCircle } from "lucide-react";
+import { ArrowLeft, Code, Database, Shield, Smartphone, Globe, Cpu, Brain, Zap, Loader2, AlertCircle, CheckCircle } from "lucide-react";
 import ParticleBackground from "@/components/effects/particleBackground";
 import { apiFetch, initAuth } from '@/lib/api';
 
@@ -25,7 +25,6 @@ const iconMap: { [key: string]: React.ElementType } = {
   "Inteligência Artificial": Zap,
   "Desenvolvimento Full Stack": Code,
   "Interconexão e Serviços de Redes (ISR)": Globe,
-  "Minha trilha": UsersRound,
 };
 
 export default function TrailsPage(): React.JSX.Element {
