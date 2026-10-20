@@ -4,88 +4,185 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\Trail;
-use Illuminate\Http\Request;
+use App\Models\Course;
+use App\Models\TrailUser;
 use Illuminate\Support\Facades\Log;
-
-use function Pest\Laravel\json;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class TrailController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Página pública/geral de trilhas: Exibe APENAS as trilhas do sistema (user_id IS NULL).
      */
     public function index()
     {
-        try {
+        $trails = Trail::whereNull('user_id')
+            ->with('courses')
+            ->latest()
+            ->get(); // Mudado de paginate(25) para get()
 
-            $trails = Trail::all();
-            return response()->json([
-                'trails' => $trails,
-                'status' => 'success',
-                'message' => 'lista de trilhas'
-            ]);
-        } catch (\Throwable $th) {
-            $statusCode = $th->getCode() ?: 500;
+        return response()->json([
+            'status' => 'success',
+            'trails' => $trails
+        ]);
+    }
+    /**
+     * Página de Perfil: Exibe trilhas do sistema + trilhas personalizadas do usuário logado.
+     */
+    public function profile()
+    {
+        $user = Auth::user();
 
-            Log::error('Falha ao buscar as trilhas', [
-                'erro'  => $th->getMessage(),
-                'arquivo' => $th->getFile(),
-                'linha'   => $th->getLine(),
-            ]);
+        // 1. Busca trilhas do sistema (user_id null) OU trilhas do próprio usuário, com os cursos
+        $trails = Trail::whereNull('user_id')
+            ->orWhere('user_id', $user->id)
+            ->with('courses')
+            ->get();
 
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Não foi possível fazer essa operação. Erro interno (status: ' . $statusCode . '), tente mais tarde.'
-            ]);
-        }
+        $userProgressMap = TrailUser::where('user_id', $user->id)->get()->keyBy('trail_id');
+
+        // 2. Mapeia o progresso (pivot) direto na trilha
+        $userTrails = $trails->map(function ($trail) use ($userProgressMap, $user) {
+            if (isset($userProgressMap[$trail->id])) {
+                $progressRecord = $userProgressMap[$trail->id];
+                $trail->pivot = [
+                    'id' => $progressRecord->id,
+                    'progress' => $progressRecord->progress,
+                ];
+            } else {
+                $newProgress = TrailUser::create([
+                    'user_id' => $user->id,
+                    'trail_id' => $trail->id,
+                    'progress' => 'Inscrito',
+                ]);
+
+                $trail->pivot = [
+                    'id' => $newProgress->id,
+                    'progress' => 'Inscrito',
+                ];
+            }
+
+            return $trail;
+        });
+
+        // 3. Retorno limpo e direto, igual ao index()
+        return response()->json([
+            'status' => 'success',
+            'user'   => $user,
+            'trails' => $userTrails
+        ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    public function create()
+    {
+        return Inertia::render('trail/create');
+    }
+
     public function store(Request $request)
     {
-        //
-    }
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:150'],
+        ]);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Trail $trail)
-    {
         try {
+            $validated['user_id'] = Auth::id();
+            $trail = Trail::create($validated);
 
-            // var_dump($trail);
-            $trail->load('courses');
+            TrailUser::create([
+                'user_id' => Auth::id(),
+                'trail_id' => $trail->id,
+                'progress' => 'Inscrito',
+            ]);
 
-            return response()->json([
-                'trail' => $trail,
-                'status' => 'success',
-                'message' => 'Esses são os cursos da trilha.'
+            return redirect()->back()->with([
+                'dbData' => $trail,
+                'message' => [
+                    'status' => 'success',
+                    'msg' => 'A trilha ' . $trail->name . ' foi criada com sucesso.'
+                ]
             ]);
         } catch (\Throwable $th) {
             $statusCode = $th->getCode() ?: 500;
 
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Não foi possível fazer essa operação. Erro interno (status: ' . $statusCode . '), tente mais tarde.'
+            return redirect()->back()->with([
+                'message' => [
+                    'status' => 'error',
+                    'msg' => 'Não foi possível criar a trilha (codigo: ' . $statusCode . ').'
+                ]
             ]);
         }
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Trail $trail)
+    public function show(Trail $trail)
     {
         //
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+    public function edit(string $id)
+    {
+        $trail = Trail::with('courses')->findOrFail($id);
+        $courses = Course::all();
+        return Inertia::render('trail/edit', compact('trail', 'courses'));
+    }
+
+    public function update(Request $request, string $id)
+    {
+        $trail = Trail::findOrFail($id);
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:150'],
+        ]);
+
+        try {
+            $trail->fill($validated);
+            $trail->save();
+
+            return redirect()->back()->with([
+                'dbData' => $trail,
+                'message' => [
+                    'status' => 'success',
+                    'msg' => 'A trilha ' . $trail->name . ' foi atualizada com sucesso.'
+                ]
+            ]);
+        } catch (\Throwable $th) {
+            $statusCode = $th->getCode() ?: 500;
+            Log::error('Erro ao tentar atualizar Trilha: ', [
+                'Dados' => $trail,
+                'Erro' => $th->getMessage(),
+                'Arquivo' => $th->getFile(),
+                'Linha' => $th->getLine(),
+            ]);
+
+            return redirect()->back()->with([
+                'status' => 'error',
+                'msg' => 'Não foi possível atualizar a trilha (codigo: ' . $statusCode . ').'
+            ]);
+        }
+    }
+
     public function destroy(Trail $trail)
     {
-        //
+        try {
+            $trail->delete();
+            return redirect()->back()->with('message', [
+                'status'  => 'success',
+                'msg' => 'Trilha ' . $trail->name . ' excluída com sucesso.',
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Erro ao tentar excluir Trilha: ', [
+                'Dados' => $trail,
+                'Erro' => $e->getMessage(),
+                'Arquivo' => $e->getFile(),
+                'Linha' => $e->getLine(),
+            ]);
+
+            return redirect()->back()->with('message', [
+                'status'  => 'error',
+                'msg' => 'Erro ao tentar excluir a trilha.',
+            ]);
+        }
     }
 }
+

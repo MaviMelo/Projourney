@@ -10,7 +10,7 @@ interface Trail {
   name: string;
 }
 
-interface userLogged {
+interface UserLogged {
   id: number;
   name: string;
 }
@@ -32,7 +32,7 @@ export default function TrailsPage(): React.JSX.Element {
 
   const [trails, setTrails] = useState<Trail[]>([]);
   const [trailSelected, setTrailSelected] = useState<number | null>(null);
-  const [user, setUser] = useState<userLogged | null>(null);
+  const [user, setUser] = useState<UserLogged | null>(null);
   const [status, setStatus] = useState<'loading' | 'idle' | 'error' | 'success'>('loading');
   const [feedback, setFeedback] = useState<string>('');
 
@@ -60,8 +60,12 @@ export default function TrailsPage(): React.JSX.Element {
           throw new Error(response.message || 'Não foi possível carregar as trilhas.');
         }
         
-        const data = (response.data as { trails: Trail[] })?.trails || [];
-        setTrails(data);
+        // Tratamento seguro para extrair o array de trilhas considerando o formato do apiFetch e do Laravel
+        const responseData = response.data as { trails?: Trail[] | { data: Trail[] }, data?: { trails?: Trail[] } };
+        const rawTrails = responseData?.trails || responseData?.data?.trails || [];
+        const trailsArray = Array.isArray(rawTrails) ? rawTrails : (rawTrails as { data: Trail[] }).data || [];
+
+        setTrails(trailsArray);
         setStatus('idle');
         
       } catch (err) {
@@ -147,7 +151,7 @@ export default function TrailsPage(): React.JSX.Element {
                     </h1>
                 </div>
                 <p className="!text-black-700 text-lg max-w-2xl mx-auto">
-                    Olá, <strong className="text-[hsl(var(--button-2))]">{user?.name.split(' ')[0] || 'aventureiro(a)'}</strong>! Selecione a trilha que mais se alinha com seus objetivos profissionais.
+                    Olá, <strong className="text-[hsl(var(--button-2))]">{user?.name.split(' ')[0] || 'aventureiro(a)'}</strong>! Selecione a trilha do sistema que mais se alinha com seus objetivos profissionais.
                 </p>
             </div>
 
@@ -158,7 +162,7 @@ export default function TrailsPage(): React.JSX.Element {
                     <div className="flex justify-center items-center py-24">
                         <Loader2 className="w-16 h-16 animate-spin text-[hsl(var(--button-2))]" />
                     </div>
-                ) : (
+                ) : trails.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl">
                         {trails.map((trail) => {
                             const Icon = iconMap[trail.name] || Code;
@@ -184,12 +188,17 @@ export default function TrailsPage(): React.JSX.Element {
                             );
                         })}
                     </div>
+                ) : (
+                    <div className="text-center p-12 border border-dashed rounded-2xl w-full max-w-md">
+                        <h3 className="text-xl font-bold mb-2">Nenhuma trilha do sistema encontrada.</h3>
+                        <p className="text-gray-500 text-sm">Volte mais tarde para conferir novos conteúdos oficiais.</p>
+                    </div>
                 )}
 
                 {/* Área de Alertas e Botão de Submit */}
                 <div className="mt-12 w-full max-w-md flex flex-col items-center gap-6">
                     
-                    {/* Alertas (Altura miníma para não quebrar o layout ao aparecer) */}
+                    {/* Alertas */}
                     <div className="min-h-[60px] w-full flex justify-center">
                         {status === 'success' && (
                             <div className="w-full flex items-center justify-center gap-2 p-4 bg-green-100 text-green-700 border border-green-200 dark:border-green-800 rounded-lg font-medium shadow-md">

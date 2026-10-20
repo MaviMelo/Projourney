@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { apiFetch, initAuth } from '@/lib/api';
-import { BookOpen, MoreVertical, Loader2, AlertCircle, CheckCircle, Trash2, Plus } from "lucide-react";
+import { BookOpen, Loader2, AlertCircle, CheckCircle, Trash2 } from "lucide-react";
 
 interface User {
     id: number;
@@ -9,10 +9,18 @@ interface User {
     email: string;
 }
 
+interface Course {
+    id: number;
+    name: string;
+    level?: string;
+    link_course?: string;
+}
+
 interface Trail {
     id: number;
     name: string;
-    user_id: number | null; // Identifica se é do sistema (null) ou do usuário
+    user_id: number | null; 
+    courses?: Course[];
     pivot?: {
         id: number;
         progress: 'Inscrito' | 'Cursando' | 'Suspenso' | 'Concluído';
@@ -60,8 +68,14 @@ export default function PerfilPage(): React.JSX.Element {
                     throw new Error(response.message || 'Falha ao carregar dados do perfil.');
                 }
                 
-                const data = response.data as { user: { trails: Trail[] } };
-                setTrails(data.user.trails || []);
+                // Extração direta ajustada para o formato { user, trails } retornado pelo controller
+                const responseData = response.data as { user?: User; trails?: Trail[] };
+                
+                if (responseData?.user) {
+                    setUser(responseData.user);
+                }
+                
+                setTrails(responseData?.trails || []);
                 setStatus('success');
                 
             } catch (err) {
@@ -74,7 +88,6 @@ export default function PerfilPage(): React.JSX.Element {
     }, [navigate]);
 
     const handleDelete = async (trail: Trail) => {
-        // Se for trilha do sistema (user_id === null), o usuário comum não deve poder excluir
         if (trail.user_id === null) {
             showAlert("error", "Você não pode excluir trilhas oficiais do sistema.");
             return;
@@ -83,7 +96,7 @@ export default function PerfilPage(): React.JSX.Element {
         if (!window.confirm("Tem certeza que deseja excluir sua trilha personalizada?")) return;
 
         try {
-            const response = await apiFetch(`/trails/${trail.id}`, {
+            const response = await apiFetch(`/trail/${trail.id}`, {
                 method: 'DELETE',
             });
             
@@ -142,7 +155,7 @@ export default function PerfilPage(): React.JSX.Element {
             <section>
                 <div className="flex items-center gap-3 mb-8 pb-4 border-b border-gray-300 dark:border-gray-700/50">
                     <BookOpen className="text-[hsl(var(--button-2))] w-8 h-8" />
-                    <h2 className="text-3xl font-bold">Trilhas Disponíveis e Suas</h2>
+                    <h2 className="text-3xl font-bold">Minhas Trilhas</h2>
                 </div>
 
                 {trails.length > 0 ? (
@@ -151,6 +164,12 @@ export default function PerfilPage(): React.JSX.Element {
                             <div key={trail.id} className="bg-white dark:bg-[#1a1a1a]/95 border border-gray-200 dark:border-gray-700 rounded-2xl p-6 shadow-lg flex flex-col justify-between">
                                 <div>
                                     <div className="flex justify-between items-start mb-2">
+                                        <span className={`text-xs px-2.5 py-1 rounded-full font-semibold ${
+                                            trail.user_id === null ? 'bg-purple-100 text-purple-700' : 'bg-emerald-100 text-emerald-700'
+                                        }`}>
+                                            {trail.user_id === null ? 'Sistema' : 'Personalizada'}
+                                        </span>
+
                                         <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${statusColors[trail.pivot?.progress ?? 'Inscrito']}`}>
                                           {trail.pivot?.progress ?? 'Inscrito'}
                                         </span>
@@ -158,6 +177,23 @@ export default function PerfilPage(): React.JSX.Element {
                                     <Link to={`/aulas/${trail.id}`} className="block text-xl font-bold hover:text-blue-500 transition-colors mb-4">
                                         {trail.name}
                                     </Link>
+
+                                    {/* Listagem dos Cursos da Trilha */}
+                                    <div className="mb-4">
+                                        <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Cursos da Trilha:</p>
+                                        {trail.courses && trail.courses.length > 0 ? (
+                                            <ul className="text-sm space-y-1">
+                                                {trail.courses.map(course => (
+                                                    <li key={course.id} className="text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                                                        {course.name}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        ) : (
+                                            <p className="text-xs text-gray-400 italic">Nenhum curso associado ainda.</p>
+                                        )}
+                                    </div>
                                 </div>
 
                                 <div className="mt-8 flex items-center justify-between border-t border-gray-200 dark:border-gray-700/50 pt-4">
@@ -165,7 +201,6 @@ export default function PerfilPage(): React.JSX.Element {
                                         Acessar Trilha
                                     </Link>
                                     
-                                    {/* Botão de excluir apenas para trilhas personalizadas do usuário */}
                                     {trail.user_id !== null && (
                                         <button
                                             onClick={() => handleDelete(trail)}
