@@ -31,47 +31,30 @@ class TrailController extends Controller
     /**
      * Página de Perfil: Exibe trilhas do sistema + trilhas personalizadas do usuário logado.
      */
-    public function profile()
+
+    public function todocourse()
     {
         $user = Auth::user();
 
-        // 1. Busca trilhas do sistema (user_id null) OU trilhas do próprio usuário, com os cursos
-        $trails = Trail::whereNull('user_id')
-            ->orWhere('user_id', $user->id)
+    // 1. Busca as trilhas em que o usuário está inscrito (via tabela pivô user_trails)
+        $enrolledTrails = $user->trails()
+            ->withPivot('id', 'progress')
             ->with('courses')
             ->get();
 
-        $userProgressMap = TrailUser::where('user_id', $user->id)->get()->keyBy('trail_id');
+    // 2. Busca as trilhas criadas pelo próprio usuário (se não estiverem no grupo de inscritos)
+        $createdTrails = Trail::where('user_id', $user->id)
+            ->whereNotIn('id', $enrolledTrails->pluck('id'))
+            ->with('courses')
+            ->get();
 
-        // 2. Mapeia o progresso (pivot) direto na trilha
-        $userTrails = $trails->map(function ($trail) use ($userProgressMap, $user) {
-            if (isset($userProgressMap[$trail->id])) {
-                $progressRecord = $userProgressMap[$trail->id];
-                $trail->pivot = [
-                    'id' => $progressRecord->id,
-                    'progress' => $progressRecord->progress,
-                ];
-            } else {
-                $newProgress = TrailUser::create([
-                    'user_id' => $user->id,
-                    'trail_id' => $trail->id,
-                    'progress' => 'Inscrito',
-                ]);
+    // 3. Unifica os dois conjuntos de dados
+        $allUserTrails = $enrolledTrails->concat($createdTrails);
 
-                $trail->pivot = [
-                    'id' => $newProgress->id,
-                    'progress' => 'Inscrito',
-                ];
-            }
-
-            return $trail;
-        });
-
-        // 3. Retorno limpo e direto, igual ao index()
         return response()->json([
             'status' => 'success',
             'user'   => $user,
-            'trails' => $userTrails
+            'trails' => $allUserTrails
         ]);
     }
 

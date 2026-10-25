@@ -19,6 +19,8 @@ Route::middleware('auth:sanctum')->name('api.')->group(function () {
     Route::post('/fullLogout', [AuthController::class, 'fullLogout']);
     Route::get('/profile', [AuthController::class, 'profile']);
 
+    Route::get('/todocourse', [TrailController::class, 'todocourse']);
+
     Route::apiResources([
         'trail' => TrailController::class,
         'course' => CourseController::class,

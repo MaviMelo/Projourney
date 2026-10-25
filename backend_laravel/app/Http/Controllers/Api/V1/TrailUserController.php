@@ -59,11 +59,45 @@ class TrailUserController extends Controller
     }
 
     /**
-     * Display the specified resource.
+    * Retorna os dados da trilha e seus cursos associados.
      */
-    public function show(TrailUser $trailUser)
+    public function show($id)
     {
-        //
+        try {
+            $trail = Trail::with(['courses' => function ($query) {
+                $query->select('courses.id', 'courses.name', 'courses.level', 'courses.link_course', 'courses.user_id');
+            }])->find($id);
+
+            if (!$trail) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Trilha não encontrada.'
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'data' => [
+                    'trail' => [
+                        'id' => $trail->id,
+                        'title' => $trail->name,
+                        'is_custom' => !is_null($trail->user_id),
+                        'courses' => $trail->courses,
+                    ]
+                ]
+            ], 200);
+
+        } catch (\Throwable $th) {
+            Log::error('Erro ao buscar cursos da trilha', [
+                'trail_id' => $id,
+                'erro' => $th->getMessage()
+            ]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Erro interno ao carregar os dados da trilha.'
+            ], 500);
+        }
     }
 
     /**
