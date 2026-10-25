@@ -49,8 +49,12 @@ class User extends Authenticatable implements PasskeyUser
         ];
     }
 
-    public function trails(){
-        return $this->hasMany(Trail::class); // Alterado para hasMany, já que agora a trilha pertence diretamente ao usuário via user_id
+    // app/Models/User.php
+    public function trails()
+    {
+        return $this->belongsToMany(Trail::class, 'user_trails')
+                    ->withPivot('id', 'progress')
+                    ->withTimestamps();
     }
 
     public function courses()

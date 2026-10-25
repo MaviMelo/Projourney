@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Course extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'name',
@@ -18,23 +19,25 @@ class Course extends Model
 
     protected $casts = [
         'level' => 'string',
-        // 'created_at' => 'datetime',
-        // 'updated_at' => 'datetime',
-        // 'deleted_at' => 'datetime',
+        'user_id' => 'integer',
     ];
 
-    protected $dates = ['deleted_at'];
+    // Atributos dinâmicos incluídos na serialização JSON
+    protected $appends = ['is_custom'];
 
     /**
-     * Relacionamento com o usuário criador (caso seja um curso personalizado do usuário).
-     * Se user_id for null, o curso pertence ao sistema.
+     * Define se o curso foi criado por um usuário ou pelo sistema
      */
+    public function getIsCustomAttribute(): bool
+    {
+        return !is_null($this->user_id);
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    // Relacionamento com a tabela Trail (Many-to-Many)
     public function trails()
     {
         return $this->belongsToMany(Trail::class, 'trail_courses', 'course_id', 'trail_id');

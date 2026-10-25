@@ -15,7 +15,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            CourseSeeder::class, 
+            CourseSeeder::class,
             TrailSeeder::class,
             TrailCourseSeeder::class,
         ]);
@@ -33,7 +33,5 @@ class DatabaseSeeder extends Seeder
         ]);
 
         User::factory(2)->admin()->create();
-
-        User::factory(35)->create();
     }
 }
