@@ -6,11 +6,15 @@ import ParticleBackground from "@/components/effects/particleBackground";
 import StarRatingPage from '@/components/layout/StarRatingPage';
 import CommentList from '@/components/layout/CommentList';
 
-interface Course {
+export interface Course {
     id: number;
-    name: string;
-    level: string;
-    link_course: string;
+    name: string;             // varchar(150) no banco
+    level: 'básico' | 'intermediário' | 'avançado';
+    link_course: string;      // varchar(250) no banco
+    user_id: number | null;
+    is_custom?: boolean;      // Gerado pelo accessor getIsCustomAttribute
+    created_at?: string;
+    updated_at?: string;
 }
 
 export default function AulasPage(): React.JSX.Element {

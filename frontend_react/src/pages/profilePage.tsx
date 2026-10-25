@@ -62,7 +62,7 @@ export default function PerfilPage(): React.JSX.Element {
         const loadProfileData = async () => {
             setStatus('loading');
             try {
-                const response = await apiFetch('/profile');
+                const response = await apiFetch('/todocourse');
 
                 if (response.status !== 'success') {
                     throw new Error(response.message || 'Falha ao carregar dados do perfil.');
@@ -184,8 +184,8 @@ export default function PerfilPage(): React.JSX.Element {
                                         {trail.courses && trail.courses.length > 0 ? (
                                             <ul className="text-sm space-y-1">
                                                 {trail.courses.map(course => (
-                                                    <li key={course.id} className="text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                                                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                                                    <li key={course.id}>
+                                                        <span></span>
                                                         {course.name}
                                                     </li>
                                                 ))}
