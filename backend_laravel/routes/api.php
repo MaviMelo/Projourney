@@ -20,12 +20,13 @@ Route::middleware('auth:sanctum')->name('api.')->group(function () {
     Route::get('/profile', [AuthController::class, 'profile']);
 
     Route::get('/todocourse', [TrailController::class, 'todocourse']);
+    Route::get('/index-pega', [TrailController::class, 'indexpega']);
 
     Route::apiResources([
         'trail' => TrailController::class,
         'course' => CourseController::class,
-        'trailUser' => TrailUserController::class,
         'comments' => CommentController::class,
+        'trail-users'=> TrailUserController::class,
     ]);
 
     Route::post('/trail-courses', [TrailCourseController::class, 'store']);

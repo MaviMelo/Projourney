@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Models\Trail;
 use App\Http\Controllers\Controller;
 use App\Models\TrailUser;
 use Illuminate\Http\Request;
@@ -22,51 +23,60 @@ class TrailUserController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'trail_id' => ['required', 'integer'],
-            'user_id' => ['required', 'integer']
-        ]);
+    // Valida apenas a existência da trilha
+    $validated = $request->validate([
+        'trail_id' => ['required', 'integer', 'exists:trails,id'],
+    ]);
 
-        $alreadyExists = TrailUser::where($validated)->exists();
+    // Extrai o ID do usuário autenticado via Sanctum
+    $userId = $request->user()->id;
+
+    // Checa existência na tabela pivô
+    $alreadyExists = TrailUser::where('trail_id', $validated['trail_id'])
+        ->where('user_id', $userId)
+        ->exists();
+
         if ($alreadyExists) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Essa trilha já está na lista de trilhas desse usuário.'
-            ]);
-        };
+                'message' => 'Você já está inscrito nesta trilha.'
+            ], 409); // 409 Conflict
+        }
 
         try {
-            TrailUser::create($validated);
+            TrailUser::create([
+                'trail_id' => $validated['trail_id'],
+                'user_id' => $userId,
+            ]);
+
             return response()->json([
                 'status' => 'success',
-                'message' => 'Trilha adicionada.'
-            ]);
-        } catch (\Throwable $th) {
-            $statusCode = $th->getCode() ?: 500;
+                'message' => 'Inscrição realizada com sucesso!'
+            ], 201); // 201 Created
 
-            Log::error('Falha ao criar instâcia de TrailUser', [
-                'dados' => $validated,
-                'erro'  => $th->getMessage(),
-                'arquivo' => $th->getFile(),
-                'linha'   => $th->getLine(),
+        } catch (\Throwable $th) {
+            Log::error('Falha ao criar instância de TrailUser', [
+                'trail_id' => $validated['trail_id'],
+                'user_id'  => $userId,
+                'erro'     => $th->getMessage(),
+                'arquivo'  => $th->getFile(),
+                'linha'    => $th->getLine(),
             ]);
 
             return response()->json([
                 'status' => 'error',
-                'message' => 'Não foi possível fazer essa operação. Erro interno (status: ' . $statusCode . '), tente mais tarde.'
-            ]);
+                'message' => 'Erro interno ao processar inscrição. Tente mais tarde.'
+            ], 500);
         }
     }
-
     /**
-    * Retorna os dados da trilha e seus cursos associados.
+     * Retorna os dados da trilha e seus cursos associados.
      */
-    public function show($id)
+
+        public function show($id)
     {
         try {
-            $trail = Trail::with(['courses' => function ($query) {
-                $query->select('courses.id', 'courses.name', 'courses.level', 'courses.link_course', 'courses.user_id');
-            }])->find($id);
+            $trail = Trail::with('courses')->find($id);
 
             if (!$trail) {
                 return response()->json([
@@ -99,7 +109,6 @@ class TrailUserController extends Controller
             ], 500);
         }
     }
-
     /**
      * Update the specified resource in storage.
      */

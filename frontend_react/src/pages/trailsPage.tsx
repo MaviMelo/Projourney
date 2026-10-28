@@ -54,7 +54,7 @@ export default function TrailsPage(): React.JSX.Element {
       setFeedback('');
       
       try {
-        const response = await apiFetch('/trail');
+        const response = await apiFetch('/index-pega');
         
         if (response.status !== 'success') {
           throw new Error(response.message || 'Não foi possível carregar as trilhas.');
@@ -97,10 +97,9 @@ export default function TrailsPage(): React.JSX.Element {
     setFeedback('');
 
     try {
-      const response = await apiFetch('/trailUser', {
+      const response = await apiFetch('/trail-users', {
         method: 'POST',
         body: JSON.stringify({
-          user_id: user.id,
           trail_id: trailSelected,
         }),
       });

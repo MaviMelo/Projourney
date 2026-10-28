@@ -25,16 +25,21 @@ class User extends Authenticatable implements PasskeyUser
     /**
      * Boot do Model para registrar eventos automáticos (como a criação da trilha padrão).
      */
-    protected static function booted()
-    {
-        static::created(function (User $user) {
-            // Cria automaticamente a trilha personalizada padrão para o novo usuário
-            $user->trails()->create([
-                'name' => 'Minha Trilha Personalizada',
-            ]);
-        });
-    }
+        protected static function booted()
+        {
+            static::created(function (User $user) {
+                // 1. Cria a trilha definindo o user_id (dono da trilha)
+                $trail = Trail::create([
+                    'name'    => 'Minha Trilha Personalizada',
+                    'user_id' => $user->id,
+                ]);
 
+                // 2. Vincula a trilha ao usuário na tabela pivô (user_trails)
+                $user->trails()->attach($trail->id, [
+                    'progress' => 'Inscrito'
+                ]);
+            });
+        }
     /**
      * Get the attributes that should be cast.
      *
@@ -62,3 +67,4 @@ class User extends Authenticatable implements PasskeyUser
         return $this->hasMany(Course::class);
     }
 }
+

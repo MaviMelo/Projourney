@@ -16,17 +16,19 @@ class TrailController extends Controller
     /**
      * Página pública/geral de trilhas: Exibe APENAS as trilhas do sistema (user_id IS NULL).
      */
-    public function index()
+    public function indexpega()
     {
-        $trails = Trail::whereNull('user_id')
+        // Aplica o scopeSystem() e traz os cursos associados
+        $trails = Trail::system()
             ->with('courses')
-            ->latest()
-            ->get(); // Mudado de paginate(25) para get()
+            ->get();
 
         return response()->json([
             'status' => 'success',
-            'trails' => $trails
-        ]);
+            'data'   => [
+                'trails' => $trails
+            ]
+        ], 200);
     }
     /**
      * Página de Perfil: Exibe trilhas do sistema + trilhas personalizadas do usuário logado.
@@ -58,58 +60,85 @@ class TrailController extends Controller
         ]);
     }
 
-    public function create()
-    {
-        return Inertia::render('trail/create');
+public function store(Request $request)
+{
+    $validated = $request->validate([
+        'name' => ['required', 'string', 'max:150'],
+    ]);
+
+    // Extrai o usuário autenticado via Sanctum/Request
+    $user = $request->user();
+
+    if (!$user) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Usuário não autenticado.'
+        ], 401);
     }
 
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:150'],
+    try {
+        // Atribui explicitamente o ID retornado pela autenticação
+        $validated['user_id'] = $user->id;
+        $trail = Trail::create($validated);
+
+        // Insere a inscrição inicial na tabela pivô
+        TrailUser::create([
+            'user_id'  => $user->id,
+            'trail_id' => $trail->id,
+            'progress' => 'Inscrito',
         ]);
 
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'A trilha ' . $trail->name . ' foi criada com sucesso.',
+            'data'    => $trail
+        ], 201);
+
+    } catch (\Throwable $th) {
+        Log::error('Erro ao criar trilha na API: ' . $th->getMessage());
+
+        return response()->json([
+            'status'  => 'error',
+            'message' => 'Não foi possível criar a trilha.'
+        ], 500);
+    }
+}
+
+    public function show(Request $request, $id)
+    {
         try {
-            $validated['user_id'] = Auth::id();
-            $trail = Trail::create($validated);
+            $trail = Trail::with('courses')->find($id);
 
-            TrailUser::create([
-                'user_id' => Auth::id(),
-                'trail_id' => $trail->id,
-                'progress' => 'Inscrito',
-            ]);
+            if (!$trail) {
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => 'Trilha não encontrada.'
+                ], 404);
+            }
 
-            return redirect()->back()->with([
-                'dbData' => $trail,
-                'message' => [
-                    'status' => 'success',
-                    'msg' => 'A trilha ' . $trail->name . ' foi criada com sucesso.'
+            return response()->json([
+                'status' => 'success',
+                'trail'  => [
+                    'id'        => $trail->id,
+                    'title'     => $trail->name,
+                    'user_id'   => $trail->user_id,
+                    'is_custom' => !is_null($trail->user_id),
+                    'courses'   => $trail->courses,
                 ]
-            ]);
+            ], 200);
+
         } catch (\Throwable $th) {
-            $statusCode = $th->getCode() ?: 500;
-
-            return redirect()->back()->with([
-                'message' => [
-                    'status' => 'error',
-                    'msg' => 'Não foi possível criar a trilha (codigo: ' . $statusCode . ').'
-                ]
+            Log::error('Erro ao buscar cursos da trilha', [
+                'trail_id' => $id,
+                'erro'     => $th->getMessage()
             ]);
+
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Erro interno ao carregar os dados da trilha.'
+            ], 500);
         }
     }
-
-    public function show(Trail $trail)
-    {
-        //
-    }
-
-    public function edit(string $id)
-    {
-        $trail = Trail::with('courses')->findOrFail($id);
-        $courses = Course::all();
-        return Inertia::render('trail/edit', compact('trail', 'courses'));
-    }
-
     public function update(Request $request, string $id)
     {
         $trail = Trail::findOrFail($id);
@@ -168,4 +197,5 @@ class TrailController extends Controller
         }
     }
 }
+
 

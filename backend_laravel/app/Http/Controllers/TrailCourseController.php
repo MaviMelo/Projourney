@@ -1,8 +1,8 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\TrailCourse;
+use App\Models\Trail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -12,13 +12,16 @@ class TrailCourseController extends Controller
     {
         $validated = $request->validate([
             'trail_id'  => ['required', 'integer', 'exists:trails,id'],
-        '   course_id' => ['required', 'integer', 'exists:courses,id'],
+            'course_id' => ['required', 'integer', 'exists:courses,id'],
         ]);
 
-        // Valida se a trilha pertence ao usuário logado (ou se é do sistema, se aplicável)
+        // Garante que a trilha pertença ao usuário logado (se for personalizada) ou permite acesso
         $trail = Trail::where('id', $validated['trail_id'])
-                    ->where('user_id', $request->user()->id)
-                    ->firstOrFail();
+            ->where(function ($query) use ($request) {
+                $query->where('user_id', $request->user()->id)
+                      ->orWhereNull('user_id');
+            })
+            ->firstOrFail();
 
         $trailCourse = TrailCourse::firstOrCreate([
             'trail_id'  => $validated['trail_id'],
@@ -26,29 +29,33 @@ class TrailCourseController extends Controller
         ]);
 
         if (!$trailCourse->wasRecentlyCreated) {
-            return back()->with(['message' => ['status' => 'error', 'msg' => 'O curso já está associado à trilha.']]);
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'O curso já está associado a esta trilha.'
+            ], 409);
         }
 
-    return back()->with(['message' => ['status' => 'success', 'msg' => 'Curso adicionado com sucesso.']]);
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Curso associado com sucesso.',
+            'data'    => $trailCourse
+        ], 201);
     }
 
     public function destroy(Request $request, int $id)
     {
-        // Busca a associação garantindo que a trilha pertença ao usuário autenticado
+        // $id é o ID da tabela pivô 'trail_courses' (ou busque por trail_id + course_id se preferir)
         $trailCourse = TrailCourse::where('id', $id)
             ->whereHas('trail', function ($query) use ($request) {
                 $query->where('user_id', $request->user()->id);
             })
             ->firstOrFail();
 
-        $trailId = $trailCourse->trail_id;
         $trailCourse->delete();
 
-        return redirect()->route('trail.edit', $trailId)->with([
-            'message' => [
-                'status' => 'success',
-                'msg'    => 'Curso excluído da trilha com sucesso.',
-            ]
-        ]);
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Curso removido da trilha com sucesso.'
+        ], 200);
     }
 }
