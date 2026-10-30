@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { apiFetch, initAuth } from '@/lib/api';
-import { BookOpen, Loader2, AlertCircle, CheckCircle, Trash2 } from "lucide-react";
+import { BookOpen, Loader2, AlertCircle, CheckCircle, Trash2, Plus } from "lucide-react";
 
 interface User {
     id: number;
@@ -42,8 +42,10 @@ export default function PerfilPage(): React.JSX.Element {
     const [status, setStatus] = useState<'loading' | 'success' | 'idle' | 'error'>('loading');
     const [feedback, setFeedback] = useState<string>('');
     const [alert, setAlert] = useState<{ status: string, message: string } | null>(null);
-
-    const showAlert = (status: string, message: string) => {
+    const [newTrailName, setNewTrailName] = useState<string>('');
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+    
+  const showAlert = (status: string, message: string) => {
         setAlert({ status, message });
         setTimeout(() => setAlert(null), 5000);
     };
@@ -86,6 +88,53 @@ export default function PerfilPage(): React.JSX.Element {
 
         loadProfileData();
     }, [navigate]);
+
+    // Função de criação da trilha
+    const handleCreateTrail = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!newTrailName.trim()) return;
+
+        setIsSubmitting(true);
+        try {
+            const response = await apiFetch('/trail', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: newTrailName }),
+            });
+
+            if (response.status !== 'success') {
+                throw new Error(response.message || 'Erro ao criar a trilha.');
+            }
+        
+        // 1. Acessa os dados reais da model retornados dentro de response.data.data
+        const responseBody = response.data as { data?: Trail; message?: string };
+        const newTrailData = responseBody?.data;
+
+        if (!newTrailData) {
+            throw new Error('Dados da trilha não foram retornados pelo servidor.');
+        }
+
+        // O backend retorna os dados da trilha em response.data
+        const createdTrail: Trail = {
+            id: newTrailData.id,
+            name: newTrailData.name,
+            user_id: newTrailData.user_id,
+            courses: [],
+            pivot: { 
+                id: 0, 
+                progress: 'Inscrito' 
+            }
+        };
+
+            setTrails(prev => [createdTrail, ...prev]);
+            setNewTrailName('');
+            showAlert("success", response.message || "Trilha criada com sucesso!");
+        } catch (err) {
+            showAlert("error", err instanceof Error ? err.message : "Erro ao criar trilha.");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     const handleDelete = async (trail: Trail) => {
         if (trail.user_id === null) {
@@ -151,7 +200,26 @@ export default function PerfilPage(): React.JSX.Element {
                     {alert.message}
                 </div>
             )}
-
+            {/* Form de Criação de Trilha */}
+            <form onSubmit={handleCreateTrail} className="mb-8 flex gap-3">
+                <input
+                    type="text"
+                    value={newTrailName}
+                    onChange={(e) => setNewTrailName(e.target.value)}
+                    placeholder="Nome da nova trilha personalizada..."
+                    className="flex-1 px-4 py-2 border rounded-lg border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    disabled={isSubmitting}
+                    required
+                />
+                <button
+                    type="submit"
+                    disabled={isSubmitting || !newTrailName.trim()}
+                    className="flex items-center gap-2 bg-[hsl(var(--button-1))] hover:opacity-90 text-white font-bold px-5 py-2 rounded-lg transition-opacity disabled:opacity-50"
+                >
+                    {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Plus size={20} />}
+                    Criar Trilha
+                </button>
+            </form>
             <section>
                 <div className="flex items-center gap-3 mb-8 pb-4 border-b border-gray-300 dark:border-gray-700/50">
                     <BookOpen className="text-[hsl(var(--button-2))] w-8 h-8" />
@@ -201,15 +269,13 @@ export default function PerfilPage(): React.JSX.Element {
                                         Acessar Trilha
                                     </Link>
                                     
-                                    {trail.user_id !== null && (
-                                        <button
-                                            onClick={() => handleDelete(trail)}
-                                            className="flex items-center gap-1 text-sm font-medium text-red-600 hover:text-red-800 transition-colors"
-                                        >
-                                            <Trash2 size={16} />
-                                            Excluir
-                                        </button>
-                                    )}
+                                      <button
+                                          onClick={() => handleDelete(trail)}
+                                          className="flex items-center gap-1 text-sm font-medium text-red-600 hover:text-red-800 transition-colors"
+                                      >
+                                          <Trash2 size={16} />
+                                          Excluir
+                                      </button>
                                 </div>
                             </div>
                         ))}

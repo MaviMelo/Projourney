@@ -102,7 +102,7 @@ class CourseController extends Controller
     {
         //
     }
-
+    // criar um metodo simples onde e
     /**
      * Show the form for editing the specified resource.
      */

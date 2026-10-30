@@ -26,10 +26,10 @@ export default function AulasPage(): React.JSX.Element {
     const [isCustomTrail, setIsCustomTrail] = useState<boolean>(false);
     const [submitting, setSubmitting] = useState<boolean>(false);
 
-    // Form states
-    const [newCourseName, setNewCourseName] = useState<string>('');
-    const [newCourseLink, setNewCourseLink] = useState<string>('');
-    const [newCourseLevel, setNewCourseLevel] = useState<'básico' | 'intermediário' | 'avançado'>('básico');
+    // Estados para seleção de curso da lista global
+    const [availableCourses, setAvailableCourses] = useState<Course[]>([]);
+    const [selectedCourseId, setSelectedCourseId] = useState<string>('');
+    const [loadingAvailable, setLoadingAvailable] = useState<boolean>(false);
 
     useEffect(() => {
         initAuth();
@@ -48,7 +48,6 @@ export default function AulasPage(): React.JSX.Element {
                 throw new Error(`Erro do Servidor: ${response.message || 'Falha ao carregar'}`);
             }
 
-            // A leitura se ajusta ao JSON { status: "success", trail: { ... } }
             const rawData = response.data as any;
             const trail = rawData?.trail ?? rawData?.data?.trail;
 
@@ -58,7 +57,6 @@ export default function AulasPage(): React.JSX.Element {
             }
 
             setCourses(trail.courses || []);
-            // Aceita tanto o booleano 'is_custom' enviado pelo controller quanto 'user_id'
             setIsCustomTrail(trail.is_custom ?? trail.user_id !== null);
             setStatus('success');
 
@@ -72,12 +70,29 @@ export default function AulasPage(): React.JSX.Element {
         fetchCursos();
     }, [fetchCursos]);
 
+    // Busca todos os cursos via CourseController@index
+    const fetchAllSystemCourses = async () => {
+        setLoadingAvailable(true);
+        try {
+            const response = await apiFetch('/course');
+            if (response.status === 'success' && response.data) {
+                const rawData = response.data as any;
+                // Trata { data: { courses: [...] } } conforme CourseController@index
+                const list = rawData?.courses ?? rawData?.data?.courses ?? [];
+                setAvailableCourses(list);
+            }
+        } catch (error) {
+            console.error("Erro ao carregar lista de cursos:", error);
+        } finally {
+            setLoadingAvailable(false);
+        }
+    };
+
     const handleOpenModal = () => {
-        setNewCourseName('');
-        setNewCourseLink('');
-        setNewCourseLevel('básico');
+        setSelectedCourseId('');
         setSubmitting(false);
         setIsOpenModal(true);
+        fetchAllSystemCourses();
     };
 
     const handleCloseModal = () => {
@@ -85,53 +100,26 @@ export default function AulasPage(): React.JSX.Element {
         setSubmitting(false);
     };
 
-    const handleCreateAndAddCourse = async (e: React.FormEvent) => {
+    // Associa o curso selecionado à trilha chamando TrailCourseController@store
+    const handleAddCourseToTrail = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!newCourseName.trim() || !newCourseLink.trim() || !trailId) return;
+        if (!selectedCourseId || !trailId) return;
 
         setSubmitting(true);
         try {
-            // 1. Cria o curso via POST /course
-            const courseResponse = await apiFetch('/course', {
-                method: 'POST',
-                body: JSON.stringify({
-                    name: newCourseName,
-                    link_course: newCourseLink,
-                    level: newCourseLevel,
-                }),
-            });
-
-            if (courseResponse.status !== 'success' || !courseResponse.data) {
-                alert(courseResponse.message || 'Erro ao criar o curso.');
-                setSubmitting(false);
-                return;
-            }
-
-            // Extrai o id retornado no objeto de resposta do POST /course
-            const rawData = courseResponse.data as any;
-            const courseId = rawData?.id ?? rawData?.data?.id ?? rawData?.course?.id;
-
-            if (!courseId) {
-                console.error("Payload retornado do POST /course sem ID:", courseResponse);
-                alert('Erro ao obter o ID do curso criado.');
-                setSubmitting(false);
-                return;
-            }
-
-            // 2. Vincula o curso à trilha via POST /trail-courses
-            const linkResponse = await apiFetch('/trail-courses', {
+            const response = await apiFetch('/trail-courses', {
                 method: 'POST',
                 body: JSON.stringify({
                     trail_id: Number(trailId),
-                    course_id: Number(courseId),
+                    course_id: Number(selectedCourseId),
                 }),
             });
 
-            if (linkResponse.status === 'success') {
+            if (response.status === 'success') {
                 handleCloseModal();
                 await fetchCursos();
             } else {
-                alert(linkResponse.message || 'Curso criado, mas falhou ao vincular à trilha.');
+                alert(response.message || 'Erro ao associar curso à trilha.');
             }
         } catch (error) {
             console.error("Erro no envio:", error);
@@ -288,56 +276,39 @@ export default function AulasPage(): React.JSX.Element {
                 </div>
             </main>
 
+            {/* Modal para seleção de cursos do sistema */}
             {isOpenModal && isCustomTrail && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
                     <div className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-700 rounded-2xl p-6 w-full max-w-md shadow-2xl">
-                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Criar e Adicionar Aula</h3>
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Adicionar Curso Existente</h3>
                         
-                        <form onSubmit={handleCreateAndAddCourse} className="flex flex-col gap-4">
+                        <form onSubmit={handleAddCourseToTrail} className="flex flex-col gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Nome do Curso / Aula
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    Selecione um Curso
                                 </label>
-                                <input 
-                                    type="text"
-                                    required
-                                    disabled={submitting}
-                                    placeholder="Ex: Introdução ao React"
-                                    value={newCourseName}
-                                    onChange={(e) => setNewCourseName(e.target.value)}
-                                    className="w-full px-4 py-2 border rounded-lg bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white disabled:opacity-50"
-                                />
-                            </div>
 
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Link do Curso
-                                </label>
-                                <input 
-                                    type="url"
-                                    required
-                                    disabled={submitting}
-                                    placeholder="https://exemplo.com"
-                                    value={newCourseLink}
-                                    onChange={(e) => setNewCourseLink(e.target.value)}
-                                    className="w-full px-4 py-2 border rounded-lg bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white disabled:opacity-50"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Nível
-                                </label>
-                                <select 
-                                    disabled={submitting}
-                                    value={newCourseLevel}
-                                    onChange={(e) => setNewCourseLevel(e.target.value as 'básico' | 'intermediário' | 'avançado')}
-                                    className="w-full px-4 py-2 border rounded-lg bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white disabled:opacity-50"
-                                >
-                                    <option value="básico">Básico</option>
-                                    <option value="intermediário">Intermediário</option>
-                                    <option value="avançado">Avançado</option>
-                                </select>
+                                {loadingAvailable ? (
+                                    <div className="flex items-center gap-2 py-4 text-gray-500 justify-center">
+                                        <Loader2 size={18} className="animate-spin" />
+                                        <span>Carregando cursos...</span>
+                                    </div>
+                                ) : (
+                                    <select
+                                        required
+                                        disabled={submitting}
+                                        value={selectedCourseId}
+                                        onChange={(e) => setSelectedCourseId(e.target.value)}
+                                        className="w-full px-4 py-2 border rounded-lg bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white disabled:opacity-50"
+                                    >
+                                        <option value="">-- Escolha um curso --</option>
+                                        {availableCourses.map((c) => (
+                                            <option key={c.id} value={c.id}>
+                                                {c.name} ({c.level})
+                                            </option>
+                                        ))}
+                                    </select>
+                                )}
                             </div>
 
                             <div className="flex justify-end gap-3 mt-4">
@@ -351,11 +322,11 @@ export default function AulasPage(): React.JSX.Element {
                                 </button>
                                 <button 
                                     type="submit" 
-                                    disabled={submitting}
+                                    disabled={submitting || !selectedCourseId}
                                     className="px-4 py-2 bg-[hsl(var(--button-2))] text-white font-bold rounded-lg transition-all flex items-center gap-2 disabled:opacity-50"
                                 >
                                     {submitting && <Loader2 size={16} className="animate-spin" />}
-                                    Salvar e Vincular
+                                    Vincular à Trilha
                                 </button>
                             </div>
                         </form>

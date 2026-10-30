@@ -60,49 +60,50 @@ class TrailController extends Controller
         ]);
     }
 
-public function store(Request $request)
-{
-    $validated = $request->validate([
-        'name' => ['required', 'string', 'max:150'],
-    ]);
-
-    // Extrai o usuário autenticado via Sanctum/Request
-    $user = $request->user();
-
-    if (!$user) {
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Usuário não autenticado.'
-        ], 401);
-    }
-
-    try {
-        // Atribui explicitamente o ID retornado pela autenticação
-        $validated['user_id'] = $user->id;
-        $trail = Trail::create($validated);
-
-        // Insere a inscrição inicial na tabela pivô
-        TrailUser::create([
-            'user_id'  => $user->id,
-            'trail_id' => $trail->id,
-            'progress' => 'Inscrito',
+    // criar trilha
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:150'],
         ]);
 
-        return response()->json([
-            'status'  => 'success',
-            'message' => 'A trilha ' . $trail->name . ' foi criada com sucesso.',
-            'data'    => $trail
-        ], 201);
+        // Extrai o usuário autenticado via Sanctum/Request
+        $user = $request->user();
 
-    } catch (\Throwable $th) {
-        Log::error('Erro ao criar trilha na API: ' . $th->getMessage());
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Usuário não autenticado.'
+            ], 401);
+        }
 
-        return response()->json([
-            'status'  => 'error',
-            'message' => 'Não foi possível criar a trilha.'
-        ], 500);
+        try {
+            // Atribui explicitamente o ID retornado pela autenticação
+            $validated['user_id'] = $user->id;
+            $trail = Trail::create($validated);
+
+            // Insere a inscrição inicial na tabela pivô
+            TrailUser::create([
+                'user_id'  => $user->id,
+                'trail_id' => $trail->id,
+                'progress' => 'Inscrito',
+            ]);
+
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'A trilha ' . $trail->name . ' foi criada com sucesso.',
+                'data'    => $trail
+            ], 201);
+
+        } catch (\Throwable $th) {
+            Log::error('Erro ao criar trilha na API: ' . $th->getMessage());
+
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Não foi possível criar a trilha.'
+            ], 500);
+        }
     }
-}
 
     public function show(Request $request, $id)
     {
