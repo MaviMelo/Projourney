@@ -70,11 +70,6 @@ class AuthController extends Controller
         $userData = $user->toArray();
         unset($userData['role']);
 
-        // For SPA requests, regenerate session
-        if ($request->hasSession()) {
-            $request->session()->regenerate();
-        }
-
         // For non-SPA clients (no session), return a Bearer token
         $token = null;
         if (!$request->hasSession() || !$request->session()->isStarted()) {

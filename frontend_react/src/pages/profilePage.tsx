@@ -44,15 +44,12 @@ export default function PerfilPage(): React.JSX.Element {
     const [alert, setAlert] = useState<{ status: string, message: string } | null>(null);
     const [newTrailName, setNewTrailName] = useState<string>('');
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-    
   const showAlert = (status: string, message: string) => {
         setAlert({ status, message });
         setTimeout(() => setAlert(null), 5000);
     };
 
     useEffect(() => {
-        initAuth();
-        
         const userData = localStorage.getItem('loggedUser');
         if (!userData) {
             navigate('/login');

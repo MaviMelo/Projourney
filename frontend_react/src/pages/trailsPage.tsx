@@ -36,17 +36,14 @@ export default function TrailsPage(): React.JSX.Element {
   const [status, setStatus] = useState<'loading' | 'idle' | 'error' | 'success'>('loading');
   const [feedback, setFeedback] = useState<string>('');
 
-  useEffect(() => {
-    initAuth();
-    const dataUser = localStorage.getItem('loggedUser');
-    
+  const dataUser = localStorage.getItem('loggedUser');
+
     if (dataUser) {
       setUser(JSON.parse(dataUser));
     } else {
       alert("Você precisa estar logado para acessar esta página.");
       navigate('/login');
     }
-  }, [navigate]);
 
   useEffect(() => {
     const fetchTrails = async () => {

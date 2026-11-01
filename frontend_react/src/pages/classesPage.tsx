@@ -31,13 +31,10 @@ export default function AulasPage(): React.JSX.Element {
     const [selectedCourseId, setSelectedCourseId] = useState<string>('');
     const [loadingAvailable, setLoadingAvailable] = useState<boolean>(false);
 
-    useEffect(() => {
-        initAuth();
-        const loggedUser = localStorage.getItem('loggedUser');
-        if (!loggedUser) {
-            navigate('/login');
-        }
-    }, [navigate]);
+    const loggedUser = localStorage.getItem('loggedUser');
+    if (!loggedUser) {
+        navigate('/login');
+    }
 
     const fetchCursos = useCallback(async () => {
         if (!trailId) return;
