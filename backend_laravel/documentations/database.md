@@ -17,6 +17,18 @@ Este documento descreve, com nível de detalhe adequado para desenvolvedores, as
 
 ---
 
+## Navegação na Documentação
+
+| Documento | Link |
+|-----------|------|
+| [README.md (Principal)](../README.md) | Visão geral do projeto |
+| [backlog.md](./backlog.md) | Histórico de tarefas |
+| [authentication_method.md](./authentication_method.md) | Segurança com Sanctum SPA |
+| [gate-policy-admin-authorization.md](./gate-policy-admin-authorization.md) | Autorização baseada em roles |
+| [inertia-react-stack.md](./inertia-react-stack.md) | Arquitetura frontend com Inertia.js |
+| [populate-database-legacy-backup.md](./populate-database-legacy-backup.md) | Importação de dados do legado |
+
+
 ## Tabelas Padrão do Laravel
 
 ## 1. users  
@@ -217,7 +229,7 @@ Fila de jobs a serem processados por workers (comando `php artisan queue:work`).
 | [README.md (Principal)](../README.md) | Visão geral do projeto |
 | [inertia-react-stack.md](./inertia-react-stack.md) | Arquitetura frontend com Inertia |
 | [gate-policy-admin-authorization.md](./gate-policy-admin-authorization.md) | Autorização baseada em roles |
-| [csrf-http-only-implementation.md](./csrf-http-only-implementation.md) | Segurança com Sanctum SPA |
+| [authentication_method.md](./authentication_method.md) | Segurança com Sanctum SPA |
 | [backlog.md](./backlog.md) | Histórico de tarefas |
 | [populate-database-legacy-backup.md](./populate-database-legacy-backup.md) | Importação de dados do legado |
 

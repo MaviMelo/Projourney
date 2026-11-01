@@ -312,7 +312,7 @@ php artisan ide-helper:generate
 | [Database Schema](documentations/database.md) | Estrutura das tabelas do banco de dados |
 | [Backlog](documentations/backlog.md) | Histórico de tarefas da migração |
 | [Inertia + React Stack](documentations/inertia-react-stack.md) | Arquitetura frontend com Inertia.js |
-| [CSRF + HttpOnly Implementation](documentations/csrf-http-only-implementation.md) | Implementação de segurança com Sanctum SPA |
+| [CSRF + HttpOnly Implementation](documentations/authentication_method.md) | Implementação de segurança com Sanctum SPA |
 | [Gate/Policy Authorization](documentations/gate-policy-admin-authorization.md) | Sistema de autorização baseado em roles |
 | [Database Seeding (Legacy)](documentations/populate-database-legacy-backup.md) | Importação de dados do PHP Vanilla |
 
@@ -466,16 +466,17 @@ Projourney$ laravel new backend_laravel
 
 ---
 
-## Documentação do Projeto
+## Navegação na Documentação
 
-| Documento | Descrição |
-|-----------|-----------|
-| [📄 Database Schema](documentations/database.md) | Estrutura das tabelas do banco de dados |
-| [📋 Backlog](documentations/backlog.md) | Histórico de tarefas da migração (concluída) |
-| [⚛️ Inertia + React Stack](documentations/inertia-react-stack.md) | Arquitetura frontend com Inertia.js |
-| [🔐 CSRF + HttpOnly](documentations/csrf-http-only-implementation.md) | Implementação de segurança com Sanctum SPA |
-| [👥 Gate/Policy Authorization](documentations/gate-policy-admin-authorization.md) | Sistema de autorização baseado em roles |
-| [📦 Database Seeding](documentations/populate-database-legacy-backup.md) | Importação de dados do PHP Vanilla |
+| Documento | Link |
+|-----------|------|
+| [README.md (Principal)](../README.md) | Visão geral do projeto |
+| [Database Schema](documentations/database.md) | Estrutura das tabelas do banco de dados |
+| [Backlog](documentations/backlog.md) | Histórico de tarefas da migração |
+| [Inertia + React Stack](documentations/inertia-react-stack.md) | Arquitetura frontend com Inertia.js |
+| [CSRF + HttpOnly](documentations/authentication_method.md) | Segurança com Sanctum SPA |
+| [Gate/Policy Authorization](documentations/gate-policy-admin-authorization.md) | Sistema de autorização baseado em roles |
+| [Database Seeding (Legacy)](documentations/populate-database-legacy-backup.md) | Importação de dados do PHP Vanilla |
 
 ---
 

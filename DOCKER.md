@@ -344,7 +344,7 @@ Com isso, o Vite gera direto em `public/build/manifest.json` e a cópia no Docke
 
 ### Por que dois Nginx não conflitam?
 
-O `frontend_react/Dockerfile` (Nginx interno, serve `dist/`) e o `proxy/Dockerfile` (Nginx externo, roteamento HTTP) são independentes. Cada um usa o `context` isolado do seu serviço no `docker-compose.yml`. O proxy externo é ortogonal à configuração interna do SPA React do frontend. Ambos podem ser executados simultane.
+O `frontend_react/Dockerfile` (Nginx interno, serve `dist/`) e o `proxy/Dockerfile` (Nginx externo, roteamento HTTP) são independentes. Cada um usa o `context` isolado do seu serviço no `docker-compose.yml`. O proxy externo é ortogonal à configuração interna do SPA React do frontend. Ambos podem ser executados simultaneamente.
 
 ### Por que porta 8080?
 
@@ -362,9 +362,22 @@ Evita conflito com serviços locais comuns (Apache/Nginx na `80`, `php artisan s
 ## Referências
 
 - [Inertia React Stack Documentation](backend_laravel/documentations/inertia-react-stack.md)
-- [CSRF HttpOnly Implementation](backend_laravel/documentations/csrf-http-only-implementation.md)
+- [CSRF HttpOnly Implementation](backend_laravel/documentations/authentication_method.md)
 - [Gate/Policy Admin Authorization](backend_laravel/documentations/gate-policy-admin-authorization.md)
 - [Database Seeding from Legacy Backup](backend_laravel/documentations/populate-database-legacy-backup.md)
-- [docker-compose.yml](../docker-compose.yml)
+- [docker-compose.yml](docker-compose.yml)
 - [proxy/nginx.conf](proxy/nginx.conf)
-- [frontend_react/nginx.conf](../frontend_react/nginx.conf)
+- [frontend_react/nginx.conf](frontend_react/nginx.conf)
+
+---
+
+## Navegação na Documentação
+
+| Documento | Link |
+|-----------|------|
+| [README.md (Principal)](../README.md) | Visão geral do projeto |
+| [Backend Laravel](backend_laravel/README.md) | Arquitetura do backend Laravel + Inertia |
+| [Frontend React](frontend_react/README.md) | Arquitetura da SPA React |
+| [CSRF + HttpOnly](backend_laravel/documentations/authentication_method.md) | Segurança com Sanctum SPA |
+| [Gate/Policy Admin Authorization](backend_laravel/documentations/gate-policy-admin-authorization.md) | Autorização baseada em roles |
+| [Database Schema](backend_laravel/documentations/database.md) | Schema do banco de dados |

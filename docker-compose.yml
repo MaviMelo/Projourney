@@ -14,9 +14,9 @@ services:
     #  - "3307:3306"
     environment:
       MARIADB_ROOT_PASSWORD: root 
-      MARIADB_DATABASE : projourney 
-      MARIADB_USER : proj 
-      MARIADB_PASSWORD : proj 
+      MARIADB_DATABASE: projourney 
+      MARIADB_USER: proj 
+      MARIADB_PASSWORD: proj 
     volumes: 
       - db_data:/var/lib/mysql    # persistir dados do banco de dados em um volume
 

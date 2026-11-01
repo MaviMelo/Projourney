@@ -26,11 +26,23 @@
 
 ---
 
+## Navegação na Documentação
+
+| Documento | Link |
+|-----------|------|
+| [README.md (Principal)](../README.md) | Visão geral do projeto |
+| [database.md](./database.md) | Schema do banco de dados |
+| [backlog.md](./backlog.md) | Histórico de tarefas |
+| [authentication_method.md](./authentication_method.md) | Segurança com Sanctum SPA |
+| [gate-policy-admin-authorization.md](./gate-policy-admin-authorization.md) | Autorização baseada em roles |
+| [populate-database-legacy-backup.md](./populate-database-legacy-backup.md) | Importação de dados do legado |
+
+
 ## Visão Geral
 
 Este projeto utiliza o **Inertia.js** como ponte entre o backend Laravel e o frontend React para o **sistema administrativo do Projourney**, permitindo criar aplicações single-page (SPA) sem a complexidade de uma API REST tradicional + cliente separado.
 
-O frontend do **usuário comum (Projourney App)** usa `routes/api.php` com Sanctum (HttpOnly cookie + CSRF) — documentação separada em [csrf-http-only-implementation.md](./csrf-http-only-implementation.md).
+O frontend do **usuário comum (Projourney App)** usa `routes/api.php` com Sanctum (HttpOnly cookie + CSRF) — documentação separada em [authentication_method.md](./authentication_method.md).
 
 ---
 
@@ -493,7 +505,7 @@ composer dev
 | [README.md (Principal)](../README.md) | Visão geral do projeto |
 | [database.md](./database.md) | Schema do banco de dados |
 | [backlog.md](./backlog.md) | Histórico de tarefas |
-| [csrf-http-only-implementation.md](./csrf-http-only-implementation.md) | Segurança com Sanctum SPA |
+| [authentication_method.md](./authentication_method.md) | Segurança com Sanctum SPA |
 | [gate-policy-admin-authorization.md](./gate-policy-admin-authorization.md) | Autorização baseada em roles |
 | [populate-database-legacy-backup.md](./populate-database-legacy-backup.md) | Importação de dados do legado |
 

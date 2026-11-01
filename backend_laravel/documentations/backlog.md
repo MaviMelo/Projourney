@@ -34,7 +34,7 @@ Todas as funcionalidades do backend PHP Vanilla foram migradas para Laravel 13:
 |-----------|-----------|
 | [database.md](./database.md) | Schema do banco de dados |
 | [inertia-react-stack.md](./inertia-react-stack.md) | Arquitetura frontend |
-| [csrf-http-only-implementation.md](./csrf-http-only-implementation.md) | Segurança com Sanctum SPA |
+| [authentication_method.md](./authentication_method.md) | Segurança com Sanctum SPA |
 | [gate-policy-admin-authorization.md](./gate-policy-admin-authorization.md) | Autorização baseada em roles |
 | [populate-database-legacy-backup.md](./populate-database-legacy-backup.md) | Importação de dados do legado |
 
@@ -42,8 +42,19 @@ Todas as funcionalidades do backend PHP Vanilla foram migradas para Laravel 13:
 
 Abaixo está o backlog original para referência histórica. Todas as tarefas relevantes foram concluídas ou descartadas por serem supridas pelo framework.
 
-### 1️⃣ Configuração de Ambiente e Segurança — ✅
-- [x] `.env` configurado
+---
+
+## Navegação na Documentação
+
+| Documento | Link |
+|-----------|------|
+| [README.md (Principal)](../README.md) | Visão geral do projeto |
+| [database.md](./database.md) | Schema do banco de dados |
+| [inertia-react-stack.md](./inertia-react-stack.md) | Arquitetura frontend |
+| [authentication_method.md](./authentication_method.md) | Segurança com Sanctum SPA |
+| [gate-policy-admin-authorization.md](./gate-policy-admin-authorization.md) | Autorização baseada em roles |
+| [populate-database-legacy-backup.md](./populate-database-legacy-backup.md) | Importação de dados do legado |
+
 - [x] `php artisan key:generate`
 - [x] Sanctum instalado e configurado
 - [x] CORS configurado (`config/cors.php`)
@@ -105,6 +116,6 @@ Abaixo está o backlog original para referência histórica. Todas as tarefas re
 | [README.md (Principal)](../README.md) | Visão geral do projeto |
 | [inertia-react-stack.md](./inertia-react-stack.md) | Arquitetura frontend com Inertia |
 | [gate-policy-admin-authorization.md](./gate-policy-admin-authorization.md) | Autorização baseada em roles |
-| [csrf-http-only-implementation.md](./csrf-http-only-implementation.md) | Segurança com Sanctum SPA |
+| [authentication_method.md](./authentication_method.md) | Segurança com Sanctum SPA |
 | [database.md](./database.md) | Schema do banco de dados |
 | [populate-database-legacy-backup.md](./populate-database-legacy-backup.md) | Importação de dados do legado |

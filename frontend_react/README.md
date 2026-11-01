@@ -204,14 +204,14 @@ O frontend implementa protection CSRF seguindo o padrão Laravel Sanctum SPA:
 - **XSRF-TOKEN**: Protege contra CSRF attacks de outros domínios
 - **withCredentials: true**: Permite envio automático de cookies cross-origin
 
-## Documentação Relacionada
+## Navegação na Documentação
 
 | Documento | Link |
 |-----------|------|
-| [README Root](../../README.md) | Visão geral do projeto |
+| [README Root (Principal)](../README.md) | Visão geral do projeto |
 | [Backend Laravel](../backend_laravel/README.md) | Arquitetura do backend |
-| [Architecture](./documentation/architecture.md) | Arquitetura técnica detalhada |
-| [CSRF + HttpOnly](../backend_laravel/documentations/csrf-http-only-implementation.md) | Implementação de segurança |
+| [Architecture](documentation/architecture.md) | Arquitetura técnica detalhada |
+| [CSRF + HttpOnly](../backend_laravel/documentations/authentication_method.md) | Segurança com Sanctum SPA |
 | [Inertia React Stack](../backend_laravel/documentations/inertia-react-stack.md) | Arquitetura Inertia.js (admin) |
 | [Database Schema](../backend_laravel/documentations/database.md) | Estrutura do banco de dados |
 

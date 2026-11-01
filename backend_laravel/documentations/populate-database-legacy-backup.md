@@ -12,6 +12,18 @@
 
 ---
 
+## Navegação na Documentação
+
+| Documento | Link |
+|-----------|------|
+| [README.md (Principal)](../README.md) | Visão geral do projeto |
+| [database.md](./database.md) | Schema do banco de dados |
+| [backlog.md](./backlog.md) | Histórico de tarefas |
+| [authentication_method.md](./authentication_method.md) | Segurança com Sanctum SPA |
+| [gate-policy-admin-authorization.md](./gate-policy-admin-authorization.md) | Autorização baseada em roles |
+| [inertia-react-stack.md](./inertia-react-stack.md) | Arquitetura frontend com Inertia.js |
+
+
 ## Visão Geral
 
 Este documento descreve o procedimento para popular o banco de dados atual (Laravel, tabelas em inglês) com os dados do backup do sistema antigo em PHP Vanilla (`api_php database/db_backup_projourney_php.sql`).
@@ -142,6 +154,6 @@ mysql -u <usuário> -p projourney_laravel < backend_laravel/database/backups/pro
 | [README.md (Principal)](../README.md) | Visão geral do projeto |
 | [inertia-react-stack.md](./inertia-react-stack.md) | Arquitetura frontend com Inertia |
 | [gate-policy-admin-authorization.md](./gate-policy-admin-authorization.md) | Autorização baseada em roles |
-| [csrf-http-only-implementation.md](./csrf-http-only-implementation.md) | Segurança com Sanctum SPA |
+| [authentication_method.md](./authentication_method.md) | Segurança com Sanctum SPA |
 | [database.md](./database.md) | Schema do banco de dados |
 | [backlog.md](./backlog.md) | Histórico de tarefas |

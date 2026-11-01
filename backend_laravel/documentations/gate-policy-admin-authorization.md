@@ -12,6 +12,18 @@
 
 ---
 
+## Navegação na Documentação
+
+| Documento | Link |
+|-----------|------|
+| [README.md (Principal)](../README.md) | Visão geral do projeto |
+| [database.md](./database.md) | Schema do banco de dados |
+| [backlog.md](./backlog.md) | Histórico de tarefas |
+| [authentication_method.md](./authentication_method.md) | Segurança com Sanctum SPA |
+| [inertia-react-stack.md](./inertia-react-stack.md) | Arquitetura frontend com Inertia.js |
+| [populate-database-legacy-backup.md](./populate-database-legacy-backup.md) | Importação de dados do legado |
+
+
 ## Visão Geral
 
 Este documento descreve como o Laravel Gates é usado para restringir operações sensíveis de gerenciamento de usuários apenas para usuários com role `root`.
@@ -246,7 +258,7 @@ php artisan tinker
 | [inertia-react-stack.md](./inertia-react-stack.md) | Arquitetura frontend com Inertia |
 | [database.md](./database.md) | Schema do banco de dados |
 | [backlog.md](./backlog.md) | Histórico de tarefas |
-| [csrf-http-only-implementation.md](./csrf-http-only-implementation.md) | Segurança com Sanctum SPA |
+| [authentication_method.md](./authentication_method.md) | Segurança com Sanctum SPA |
 | [populate-database-legacy-backup.md](./populate-database-legacy-backup.md) | Importação de dados do legado |
 
 ---

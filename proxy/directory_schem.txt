@@ -39,7 +39,7 @@ Projourney
 │   ├── Dockerfile
 │   ├── documentations
 │   │   ├── backlog.                              --+  
-│   │   ├── csrf-http-only-implementation.          │   
+│   │   ├── authentication_method.          │   
 │   │   ├── database.                               ├── documentação.
 │   │   ├── gate-policy-admin-authorization.        │  
 │   │   ├── inertia-react-stack.                    │   

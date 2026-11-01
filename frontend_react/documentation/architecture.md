@@ -186,16 +186,16 @@ frontend_react/
 
 ---
 
-## Documentação Relacionada
+## Navegação na Documentação
 
 | Documento | Link |
 |-----------|------|
 | [README Frontend](../README.md) | Visão geral do frontend SPA |
 | [README Root](../../README.md) | Visão geral do projeto |
-| [Backend Laravel](../backend_laravel/README.md) | Arquitetura do backend |
-| [CSRF Implementation](../backend_laravel/documentations/csrf-http-only-implementation.md) | Segurança com Sanctum SPA |
-| [Database Schema](../backend_laravel/documentations/database.md) | Estrutura do banco de dados |
-| [Gate/Policy Authorization](../backend_laravel/documentations/gate-policy-admin-authorization.md) | Autorização baseada em roles |
+| [Backend Laravel](../../backend_laravel/README.md) | Arquitetura do backend |
+| [CSRF Implementation](../../backend_laravel/documentations/authentication_method.md) | Segurança com Sanctum SPA |
+| [Database Schema](../../backend_laravel/documentations/database.md) | Estrutura do banco de dados |
+| [Gate/Policy Authorization](../../backend_laravel/documentations/gate-policy-admin-authorization.md) | Autorização baseada em roles |
 
 ---
 

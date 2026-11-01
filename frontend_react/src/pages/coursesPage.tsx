@@ -22,7 +22,7 @@ const getCategoryColor = (category: string): string => {
     'Tecnologia': 'bg-blue-600',
     'Data Science': 'bg-purple-600',
     'Inteligência Artificial': 'bg-emerald-600',
-    'Programação': 'bg-pink-600'
+    'Programação': 'bg-pink-600',
   };
   return colors[category] || 'bg-purple-600';
 };

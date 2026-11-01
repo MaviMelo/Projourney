@@ -208,7 +208,7 @@ php artisan db:seed
 | [Backend Laravel](backend_laravel/README.md) | Arquitetura do backend Laravel + Inertia |
 | [Frontend React](frontend_react/README.md) | Arquitetura da SPA React |
 | [Database Schema](backend_laravel/documentations/database.md) | Estrutura do banco de dados |
-| [CSRF + HttpOnly](backend_laravel/documentations/csrf-http-only-implementation.md) | Segurança com Sanctum SPA |
+| [CSRF + HttpOnly](backend_laravel/documentations/authentication_method.md) | Segurança com Sanctum SPA |
 | [Gate/Policy Authorization](backend_laravel/documentations/gate-policy-admin-authorization.md) | Autorização baseada em roles |
 | [Dockerização](DOCKER.md) | Containerização com proxy reverso (4 containers, porta 8080) |
 
@@ -229,3 +229,16 @@ php artisan db:seed
 * [Liliane](https://github.com/lilialnas)
 * [Emaur Florêncio](https://github.com/)
 * [Macone J. Silva](https://github.com/)
+
+---
+
+## Navegação na Documentação
+
+| Documento | Link |
+|-----------|------|
+| [Backend Laravel](backend_laravel/README.md) | Arquitetura do backend Laravel + Inertia |
+| [Frontend React](frontend_react/README.md) | Arquitetura da SPA React |
+| [Database Schema](backend_laravel/documentations/database.md) | Estrutura do banco de dados |
+| [CSRF + HttpOnly](backend_laravel/documentations/authentication_method.md) | Segurança com Sanctum SPA |
+| [Gate/Policy Authorization](backend_laravel/documentations/gate-policy-admin-authorization.md) | Autorização baseada em roles |
+| [Dockerização](DOCKER.md) | Containerização com proxy reverso (4 containers, porta 8080) |
