@@ -44,6 +44,7 @@ export default function PerfilPage(): React.JSX.Element {
     const [alert, setAlert] = useState<{ status: string, message: string } | null>(null);
     const [newTrailName, setNewTrailName] = useState<string>('');
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+    const [statusUpdatingId, setStatusUpdatingId] = useState<number | null>(null);
   const showAlert = (status: string, message: string) => {
         setAlert({ status, message });
         setTimeout(() => setAlert(null), 5000);
@@ -133,25 +134,76 @@ export default function PerfilPage(): React.JSX.Element {
         }
     };
 
+    // Altera o status (progress) da inscrição do usuário na trilha
+    const handleStatusChange = async (trail: Trail, newProgress: string) => {
+        const pivotId = trail.pivot?.id;
+        if (!pivotId) return;
+
+        setStatusUpdatingId(pivotId);
+        try {
+            const response = await apiFetch(`/trail-users/${pivotId}`, {
+                method: 'PUT',
+                body: JSON.stringify({ progress: newProgress }),
+            });
+
+            if (response.status !== 'success') {
+                throw new Error(response.message || 'Falha ao atualizar o status.');
+            }
+
+            setTrails(prev => prev.map(t =>
+                t.id === trail.id && t.pivot
+                    ? { ...t, pivot: { ...t.pivot, progress: newProgress as NonNullable<Trail['pivot']>['progress'] } }
+                    : t
+            ));
+            showAlert("success", "Status atualizado com sucesso.");
+        } catch (err) {
+            showAlert("error", err instanceof Error ? err.message : "Erro ao atualizar o status.");
+        } finally {
+            setStatusUpdatingId(null);
+        }
+    };
+
     const handleDelete = async (trail: Trail) => {
-        if (trail.user_id === null) {
-            showAlert("error", "Você não pode excluir trilhas oficiais do sistema.");
+        // 1. Trilha personalizada do próprio usuário → exclui a trilha inteira.
+        if (trail.user_id !== null) {
+            if (!window.confirm("Tem certeza que deseja excluir sua trilha personalizada?")) return;
+
+            try {
+                const response = await apiFetch(`/trail/${trail.id}`, { method: 'DELETE' });
+
+                if (response.status !== 'success') {
+                    throw new Error(response.message || 'Falha ao excluir a trilha.');
+                }
+
+                showAlert("success", response.message || "Trilha excluída com sucesso.");
+                setTrails(prev => prev.filter(t => t.id !== trail.id));
+            } catch (err) {
+                showAlert("error", err instanceof Error ? err.message : "Erro ao excluir trilha.");
+            }
             return;
         }
 
-        if (!window.confirm("Tem certeza que deseja excluir sua trilha personalizada?")) return;
+        // 2. Trilha do sistema → remove apenas a inscrição (tabela pivô),
+        //    preservando a trilha em si para os demais usuários.
+        const pivotId = trail.pivot?.id;
+        if (!pivotId) {
+            showAlert("error", "Não foi possível identificar sua inscrição nesta trilha.");
+            return;
+        }
+
+        if (!window.confirm("Tem certeza que deseja remover esta trilha do seu perfil?")) return;
 
         try {
-            const response = await apiFetch(`/trail/${trail.id}`, {
-                method: 'DELETE',
-            });
-            
-            if (response.status !== 'success') throw new Error('Falha ao excluir a trilha.');
+            const response = await apiFetch(`/trail-users/${pivotId}`, { method: 'DELETE' });
 
-            showAlert("success", "Trilha excluída com sucesso.");
-            setTrails(trails.filter(t => t.id !== trail.id));
+            if (response.status !== 'success') {
+                throw new Error(response.message || 'Falha ao remover a inscrição.');
+            }
+
+            showAlert("success", response.message || "Trilha removida com sucesso.");
+            setTrails(prev => prev.filter(t => t.id !== trail.id));
         } catch (err) {
-            showAlert("error", err instanceof Error ? err.message : "Erro ao excluir trilha.");
+            showAlert("error", err instanceof Error ? err.message : "Erro ao remover trilha.");
         }
     };
 
@@ -235,9 +287,24 @@ export default function PerfilPage(): React.JSX.Element {
                                             {trail.user_id === null ? 'Sistema' : 'Personalizada'}
                                         </span>
 
-                                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${statusColors[trail.pivot?.progress ?? 'Inscrito']}`}>
-                                          {trail.pivot?.progress ?? 'Inscrito'}
-                                        </span>
+                                        {trail.pivot ? (
+                                            <select
+                                                value={trail.pivot.progress}
+                                                onChange={(e) => handleStatusChange(trail, e.target.value)}
+                                                disabled={statusUpdatingId === trail.pivot.id}
+                                                title="Alterar status da trilha"
+                                                className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border cursor-pointer focus:outline-none disabled:opacity-50 ${statusColors[trail.pivot.progress]}`}
+                                            >
+                                                <option value="Inscrito">Inscrito</option>
+                                                <option value="Cursando">Cursando</option>
+                                                <option value="Suspenso">Suspenso</option>
+                                                <option value="Concluído">Concluído</option>
+                                            </select>
+                                        ) : (
+                                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${statusColors['Inscrito']}`}>
+                                                Inscrito
+                                            </span>
+                                        )}
                                     </div>
                                     <Link to={`/aulas/${trail.id}`} className="block text-xl font-bold hover:text-blue-500 transition-colors mb-4">
                                         {trail.name}

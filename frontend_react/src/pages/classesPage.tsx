@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Loader2, AlertCircle, ExternalLink, ArrowLeft, GraduationCap, PlayCircle, BookX, Plus, Trash2 } from 'lucide-react';
+import { Loader2, AlertCircle, ExternalLink, ArrowLeft, GraduationCap, PlayCircle, BookX, Plus, Trash2, Star, MessageCircle, ChevronDown } from 'lucide-react';
 import { apiFetch, initAuth } from '@/lib/api';
 import ParticleBackground from "@/components/effects/particleBackground";
 import StarRatingPage from '@/components/layout/StarRatingPage';
@@ -15,6 +15,83 @@ export interface Course {
         id: number;
     };
 }
+
+// --- Componente: Card individual do curso (com estado próprio de expansão) ---
+const CourseCard: React.FC<{ course: Course; isCustomTrail: boolean; onRemove: (pivotId: number) => void }> = ({ course, isCustomTrail, onRemove }) => {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <div key={course.id} className="!bg-white dark:!bg-[#1a1a1a]/90 backdrop-blur-md border border-gray-200 dark:border-gray-700 rounded-2xl p-0 shadow-sm overflow-hidden transition-all duration-300 group">
+      {/* Cabeçalho do curso: apenas título e ícone redirecionam (área clicável limitada) */}
+      <div className="flex items-center justify-between gap-4 p-5 border-b border-gray-100 dark:border-gray-700/60 cursor-pointer bg-gray-50 dark:bg-gray-900/30">
+        <div className="flex items-center gap-3 flex-1">
+          <div className="p-3 rounded-full bg-blue-100 dark:bg-blue-900/30 text-[hsl(var(--button-2))] dark:text-blue-400 group-hover:bg-[hsl(var(--button-2))] group-hover:text-white transition-colors">
+            <PlayCircle className="w-6 h-6" />
+          </div>
+          <div>
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white group-hover:text-[hsl(var(--button-2))] transition-colors leading-tight">
+              {course.name}
+            </h3>
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300 border-gray-300 dark:border-gray-600 uppercase tracking-wider">
+              {course.level}
+            </span>
+          </div>
+        </div>
+        <button
+          onClick={() => setExpanded(!expanded)}
+          aria-label="Ver mais detalhes do curso"
+          className="p-2 rounded-lg text-gray-400 hover:text-[hsl(var(--button-2))] hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+        >
+          {expanded ? <ChevronDown size={18} className="rotate-180" /> : <ChevronDown size={18} />}
+        </button>
+      </div>
+
+      {/* Conteúdo expansível: link externo, remover, estrelas e comentários dentro do card */}
+      {expanded && (
+        <div className="p-5 pt-4 border-t border-gray-50 dark:border-gray-700/40 bg-white dark:bg-[#1a1a1a]/60">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <a
+              href={course.link_course}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 w-full sm:w-auto text-[hsl(var(--button-2))] font-bold px-4 py-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors"
+            >
+              <span>Acessar aula</span>
+              <ExternalLink size={16} />
+            </a>
+
+            {isCustomTrail && course.pivot?.id && (
+              <button
+                onClick={() => course.pivot && onRemove(course.pivot.id)}
+                className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-colors"
+                title="Remover curso da trilha"
+              >
+                <Trash2 size={18} />
+              </button>
+            )}
+          </div>
+
+          <div className="mt-5 pt-5 border-t border-gray-100 dark:border-gray-700/40 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-1">
+                <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Avaliar curso</span>
+              </div>
+              <StarRatingPage Courseid={course.id} />
+            </div>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-1">
+                <MessageCircle className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Comentários</span>
+              </div>
+              <CommentList Courseid={course.id} />
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 export default function AulasPage(): React.JSX.Element {
     const navigate = useNavigate();
@@ -31,10 +108,12 @@ export default function AulasPage(): React.JSX.Element {
     const [selectedCourseId, setSelectedCourseId] = useState<string>('');
     const [loadingAvailable, setLoadingAvailable] = useState<boolean>(false);
 
-    const loggedUser = localStorage.getItem('loggedUser');
-    if (!loggedUser) {
-        navigate('/login');
-    }
+    useEffect(() => {
+        const loggedUser = localStorage.getItem('loggedUser');
+        if (!loggedUser) {
+            navigate('/login');
+        }
+    }, [navigate]);
 
     const fetchCursos = useCallback(async () => {
         if (!trailId) return;
@@ -206,68 +285,26 @@ export default function AulasPage(): React.JSX.Element {
                         <GraduationCap className="text-[hsl(var(--button-2))] dark:text-blue-400 w-10 h-10" />
                     </div>
                     <div>
-                        <h1 className="text-4xl md:text-5xl font-bold !text-black-900">Conteúdo da Trilha</h1>
-                        <p className="!text-black-700 text-lg mt-2">Acesse as aulas abaixo e expanda seus conhecimentos.</p>
+                        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white">Conteúdo da Trilha</h1>
+                        <p className="text-gray-600 dark:text-gray-300 text-lg mt-2">Acesse as aulas abaixo e expanda seus conhecimentos.</p>
                     </div>
                 </div>
 
-                <div className="flex flex-col gap-6">
+                <div className="flex flex-col gap-4">
                     {courses.length > 0 ? (
-                        courses.map(course => (
-                            <React.Fragment key={course.id}>
-                                <div className="group flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 !bg-white dark:!bg-[#1a1a1a]/90 backdrop-blur-md border border-gray-200 dark:border-gray-700 rounded-2xl p-6 shadow-md transition-all duration-300">
-                                    <a
-                                        href={course.link_course}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="flex items-start gap-5 flex-1 cursor-pointer"
-                                    >
-                                        <div className="p-4 rounded-full bg-gray-100 dark:bg-gray-800 text-[hsl(var(--button-2))] dark:text-blue-400 group-hover:bg-[hsl(var(--button-2))] group-hover:text-white transition-colors">
-                                            <PlayCircle className="w-8 h-8" />
-                                        </div>
-                                        <div className="flex flex-col justify-center gap-2">
-                                            <h3 className="text-2xl font-bold !text-gray-900 dark:!text-white group-hover:text-[hsl(var(--button-2))] transition-colors">
-                                                {course.name}
-                                            </h3>
-                                            <span className="w-fit inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 border-gray-300 dark:border-gray-600 uppercase tracking-wider">
-                                                {course.level}
-                                            </span>
-                                        </div>
-                                    </a>
-
-                                    <div className="flex items-center gap-4 self-end sm:self-auto mt-4 sm:mt-0">
-                                        <a
-                                            href={course.link_course}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="flex items-center gap-2 text-[hsl(var(--button-2))] font-bold px-4 py-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors"
-                                        >
-                                            <span>Acessar</span>
-                                            <ExternalLink size={18} />
-                                        </a>
-
-                                        {isCustomTrail && course.pivot?.id && (
-                                            <button
-                                                onClick={() => handleRemoveCourseFromTrail(course.pivot?.id)}
-                                                className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-colors"
-                                                title="Remover curso da trilha"
-                                            >
-                                                <Trash2 size={20} />
-                                            </button>
-                                        )}
-                                    </div>
-                                </div>
-                                <div onClick={(e) => e.stopPropagation()} className="mt-2">
-                                    <StarRatingPage Courseid={course.id} />
-                                </div>
-                                <CommentList Courseid={course.id} />
-                            </React.Fragment>
+                        courses.map((course) => (
+                            <CourseCard
+                                key={course.id}
+                                course={course}
+                                isCustomTrail={isCustomTrail}
+                                onRemove={handleRemoveCourseFromTrail}
+                            />
                         ))
                     ) : (
-                        <div className="flex flex-col items-center justify-center !bg-white dark:!bg-[#1a1a1a]/80 backdrop-blur-md border border-dashed border-gray-300 dark:border-gray-700 rounded-2xl p-12 text-center shadow-lg">
+                        <div className="flex flex-col items-center justify-center bg-white dark:bg-[#1a1a1a]/80 backdrop-blur-md border border-dashed border-gray-300 dark:border-gray-700 rounded-2xl p-12 text-center shadow-lg">
                             <BookX className="w-16 h-16 text-gray-400 mb-4" />
-                            <h3 className="text-2xl font-bold !text-gray-900 dark:!text-white mb-2">Nenhuma aula encontrada</h3>
-                            <p className="!text-gray-600 dark:!text-gray-400">Ainda não existem conteúdos cadastrados para esta trilha.</p>
+                            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Nenhuma aula encontrada</h3>
+                            <p className="text-gray-600 dark:text-gray-400">Ainda não existem conteúdos cadastrados para esta trilha.</p>
                         </div>
                     )}
                 </div>

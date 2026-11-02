@@ -116,27 +116,26 @@ class TrailUserController extends Controller
     {
         $instance = TrailUser::findOrFail($pivot_id);
 
+        // Garante que o usuário só altera o progresso da própria inscrição.
+        if ($instance->user_id !== auth()->id()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Operação não permitida. Este progresso não pertence a você.'
+            ], 403);
+        }
+
         $validated = $request->validate([
             'progress' => ['required', 'string', 'in:Inscrito,Cursando,Suspenso,Concluído']
         ]);
 
         try {
+            $instance->update($validated);
 
-            if ($instance->user_id === $request->user_id) {
-                $instance->update($validated);
-
-                return response()->json([
-                    'progress' => $instance->progress,
-                    'status' => 'success',
-                    'message' => 'Progresso atualizado com sucesso.'
-                ]);
-            } else {
-
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Operação não permitida. Você não tem permissão para atualizar o progresso dessa instâcia.'
-                ]);
-            }
+            return response()->json([
+                'progress' => $instance->progress,
+                'status' => 'success',
+                'message' => 'Progresso atualizado com sucesso.'
+            ]);
         } catch (\Throwable $th) {
             $statusCode = $th->getCode() ?: 500;
 
@@ -150,7 +149,7 @@ class TrailUserController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Não foi possível fazer essa operação. Erro interno (status: ' . $statusCode . '), tente mais tarde.'
-            ]);
+            ], 500);
         }
     }
 
@@ -159,12 +158,20 @@ class TrailUserController extends Controller
      */
     public function destroy(TrailUser $trailUser)
     {
+        // Garante que o usuário só pode excluir a própria inscrição (tabela pivô)
+        if ($trailUser->user_id !== auth()->id()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Operação não permitida. Esta inscrição não pertence a você.'
+            ], 403);
+        }
+
         $trailUser->delete();
 
         return response()->json([
 
             'status' => 'success',
-            'message' => 'Trilha excluída com sucesso.'
+            'message' => 'Trilha removida com sucesso.'
         ]);
 
     }

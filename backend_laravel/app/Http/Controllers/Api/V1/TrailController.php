@@ -177,11 +177,19 @@ class TrailController extends Controller
 
     public function destroy(Trail $trail)
     {
+        // Apenas o criador da trilha pode excluí-la
+        if ($trail->user_id !== auth()->id()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Operação não permitida. Esta trilha não pertence a você.'
+            ], 403);
+        }
+
         try {
             $trail->delete();
-            return redirect()->back()->with('message', [
+            return response()->json([
                 'status'  => 'success',
-                'msg' => 'Trilha ' . $trail->name . ' excluída com sucesso.',
+                'message' => 'Trilha ' . $trail->name . ' excluída com sucesso.',
             ]);
         } catch (\Throwable $e) {
             Log::error('Erro ao tentar excluir Trilha: ', [
@@ -191,10 +199,10 @@ class TrailController extends Controller
                 'Linha' => $e->getLine(),
             ]);
 
-            return redirect()->back()->with('message', [
+            return response()->json([
                 'status'  => 'error',
-                'msg' => 'Erro ao tentar excluir a trilha.',
-            ]);
+                'message' => 'Erro ao tentar excluir a trilha.',
+            ], 500);
         }
     }
 }

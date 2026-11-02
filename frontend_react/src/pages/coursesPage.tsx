@@ -78,53 +78,54 @@ const mockCourses: Course[] = [
 // --- COMPONENTE: Card do Curso ---
 const CourseCard: React.FC<{ course: Course }> = ({ course }) => {
   return (
-    <div className="!bg-white dark:!bg-[#1a1a1a]/90 backdrop-blur-md border border-gray-200 dark:border-gray-700/60 shadow-lg rounded-2xl overflow-hidden flex flex-col group hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+    <div className="!bg-white dark:!bg-[#1a1a1a]/90 backdrop-blur-md border border-gray-200 dark:border-gray-700/60 border-l-4 border-transparent rounded-2xl overflow-hidden flex flex-col group shadow-sm hover:shadow-md transition-all duration-300 hover:border-l-[hsl(var(--button-2))]">
       
       {/* Imagem com Efeito de Zoom */}
-      <div className="relative overflow-hidden h-48">
+      <div className="relative overflow-hidden h-44 md:h-52">
         <img
           src={course.image}
           alt={course.title}
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
         {/* Badges Flutuantes */}
-        <div className="absolute top-4 left-4 flex gap-2">
-          <span className={`${getCategoryColor(course.category)} text-white font-semibold px-3 py-1 rounded-full text-xs shadow-md`}>
+        <div className="absolute top-3 left-3 flex gap-2">
+          <span className={`${getCategoryColor(course.category)} text-white font-semibold px-2.5 py-1 rounded-full text-[11px] shadow-sm`}>
             {course.category}
           </span>
-          <span className="bg-black/60 backdrop-blur-md text-white font-semibold px-3 py-1 rounded-full text-xs shadow-md">
+          <span className="bg-black/60 backdrop-blur-md text-white font-semibold px-2.5 py-1 rounded-full text-[11px] shadow-sm">
             {course.level}
           </span>
         </div>
       </div>
       
       {/* Informações do Curso */}
-      <div className="p-6 flex flex-col flex-1">
-        <h3 className="text-xl font-bold !text-gray-900 dark:!text-white mb-2 line-clamp-2 group-hover:text-[hsl(var(--button-2))] dark:group-hover:text-blue-400 transition-colors">
+      <div className="p-4 md:p-5 flex flex-col flex-1">
+        <h3 className="text-lg md:text-xl font-bold !text-gray-900 dark:!text-white mb-2 line-clamp-2 group-hover:text-[hsl(var(--button-2))] dark:group-hover:text-blue-400 transition-colors leading-snug">
             {course.title}
         </h3>
-        <p className="!text-gray-600 dark:!text-gray-400 text-sm mb-6 line-clamp-2 flex-1">
+        <p className="!text-gray-600 dark:!text-gray-400 text-sm mb-4 line-clamp-3 flex-1">
             {course.description}
         </p>
-        
+
         {/* Ícones de Detalhes */}
-        <div className="flex flex-col gap-2 mb-6 text-sm font-medium !text-gray-700 dark:!text-gray-300">
+        <div className="flex flex-col gap-2 mt-auto mb-3 text-sm font-medium !text-gray-700 dark:!text-gray-300">
           <div className="flex items-center gap-2">
-            <Clock size={16} className="text-[hsl(var(--button-2))] dark:text-blue-400" />
+            <Clock size={15} className="text-[hsl(var(--button-2))] dark:text-blue-400 shrink-0" />
             <span>{course.duration}</span>
           </div>
           <div className="flex items-center gap-2">
-            <Building size={16} className="text-[hsl(var(--button-2))] dark:text-blue-400" />
+            <Building size={15} className="text-[hsl(var(--button-2))] dark:text-blue-400 shrink-0" />
             <span className="truncate">{course.institution}</span>
           </div>
         </div>
-        
-        {/* Botão de Ação */}
+
+        {/* Botão de Ação - área clicável limitada ao botão */}
         <Link
           to={`/cursos/${course.id}`}
-          className="w-full py-3 rounded-lg font-bold text-white bg-[hsl(var(--button-1))] hover:bg-[hsl(var(--button-1-foreground))] shadow-md transition-all flex justify-center items-center gap-2"
+          className="inline-flex items-center justify-center gap-2 w-auto px-5 py-2.5 rounded-lg font-bold text-white bg-[hsl(var(--button-1))] hover:bg-[hsl(var(--button-1-foreground))] shadow-sm hover:shadow-[hsl(var(--button-1))]/40 transition-all text-sm"
         >
           Ver Detalhes
+          <ExternalLink size={14} />
         </Link>
       </div>
     </div>
@@ -156,13 +157,13 @@ export const CoursesPage: React.FC = () => {
                 <BookOpen className="text-purple-600 dark:text-purple-400 w-10 h-10" />
             </div>
             <div>
-                <h1 className="text-4xl md:text-5xl font-bold !text-black-900">Cursos Parceiros</h1>
-                <p className="!text-black-500 text-lg mt-2">Explore capacitações extras publicadas por instituições de ensino parceiras.</p>
+                <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white">Cursos Parceiros</h1>
+                <p className="text-gray-600 dark:text-gray-300 text-lg mt-2">Explore capacitações extras publicadas por instituições de ensino parceiras.</p>
             </div>
         </div>
 
         {/* Grid de Cursos */}
-        <main className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <main className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
           {mockCourses.map(course => (
             <CourseCard key={course.id} course={course} />
           ))}

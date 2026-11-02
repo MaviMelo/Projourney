@@ -1,0 +1,44 @@
+# docker-compose.dev.yml
+# Ambiente de desenvolvimento com Hot Reload.
+# Uso: docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+#
+# Sobrepõe os serviços para desenvolvimento:
+#  - frontend-dev: Vite dev server com HMR + bind mount do código
+#  - backend: bind mount (já existente) + limpeza de cache do Laravel no startup
+#
+# Acesso em desenvolvimento:
+#   SPA (HMR):       http://localhost:5173
+#   API (via proxy): http://localhost:8080/api
+#   Dashboard:       http://localhost:8080/
+
+services:
+  frontend:
+    image: projourney-frontend:dev
+    build:
+      context: ./frontend_react
+      dockerfile: Dockerfile.dev
+    container_name: projourney-frontend-dev
+    environment:
+      VITE_API_URL: http://localhost:8080/api
+    volumes:
+      - ./frontend_react:/app        # bind mount: alterações refletem imediatamente
+      - /app/node_modules            # não sobrescrever node_modules do container
+    ports:
+      - "5173:5173"                  # porta do Vite dev server (HMR)
+    depends_on:
+      - backend
+
+  backend:
+    container_name: projourney-backend-dev
+    volumes:
+      - ./backend_laravel:/var/www/html  # bind mount: alterações PHP refletem imediatamente
+      - /var/www/html/vendor
+    command: sh -c "php artisan config:clear && php artisan route:clear && php artisan view:clear && php artisan serve --host=0.0.0.0 --port=8000"
+
+  proxy:
+    container_name: projourney-proxy-dev
+    ports:
+      - "8080:80"
+
+volumes:
+  db_data:

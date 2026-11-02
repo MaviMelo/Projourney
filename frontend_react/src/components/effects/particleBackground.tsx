@@ -152,8 +152,8 @@ export default function ParticleBackground(): JSX.Element {
         const color3 = isLight ? "0, 0%, 0%" : "0, 0%, 100%"; // Cor das linhas
         const color4 = isLight ? "0, 0%, 0%" : "0, 0%, 100%"; // Cor da linha do mouse
 
-        const lineOpacityMax = isLight ? 0.35 : 0.25; 
-        const mouseLineOpacityMax = isLight ? 0.5 : 0.35; 
+        const lineOpacityMax = isLight ? 0.10 : 0.15; 
+        const mouseLineOpacityMax = isLight ? 0.5 : 0.15; 
         const baseLineWidth = isLight ? 1.2 : 0.8; 
         const mouseLineWidth = isLight ? 1.5 : 1.0;
 
