@@ -1,8 +1,9 @@
 import { JSX, useState } from "react";
 import type React from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Loader2, AlertCircle, CheckCircle, User, Mail, Lock, Calendar, Phone, Eye, EyeOff } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft, AlertCircle, CheckCircle, User, Mail, Lock, Calendar, Phone, Eye, EyeOff } from "lucide-react";
 import ParticleBackground from "@/components/effects/particleBackground";
+import SimpleLink from "../components/common/simpleLink";
 import { register, initCsrf } from '@/lib/api';
 interface AlunoFormData {
     name: string;
@@ -84,44 +85,43 @@ export default function CadastrarAlunoPage(): JSX.Element {
         <>
             <ParticleBackground />
 
-            <div className="min-h-screen flex flex-col items-center justify-center p-4 relative z-10">
-                
+            <div className="formPage">
+
                 {/* Botão de Voltar */}
-                <div className="absolute top-8 left-8">
-                    <Link
-                        to="/"
-                        className="flex items-center gap-2 text-[hsl(var(--button-2))] hover:text-[hsl(var(--button-2-foreground))] font-semibold transition-colors"
-                    >
-                        <ArrowLeft size={20} />
-                        Voltar ao início
-                    </Link>
+                <div className="backLinkWrap">
+                    <SimpleLink to="/" variant="navLink">
+                        <div className="backLinkInner">
+                            <ArrowLeft className="backLinkIcon" />
+                            <span className="backLinkText">Voltar ao início</span>
+                        </div>
+                    </SimpleLink>
                 </div>
 
                 {/* Título Principal */}
-                <div className="text-center mb-8 mt-16">
-                    <h1 className="text-4xl md:text-5xl font-bold text-[hsl(var(--button-2))] mb-3">
+                <div className="pageIntro">
+                    <h1 className="pageIntroTitle">
                         Junte-se a nós!
                     </h1>
-                    <p className="text-black-600  text-lg">
+                    <p className="pageIntroText">
                         Crie sua conta e comece sua jornada
                     </p>
                 </div>
 
                 {/* Card de Registro */}
-                <div className="w-full max-w-2xl bg-white dark:bg-[#1a1a1a]/80 backdrop-blur-md border border-gray-200 dark:border-gray-700/60 rounded-2xl shadow-2xl p-8 mb-8">
-                    
-                    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-                        
+                <div className="formCard formCardWide">
+
+                    <form onSubmit={handleSubmit} className="formBody">
+
                         {/* Grid de 2 Colunas */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                            
+                        <div className="formGrid">
+
                             {/* Nome */}
-                            <div className="flex flex-col gap-1.5">
-                                <label htmlFor="name" className="text-sm font-medium text-gray-800 dark:text-gray-200 ml-1 text-left">
+                            <div className="formField">
+                                <label htmlFor="name" className="formLabel">
                                     Nome Completo *
                                 </label>
-                                <div className="relative flex items-center">
-                                    <User className="absolute left-3 text-gray-400 dark:text-gray-500 w-5 h-5 pointer-events-none" />
+                                <div className="formFieldWrap">
+                                    <User className="formFieldIcon" />
                                     <input
                                         id="name"
                                         type="text"
@@ -129,18 +129,18 @@ export default function CadastrarAlunoPage(): JSX.Element {
                                         onChange={handleChange}
                                         placeholder="Seu nome completo"
                                         required
-                                        className="w-full bg-gray-50 dark:bg-black/40 border border-gray-300 dark:border-gray-600 rounded-lg py-3 pl-10 pr-4 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-[hsl(var(--button-2))] focus:ring-1 focus:ring-[hsl(var(--button-2))] transition-all"
+                                        className="formInput"
                                     />
                                 </div>
                             </div>
 
                             {/* E-mail */}
-                            <div className="flex flex-col gap-1.5">
-                                <label htmlFor="email" className="text-sm font-medium text-gray-800 dark:text-gray-200 ml-1 text-left">
+                            <div className="formField">
+                                <label htmlFor="email" className="formLabel">
                                     E-mail *
                                 </label>
-                                <div className="relative flex items-center">
-                                    <Mail className="absolute left-3 text-gray-400 dark:text-gray-500 w-5 h-5 pointer-events-none" />
+                                <div className="formFieldWrap">
+                                    <Mail className="formFieldIcon" />
                                     <input
                                         id="email"
                                         type="email"
@@ -148,18 +148,18 @@ export default function CadastrarAlunoPage(): JSX.Element {
                                         onChange={handleChange}
                                         placeholder="seu@email.com"
                                         required
-                                        className="w-full bg-gray-50 dark:bg-black/40 border border-gray-300 dark:border-gray-600 rounded-lg py-3 pl-10 pr-4 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-[hsl(var(--button-2))] focus:ring-1 focus:ring-[hsl(var(--button-2))] transition-all"
+                                        className="formInput"
                                     />
                                 </div>
                             </div>
 
                             {/* Senha */}
-                            <div className="flex flex-col gap-1.5">
-                                <label htmlFor="password" className="text-sm font-medium text-gray-800 dark:text-gray-200 ml-1 text-left">
+                            <div className="formField">
+                                <label htmlFor="password" className="formLabel">
                                     Senha *
                                 </label>
-                                <div className="relative flex items-center">
-                                    <Lock className="absolute left-3 text-gray-400 dark:text-gray-500 w-5 h-5 pointer-events-none" />
+                                <div className="formFieldWrap">
+                                    <Lock className="formFieldIcon" />
                                     <input
                                         id="password"
                                         type={showPassword ? "text" : "password"}
@@ -167,25 +167,25 @@ export default function CadastrarAlunoPage(): JSX.Element {
                                         onChange={handleChange}
                                         placeholder="Mínimo 8 caracteres"
                                         required
-                                        className="w-full bg-gray-50 dark:bg-black/40 border border-gray-300 dark:border-gray-600 rounded-lg py-3 pl-10 pr-12 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-[hsl(var(--button-2))] focus:ring-1 focus:ring-[hsl(var(--button-2))] transition-all"
+                                        className="formInput formInputPassword"
                                     />
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute right-3 text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white transition-colors"
+                                        className="formPasswordToggle"
                                     >
-                                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                        {showPassword ? <EyeOff /> : <Eye />}
                                     </button>
                                 </div>
                             </div>
 
                             {/* Confirmar Senha */}
-                            <div className="flex flex-col gap-1.5">
-                                <label htmlFor="password_confirmation" className="text-sm font-medium text-gray-800 dark:text-gray-200 ml-1 text-left">
+                            <div className="formField">
+                                <label htmlFor="password_confirmation" className="formLabel">
                                     Confirmar Senha *
                                 </label>
-                                <div className="relative flex items-center">
-                                    <Lock className="absolute left-3 text-gray-400 dark:text-gray-500 w-5 h-5 pointer-events-none" />
+                                <div className="formFieldWrap">
+                                    <Lock className="formFieldIcon" />
                                     <input
                                         id="password_confirmation"
                                         type={showConfirmPassword ? "text" : "password"}
@@ -193,87 +193,84 @@ export default function CadastrarAlunoPage(): JSX.Element {
                                         onChange={handleChange}
                                         placeholder="Repita sua senha"
                                         required
-                                        className="w-full bg-gray-50 dark:bg-black/40 border border-gray-300 dark:border-gray-600 rounded-lg py-3 pl-10 pr-12 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-[hsl(var(--button-2))] focus:ring-1 focus:ring-[hsl(var(--button-2))] transition-all"
+                                        className="formInput formInputPassword"
                                     />
                                     <button
                                         type="button"
                                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                        className="absolute right-3 text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white transition-colors"
+                                        className="formPasswordToggle"
                                     >
-                                        {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                        {showConfirmPassword ? <EyeOff /> : <Eye />}
                                     </button>
                                 </div>
                             </div>
 
                             {/* Data de Nascimento */}
-                            <div className="flex flex-col gap-1.5">
-                                <label htmlFor="birth_date" className="text-sm font-medium text-gray-800 dark:text-gray-200 ml-1 text-left">
+                            <div className="formField">
+                                <label htmlFor="birth_date" className="formLabel">
                                     Data de Nascimento (Opcional)
                                 </label>
-                                <div className="relative flex items-center">
-                                    <Calendar className="absolute left-3 text-gray-400 dark:text-gray-500 w-5 h-5 pointer-events-none" />
+                                <div className="formFieldWrap">
+                                    <Calendar className="formFieldIcon" />
                                     <input
                                         id="birth_date"
                                         type="date"
                                         value={formData.birth_date}
                                         onChange={handleChange}
-                                        className="w-full bg-gray-50 dark:bg-black/40 border border-gray-300 dark:border-gray-600 rounded-lg py-3 pl-10 pr-4 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-[hsl(var(--button-2))] focus:ring-1 focus:ring-[hsl(var(--button-2))] transition-all [color-scheme:light] dark:[color-scheme:dark]"
+                                        className="formInput"
                                     />
                                 </div>
                             </div>
 
                             {/* Telefone */}
-                            <div className="flex flex-col gap-1.5">
-                                <label htmlFor="phone_number" className="text-sm font-medium text-gray-800 dark:text-gray-200 ml-1 text-left">
+                            <div className="formField">
+                                <label htmlFor="phone_number" className="formLabel">
                                     Telefone (Opcional)
                                 </label>
-                                <div className="relative flex items-center">
-                                    <Phone className="absolute left-3 text-gray-400 dark:text-gray-500 w-5 h-5 pointer-events-none" />
+                                <div className="formFieldWrap">
+                                    <Phone className="formFieldIcon" />
                                     <input
                                         id="phone_number"
                                         type="tel"
                                         value={formData.phone_number}
                                         onChange={handleChange}
                                         placeholder="(11) 99999-9999"
-                                        className="w-full bg-gray-50 dark:bg-black/40 border border-gray-300 dark:border-gray-600 rounded-lg py-3 pl-10 pr-4 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-[hsl(var(--button-2))] focus:ring-1 focus:ring-[hsl(var(--button-2))] transition-all"
+                                        className="formInput"
                                     />
                                 </div>
                             </div>
                         </div>
 
                         {/* Botão de Envio e Feedback */}
-                        <div className="pt-2 border-t border-gray-200 dark:border-gray-700/50 mt-2">
+                        <div className="formActions">
                             {success && (
-                                <div className="flex items-center gap-2 p-3 mb-4 bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800 rounded-lg">
+                                <div className="formSuccess">
                                     <CheckCircle size={20} />
-                                    <span className="text-sm font-medium">{success}</span>
+                                    <span className="formFeedbackText">{success}</span>
                                 </div>
                             )}
                             {error && (
-                                <div className="flex items-center gap-2 p-3 mb-4 bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800 rounded-lg">
+                                <div className="formError">
                                     <AlertCircle size={20} />
-                                    <span className="text-sm font-medium">{error}</span>
+                                    <span className="formFeedbackText">{error}</span>
                                 </div>
                             )}
 
                             <button
                                 type="submit"
                                 disabled={loading || !!success}
-                                className="w-full py-3 mt-2 rounded-lg font-bold text-white bg-[hsl(var(--button-1))] hover:bg-[hsl(var(--button-1-foreground))] shadow-lg transition-all flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                                className="formSubmit"
                             >
-                                {loading ? <Loader2 className="animate-spin w-5 h-5" /> : 'Finalizar Cadastro'}
+                                {loading ? <div className="formSpinner" /> : 'Finalizar Cadastro'}
                             </button>
                         </div>
-                        
+
                         {/* Link extra para Login */}
-                        <div className="text-center text-sm text-gray-600 dark:text-gray-300 mt-2">
-                            Já possui uma conta?{" "}
-                            <Link
-                                to="/login"
-                                className="text-[hsl(var(--button-3))] font-bold hover:underline ml-1"
-                            >
+                        <div className="formFooter">
+                            <span>Já possui uma conta?</span>
+                            <SimpleLink to="/login" variant="navLink">
                                 Entre aqui!
-                            </Link>
+                            </SimpleLink>
                         </div>
                     </form>
                 </div>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { apiFetch, initAuth } from '@/lib/api';
-import { BookOpen, Loader2, AlertCircle, CheckCircle, Trash2, Plus } from "lucide-react";
+import { apiFetch } from '@/lib/api';
+import { BookOpen, AlertCircle, CheckCircle, Trash2, Plus } from "lucide-react";
 
 interface User {
     id: number;
@@ -27,11 +27,11 @@ interface Trail {
     };
 }
 
-const statusColors: { [key: string]: string } = {
-    Inscrito: 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300 border-blue-500/30',
-    Cursando: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-700/40 dark:text-yellow-300 border-yellow-500/30',
-    Suspenso: 'bg-gray-200 text-gray-800 dark:bg-gray-700/40 dark:text-gray-300 border-gray-500/30',
-    Concluído: 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300 border-green-500/30',
+const statusClasses: { [key: string]: string } = {
+    Inscrito: 'statusInscrito',
+    Cursando: 'statusCursando',
+    Suspenso: 'statusSuspenso',
+    Concluído: 'statusConcluido',
 };
 
 export default function PerfilPage(): React.JSX.Element {
@@ -209,19 +209,22 @@ export default function PerfilPage(): React.JSX.Element {
 
     if (status === 'loading') {
         return (
-            <div className="min-h-[calc(100vh-80px)] flex items-center justify-center">
-                <Loader2 className="w-16 h-16 text-[hsl(var(--button-2))] animate-spin" />
+            <div className="stateWrap">
+                <div className="stateSpinner" />
             </div>
         );
     }
 
     if (status === 'error' || !user) {
         return (
-            <div className="min-h-[calc(100vh-80px)] flex flex-col items-center justify-center p-4">
-                <AlertCircle className="w-16 h-16 text-red-500 mb-4" />
-                <h1 className="text-3xl font-bold mb-2">Ocorreu um Erro</h1>
-                <p className="text-red-600 font-medium mb-6">{feedback}</p>
-                <button onClick={() => navigate('/login')} className="bg-[hsl(var(--button-1))] text-white font-bold py-3 px-6 rounded-lg">
+            <div className="stateWrap">
+                <AlertCircle className="stateIcon" />
+                <h1 className="stateTitle">
+                    Ocorreu um Erro (provavelmente tempo de seção esgotado).
+                    Por favor faça login novamente.
+                </h1>
+                <p className="stateText">{feedback}</p>
+                <button onClick={() => navigate('/login')} className="btnPrimary">
                     Voltar para o Login
                 </button>
             </div>
@@ -229,61 +232,57 @@ export default function PerfilPage(): React.JSX.Element {
     }
 
     return (
-        <div className="max-w-6xl mx-auto p-4 sm:p-8 min-h-[calc(100vh-80px)] relative z-10">
-            <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10 mt-4">
+        <div className="pageContainer">
+            <header className="pageHeader">
                 <div>
-                    <h1 className="text-4xl md:text-5xl font-bold mb-2">
+                    <h1 className="pageHeaderTitle">
                         Olá, {user.name.split(' ')[0]}!
                     </h1>
-                    <p className="text-lg opacity-80">
+                    <p className="pageHeaderText">
                         Aqui estão suas trilhas do sistema e personalizadas.
                     </p>
                 </div>
             </header>
 
             {alert && (
-                <div className={`mb-6 p-4 rounded-lg flex items-center gap-3 font-medium shadow-md border ${
-                    alert.status === 'error' ? 'bg-red-100 text-red-700 border-red-200' : 'bg-green-100 text-green-700 border-green-200'
-                }`}>
+                <div className={`alert ${alert.status === 'error' ? 'alertError' : 'alertSuccess'}`}>
                     {alert.status === 'error' ? <AlertCircle size={24} /> : <CheckCircle size={24} />}
                     {alert.message}
                 </div>
             )}
             {/* Form de Criação de Trilha */}
-            <form onSubmit={handleCreateTrail} className="mb-8 flex gap-3">
+            <form onSubmit={handleCreateTrail} className="inputBar">
                 <input
                     type="text"
                     value={newTrailName}
                     onChange={(e) => setNewTrailName(e.target.value)}
                     placeholder="Nome da nova trilha personalizada..."
-                    className="flex-1 px-4 py-2 border rounded-lg border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="inputPlain"
                     disabled={isSubmitting}
                     required
                 />
                 <button
                     type="submit"
                     disabled={isSubmitting || !newTrailName.trim()}
-                    className="flex items-center gap-2 bg-[hsl(var(--button-1))] hover:opacity-90 text-white font-bold px-5 py-2 rounded-lg transition-opacity disabled:opacity-50"
+                    className="btnPrimary"
                 >
-                    {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Plus size={20} />}
+                    {isSubmitting ? <div className="btnSpinner" /> : <Plus size={20} />}
                     Criar Trilha
                 </button>
             </form>
             <section>
-                <div className="flex items-center gap-3 mb-8 pb-4 border-b border-gray-300 dark:border-gray-700/50">
-                    <BookOpen className="text-[hsl(var(--button-2))] w-8 h-8" />
-                    <h2 className="text-3xl font-bold">Minhas Trilhas</h2>
+                <div className="sectionHeader">
+                    <BookOpen className="sectionIcon" />
+                    <h2 className="sectionTitle">Minhas Trilhas</h2>
                 </div>
 
                 {trails.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="cardGrid">
                         {trails.map(trail => (
-                            <div key={trail.id} className="bg-white dark:bg-[#1a1a1a]/95 border border-gray-200 dark:border-gray-700 rounded-2xl p-6 shadow-lg flex flex-col justify-between">
+                            <div key={trail.id} className="itemCard">
                                 <div>
-                                    <div className="flex justify-between items-start mb-2">
-                                        <span className={`text-xs px-2.5 py-1 rounded-full font-semibold ${
-                                            trail.user_id === null ? 'bg-purple-100 text-purple-700' : 'bg-emerald-100 text-emerald-700'
-                                        }`}>
+                                    <div className="itemCardTop">
+                                        <span className={`badge ${trail.user_id === null ? 'badgeSystem' : 'badgeCustom'}`}>
                                             {trail.user_id === null ? 'Sistema' : 'Personalizada'}
                                         </span>
 
@@ -293,7 +292,7 @@ export default function PerfilPage(): React.JSX.Element {
                                                 onChange={(e) => handleStatusChange(trail, e.target.value)}
                                                 disabled={statusUpdatingId === trail.pivot.id}
                                                 title="Alterar status da trilha"
-                                                className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border cursor-pointer focus:outline-none disabled:opacity-50 ${statusColors[trail.pivot.progress]}`}
+                                                className={`statusBadge ${statusClasses[trail.pivot.progress]}`}
                                             >
                                                 <option value="Inscrito">Inscrito</option>
                                                 <option value="Cursando">Cursando</option>
@@ -301,52 +300,51 @@ export default function PerfilPage(): React.JSX.Element {
                                                 <option value="Concluído">Concluído</option>
                                             </select>
                                         ) : (
-                                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${statusColors['Inscrito']}`}>
+                                            <span className={`statusBadge ${statusClasses['Inscrito']}`}>
                                                 Inscrito
                                             </span>
                                         )}
                                     </div>
-                                    <Link to={`/aulas/${trail.id}`} className="block text-xl font-bold hover:text-blue-500 transition-colors mb-4">
+                                    <Link to={`/aulas/${trail.id}`} className="itemCardTitle">
                                         {trail.name}
                                     </Link>
 
                                     {/* Listagem dos Cursos da Trilha */}
-                                    <div className="mb-4">
-                                        <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Cursos da Trilha:</p>
+                                    <div className="itemCardBody">
+                                        <p className="itemCardLabel">Cursos da Trilha:</p>
                                         {trail.courses && trail.courses.length > 0 ? (
-                                            <ul className="text-sm space-y-1">
+                                            <ul className="itemList">
                                                 {trail.courses.map(course => (
                                                     <li key={course.id}>
-                                                        <span></span>
                                                         {course.name}
                                                     </li>
                                                 ))}
                                             </ul>
                                         ) : (
-                                            <p className="text-xs text-gray-400 italic">Nenhum curso associado ainda.</p>
+                                            <p className="itemCardEmpty">Nenhum curso associado ainda.</p>
                                         )}
                                     </div>
                                 </div>
 
-                                <div className="mt-8 flex items-center justify-between border-t border-gray-200 dark:border-gray-700/50 pt-4">
-                                    <Link to={`/aulas/${trail.id}`} className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline">
+                                <div className="itemCardFooter">
+                                    <Link to={`/aulas/${trail.id}`} className="itemCardLink">
                                         Acessar Trilha
                                     </Link>
-                                    
-                                      <button
-                                          onClick={() => handleDelete(trail)}
-                                          className="flex items-center gap-1 text-sm font-medium text-red-600 hover:text-red-800 transition-colors"
-                                      >
-                                          <Trash2 size={16} />
-                                          Excluir
-                                      </button>
+
+                                    <button
+                                        onClick={() => handleDelete(trail)}
+                                        className="btnTextDanger"
+                                    >
+                                        <Trash2 size={16} />
+                                        Excluir
+                                    </button>
                                 </div>
                             </div>
                         ))}
                     </div>
                 ) : (
-                    <div className="text-center p-12 border border-dashed rounded-2xl">
-                        <h3 className="text-xl font-bold mb-2">Nenhuma trilha encontrada.</h3>
+                    <div className="emptyState">
+                        <h3 className="emptyStateTitle">Nenhuma trilha encontrada.</h3>
                     </div>
                 )}
             </section>

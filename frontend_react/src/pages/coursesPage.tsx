@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Loader2, AlertCircle, ArrowLeft, ExternalLink, Clock, Building, User, BookOpen, BarChart } from 'lucide-react';
+import { useParams, Link } from 'react-router-dom';
+import { AlertCircle, ArrowLeft, ExternalLink, Clock, Building, User, BookOpen, BarChart } from 'lucide-react';
 import ParticleBackground from "@/components/effects/particleBackground";
 
 // Tipos
@@ -16,16 +16,15 @@ interface Course {
   level: string;
 }
 
-// Função de utilidade para cores das categorias (Ajustado para tons mais modernos)
-const getCategoryColor = (category: string): string => {
-  const colors: Record<string, string> = {
-    'Tecnologia': 'bg-blue-600',
-    'Data Science': 'bg-purple-600',
-    'Inteligência Artificial': 'bg-emerald-600',
-    'Programação': 'bg-pink-600',
-  };
-  return colors[category] || 'bg-purple-600';
+// Mapeamento de categoria → classe de cor (definida em globals.css)
+const categoryClass: Record<string, string> = {
+  'Tecnologia': 'catTecnologia',
+  'Data Science': 'catDataScience',
+  'Inteligência Artificial': 'catIA',
+  'Programação': 'catProgramacao',
 };
+
+const getCategoryClass = (category: string): string => categoryClass[category] || 'catDataScience';
 
 // Mock de dados dos cursos
 const mockCourses: Course[] = [
@@ -78,51 +77,51 @@ const mockCourses: Course[] = [
 // --- COMPONENTE: Card do Curso ---
 const CourseCard: React.FC<{ course: Course }> = ({ course }) => {
   return (
-    <div className="!bg-white dark:!bg-[#1a1a1a]/90 backdrop-blur-md border border-gray-200 dark:border-gray-700/60 border-l-4 border-transparent rounded-2xl overflow-hidden flex flex-col group shadow-sm hover:shadow-md transition-all duration-300 hover:border-l-[hsl(var(--button-2))]">
-      
+    <div className="partnerCard">
+
       {/* Imagem com Efeito de Zoom */}
-      <div className="relative overflow-hidden h-44 md:h-52">
+      <div className="partnerCardMedia">
         <img
           src={course.image}
           alt={course.title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          className="partnerCardImg"
         />
         {/* Badges Flutuantes */}
-        <div className="absolute top-3 left-3 flex gap-2">
-          <span className={`${getCategoryColor(course.category)} text-white font-semibold px-2.5 py-1 rounded-full text-[11px] shadow-sm`}>
+        <div className="partnerCardBadges">
+          <span className={`catBadge ${getCategoryClass(course.category)}`}>
             {course.category}
           </span>
-          <span className="bg-black/60 backdrop-blur-md text-white font-semibold px-2.5 py-1 rounded-full text-[11px] shadow-sm">
+          <span className="levelBadgeDark">
             {course.level}
           </span>
         </div>
       </div>
-      
+
       {/* Informações do Curso */}
-      <div className="p-4 md:p-5 flex flex-col flex-1">
-        <h3 className="text-lg md:text-xl font-bold !text-gray-900 dark:!text-white mb-2 line-clamp-2 group-hover:text-[hsl(var(--button-2))] dark:group-hover:text-blue-400 transition-colors leading-snug">
+      <div className="partnerCardBody">
+        <h3 className="partnerCardTitle">
             {course.title}
         </h3>
-        <p className="!text-gray-600 dark:!text-gray-400 text-sm mb-4 line-clamp-3 flex-1">
+        <p className="partnerCardDesc">
             {course.description}
         </p>
 
         {/* Ícones de Detalhes */}
-        <div className="flex flex-col gap-2 mt-auto mb-3 text-sm font-medium !text-gray-700 dark:!text-gray-300">
-          <div className="flex items-center gap-2">
-            <Clock size={15} className="text-[hsl(var(--button-2))] dark:text-blue-400 shrink-0" />
+        <div className="partnerCardMeta">
+          <div className="partnerCardMetaRow">
+            <Clock size={15} className="partnerCardMetaIcon" />
             <span>{course.duration}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Building size={15} className="text-[hsl(var(--button-2))] dark:text-blue-400 shrink-0" />
-            <span className="truncate">{course.institution}</span>
+          <div className="partnerCardMetaRow">
+            <Building size={15} className="partnerCardMetaIcon" />
+            <span className="partnerCardMetaText">{course.institution}</span>
           </div>
         </div>
 
         {/* Botão de Ação - área clicável limitada ao botão */}
         <Link
           to={`/cursos/${course.id}`}
-          className="inline-flex items-center justify-center gap-2 w-auto px-5 py-2.5 rounded-lg font-bold text-white bg-[hsl(var(--button-1))] hover:bg-[hsl(var(--button-1-foreground))] shadow-sm hover:shadow-[hsl(var(--button-1))]/40 transition-all text-sm"
+          className="partnerCardAction"
         >
           Ver Detalhes
           <ExternalLink size={14} />
@@ -139,31 +138,31 @@ export const CoursesPage: React.FC = () => {
   return (
     <>
       <ParticleBackground />
-      <div className="max-w-7xl mx-auto p-4 sm:p-8 min-h-[calc(100vh-80px)] relative z-10 flex flex-col">
-        
+      <div className="coursesPage">
+
         {/* Botão Voltar */}
-        <div className="mb-6 mt-4">
-            <Link 
-                to={isAuthenticated ? "/perfil" : "/"} 
-                className="inline-flex items-center gap-2 text-[hsl(var(--button-2))] hover:text-[hsl(var(--button-2-foreground))] font-semibold transition-colors"
+        <div className="pageTopBar">
+            <Link
+                to={isAuthenticated ? "/perfil" : "/"}
+                className="navBackLink"
             >
                 <ArrowLeft size={20} />
                 Voltar ao Início
             </Link>
         </div>
 
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-10 pb-6 border-b border-gray-300 dark:border-gray-700/50">
-            <div className="p-4 bg-purple-100 dark:bg-purple-900/40 rounded-2xl w-fit">
-                <BookOpen className="text-purple-600 dark:text-purple-400 w-10 h-10" />
+        <div className="coursesHeader">
+            <div className="coursesHeaderIconBox">
+                <BookOpen size={40} />
             </div>
             <div>
-                <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white">Cursos Parceiros</h1>
-                <p className="text-gray-600 dark:text-gray-300 text-lg mt-2">Explore capacitações extras publicadas por instituições de ensino parceiras.</p>
+                <h1 className="coursesHeaderTitle">Cursos Parceiros</h1>
+                <p className="coursesHeaderText">Explore capacitações extras publicadas por instituições de ensino parceiras.</p>
             </div>
         </div>
 
         {/* Grid de Cursos */}
-        <main className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
+        <main className="coursesGrid">
           {mockCourses.map(course => (
             <CourseCard key={course.id} course={course} />
           ))}
@@ -171,7 +170,7 @@ export const CoursesPage: React.FC = () => {
       </div>
     </>
   );
-}; 
+};
 
 // --- PÁGINA: Detalhes do Curso ---
 export const CourseDetailPage: React.FC = () => {
@@ -188,11 +187,11 @@ export const CourseDetailPage: React.FC = () => {
     return (
       <>
         <ParticleBackground />
-        <div className="min-h-[calc(100vh-80px)] flex flex-col items-center justify-center p-4 relative z-10">
-          <AlertCircle className="w-16 h-16 text-red-500 mb-4" />
-          <h1 className="text-3xl font-bold !text-black-900 mb-2">Curso não encontrado</h1>
-          <p className="text-red-600 dark:text-red-400 font-medium mb-6">O curso que você está procurando não está disponível ou foi removido.</p>
-          <Link to="/cursos" className="bg-[hsl(var(--button-1))] hover:bg-[hsl(var(--button-1-foreground))] text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center gap-2">
+        <div className="stateWrap">
+          <AlertCircle className="stateIcon" />
+          <h1 className="stateTitle">Curso não encontrado</h1>
+          <p className="stateText">O curso que você está procurando não está disponível ou foi removido.</p>
+          <Link to="/cursos" className="btnPrimary">
             <ArrowLeft size={20} />
             Voltar para a lista
           </Link>
@@ -204,13 +203,13 @@ export const CourseDetailPage: React.FC = () => {
   return (
     <>
       <ParticleBackground />
-      <main className="max-w-5xl mx-auto p-4 sm:p-8 min-h-[calc(100vh-80px)] relative z-10 flex flex-col">
-        
+      <main className="courseDetailPage">
+
         {/* Botão Voltar */}
-        <div className="mb-6 mt-4">
-          <Link 
-            to="/cursos" 
-            className="inline-flex items-center gap-2 text-[hsl(var(--button-2))] hover:text-[hsl(var(--button-2-foreground))] font-semibold transition-colors"
+        <div className="pageTopBar">
+          <Link
+            to="/cursos"
+            className="navBackLink"
           >
             <ArrowLeft size={20} />
             Voltar para lista de cursos
@@ -218,82 +217,82 @@ export const CourseDetailPage: React.FC = () => {
         </div>
 
         {/* Card Principal de Detalhes */}
-        <div className="!bg-white dark:!bg-[#1a1a1a]/90 backdrop-blur-md border border-gray-200 dark:border-gray-700/60 rounded-3xl overflow-hidden shadow-2xl">
-          
-          <div className="w-full h-64 sm:h-80 relative">
+        <div className="courseDetailCard">
+
+          <div className="courseDetailMedia">
             <img
               src={course.image}
               alt={course.title}
-              className="w-full h-full object-cover"
+              className="courseDetailImg"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+            <div className="courseDetailOverlay"></div>
           </div>
-          
+
           {/* Conteúdo */}
-          <div className="p-8 sm:p-12">
-            
-            <div className="mb-6 flex flex-wrap gap-2">
-              <span className={`${getCategoryColor(course.category)} text-white font-bold px-4 py-1.5 rounded-full text-sm shadow-sm`}>
+          <div className="courseDetailBody">
+
+            <div className="courseDetailBadges">
+              <span className={`catBadgeLg ${getCategoryClass(course.category)}`}>
                 {course.category}
               </span>
-              <span className="bg-gray-200 text-gray-800 dark:bg-gray-800 dark:text-gray-200 font-bold px-4 py-1.5 rounded-full text-sm shadow-sm border border-gray-300 dark:border-gray-700">
+              <span className="levelBadge">
                 {course.level}
               </span>
             </div>
-            
-            <h1 className="text-3xl sm:text-4xl font-bold !text-gray-900 dark:!text-white mb-6">
+
+            <h1 className="courseDetailTitle">
                 {course.title}
             </h1>
-            
-            <p className="!text-gray-700 dark:!text-gray-300 text-lg mb-10 leading-relaxed">
+
+            <p className="courseDetailDesc">
                 {course.description}
             </p>
-            
+
             {/* Grid de Informações Detalhadas */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-              
-              <div className="flex flex-col gap-2 p-4 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl">
-                <div className="flex items-center gap-2 text-[hsl(var(--button-2))] dark:text-blue-400 font-bold">
+            <div className="courseDetailInfoGrid">
+
+              <div className="courseDetailInfoCard">
+                <div className="courseDetailInfoHead">
                     <Clock size={20} />
                     <h3>Duração</h3>
                 </div>
-                <p className="!text-gray-800 dark:!text-gray-200 font-medium">{course.duration}</p>
+                <p className="courseDetailInfoValue">{course.duration}</p>
               </div>
 
-              <div className="flex flex-col gap-2 p-4 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl">
-                <div className="flex items-center gap-2 text-[hsl(var(--button-2))] dark:text-blue-400 font-bold">
+              <div className="courseDetailInfoCard">
+                <div className="courseDetailInfoHead">
                     <Building size={20} />
                     <h3>Instituição</h3>
                 </div>
-                <p className="!text-gray-800 dark:!text-gray-200 font-medium">{course.institution}</p>
+                <p className="courseDetailInfoValue">{course.institution}</p>
               </div>
 
-              <div className="flex flex-col gap-2 p-4 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl">
-                <div className="flex items-center gap-2 text-[hsl(var(--button-2))] dark:text-blue-400 font-bold">
+              <div className="courseDetailInfoCard">
+                <div className="courseDetailInfoHead">
                     <User size={20} />
                     <h3>Instrutor</h3>
                 </div>
-                <p className="!text-gray-800 dark:!text-gray-200 font-medium">{course.instructor}</p>
+                <p className="courseDetailInfoValue">{course.instructor}</p>
               </div>
 
-              <div className="flex flex-col gap-2 p-4 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl">
-                <div className="flex items-center gap-2 text-[hsl(var(--button-2))] dark:text-blue-400 font-bold">
+              <div className="courseDetailInfoCard">
+                <div className="courseDetailInfoHead">
                     <BarChart size={20} />
                     <h3>Nível</h3>
                 </div>
-                <p className="!text-gray-800 dark:!text-gray-200 font-medium">{course.level}</p>
+                <p className="courseDetailInfoValue">{course.level}</p>
               </div>
             </div>
-            
-            <div className="flex flex-col sm:flex-row items-center justify-between p-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/50 rounded-2xl gap-6">
-              <p className="text-gray-700 dark:text-gray-300 font-medium text-center sm:text-left">
+
+            <div className="courseDetailCta">
+              <p className="courseDetailCtaText">
                 Confira mais detalhes sobre este curso no site oficial da instituição de ensino parceira.
               </p>
               {/* <a
                 href="#"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="whitespace-nowrap px-8 py-4 rounded-xl font-bold text-white bg-[hsl(var(--button-1))] hover:bg-[hsl(var(--button-1-foreground))] shadow-lg transition-all flex items-center gap-2 hover:scale-105 active:scale-95"
+                className="btnPrimary whitespace-nowrap"
               >
                 <span>Acessar Portal Oficial</span>
                 <ExternalLink size={20} />

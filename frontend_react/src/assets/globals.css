@@ -31,8 +31,10 @@ body {
     --button-1-foreground: 221, 83%, 53%;
     --button-2: 229, 87%, 25%;
     --button-2-foreground: 209, 94%, 44%;
+    --button-3: ;
+    --button-3-hover: 68, 57%, 64%;
     --card: 221, 39%, 11%, 0.50;
-    --card-foreground: 215, 25%, 35%;
+    --card-foreground: 215, 25%, 35%, 50%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 3.9%;
     --primary: 0 0% 9%;
@@ -77,8 +79,10 @@ body {
     --button-1-foreground: 200, 100%, 50%;
     --button-2: 200, 100%, 50%;
     --button-2-foreground: 200, 100%, 70%;
+    --button-3: ;
+    --button-3-hover: 142, 40%, 65%;
     --card: 0, 0%, 0%, 0.3;
-    --card-foreground: 199, 57%, 22%;
+    --card-foreground: 204, 59%, 36%, 0.501;
     --popover: 0 0% 3.9%;
     --popover-foreground: 0 0% 98%;
     --primary: 0 0% 98%;
@@ -343,4 +347,1125 @@ html.large-text button[aria-label="Abrir menu de acessibilidade"] + div button {
 
 html.large-text button[aria-label="Abrir menu de acessibilidade"] + div button svg {
   zoom: 1.2;
+}
+
+/* --- Formulários (login, cadastro, ...) ---
+   Classes genéricas e reutilizáveis, com cores via variáveis de tema, para que
+   uma futura mudança de design (uma classe e/ou variável) propague por vários
+   componentes. Resgata a técnica do antigo .card1: card translúcido com
+   background-color: hsl(var(--card)) → texto claro legível em tema claro E escuro. */
+@layer components {
+  .formPage {
+    @apply min-h-screen flex flex-col items-center justify-center p-4 relative z-10;
+  }
+
+  /* Link de voltar (usar junto de SimpleLink variant="navLink") */
+  .backLinkWrap {
+    @apply absolute top-8 left-8;
+  }
+
+  .backLinkInner {
+    @apply flex items-center gap-2;
+  }
+
+  .backLinkIcon {
+    @apply w-5 h-5;
+  }
+
+  .backLinkText {
+    @apply text-lg font-semibold;
+  }
+
+  /* Introdução da página (fora do card, sobre o background) */
+  .pageIntro {
+    @apply text-center mb-8 mt-12;
+  }
+
+  .pageIntroTitle {
+    color: hsl(var(--button-2));
+    @apply text-4xl md:text-5xl font-bold mb-3;
+  }
+
+  .pageIntroText {
+    color: hsl(var(--foreground));
+    @apply text-lg;
+  }
+
+  /* Card translúcido theme-aware (mesma base do antigo .card1) */
+  .formCard {
+    background-color: hsl(var(--card));
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    @apply w-full max-w-md backdrop-blur-md rounded-2xl shadow-2xl p-8;
+  }
+
+  .formCardWide {
+    @apply max-w-2xl;
+  }
+
+  .formHeader {
+    @apply flex flex-col items-center mb-8 text-center;
+  }
+
+  .formHeaderIcon {
+    color: #ffffff;
+    @apply w-8 h-8 mb-4;
+  }
+
+  .formHeaderTitle {
+    color: #ffffff;
+    @apply text-2xl font-bold mb-2;
+  }
+
+  .formHeaderText {
+    color: rgba(255, 255, 255, 0.65);
+    @apply text-sm;
+  }
+
+  /* Estrutura do formulário */
+  .formBody {
+    @apply flex flex-col gap-5;
+  }
+
+  .formGrid {
+    @apply grid grid-cols-1 sm:grid-cols-2 gap-5;
+  }
+
+  .formField {
+    @apply flex flex-col gap-1.5;
+  }
+
+  .formFieldWrap {
+    @apply relative flex items-center;
+  }
+
+  .formLabel {
+    color: rgba(255, 255, 255, 0.9);
+    @apply text-sm font-medium ml-1 text-left;
+  }
+
+  .formFieldIcon {
+    color: rgba(255, 255, 255, 0.45);
+    @apply absolute left-3 w-5 h-5 pointer-events-none;
+  }
+
+  .formInput {
+    background-color: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+    color-scheme: dark;
+    @apply w-full rounded-lg py-3 pl-10 pr-4 transition-all;
+  }
+
+  .formInput::placeholder {
+    color: rgba(255, 255, 255, 0.45);
+  }
+
+  .formInput:focus {
+    outline: none;
+    border-color: hsl(var(--button-2));
+    box-shadow: 0 0 0 1px hsl(var(--button-2));
+  }
+
+  .formInputPassword {
+    @apply pr-12;
+  }
+
+  .formPasswordToggle {
+    color: rgba(255, 255, 255, 0.5);
+    @apply absolute right-3 transition-colors;
+  }
+
+  .formPasswordToggle svg {
+    @apply w-5 h-5;
+  }
+
+  .formPasswordToggle:hover {
+    color: #ffffff;
+  }
+
+  /* Linha de checkbox (ex.: "lembrar de mim") */
+  .formRow {
+    @apply flex items-center justify-between mt-2 text-sm;
+  }
+
+  .formCheckLabel {
+    color: rgba(255, 255, 255, 0.75);
+    @apply flex items-center gap-2 cursor-pointer transition-colors;
+  }
+
+  .formCheckLabel:hover {
+    color: #ffffff;
+  }
+
+  .formCheckbox {
+    accent-color: hsl(var(--button-2));
+    @apply w-4 h-4;
+  }
+
+  /* Feedback (erro/sucesso) */
+  .formError {
+    color: #fca5a5;
+    background-color: rgba(127, 29, 29, 0.4);
+    border: 1px solid rgba(153, 27, 27, 0.8);
+    @apply flex items-center gap-2 p-3 rounded-lg;
+  }
+
+  .formSuccess {
+    color: #86efac;
+    background-color: rgba(22, 101, 52, 0.4);
+    border: 1px solid rgba(22, 163, 74, 0.8);
+    @apply flex items-center gap-2 p-3 rounded-lg;
+  }
+
+  .formFeedbackText {
+    @apply text-sm font-medium;
+  }
+
+  /* Bloco de ações (feedback + submit) */
+  .formActions {
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    @apply flex flex-col gap-3 pt-2 mt-2;
+  }
+
+  /* Botão de submit */
+  .formSubmit {
+    background-color: hsl(var(--button-1));
+    @apply w-full py-3 rounded-lg font-bold text-white shadow-lg transition-all flex justify-center items-center;
+  }
+
+  .formSubmit:hover {
+    background-color: hsl(var(--button-1-foreground));
+  }
+
+  .formSubmit:disabled {
+    @apply opacity-70 cursor-not-allowed;
+  }
+
+  .formSubmitLoader {
+    @apply flex items-center space-x-2;
+  }
+
+  .formSpinner {
+    border: 2px solid #ffffff;
+    border-top-color: transparent;
+    @apply w-4 h-4 rounded-full animate-spin;
+  }
+
+  /* Rodapé do card */
+  .formFooter {
+    color: rgba(255, 255, 255, 0.7);
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    @apply mt-8 pt-6 flex flex-col sm:flex-row items-center justify-center gap-1 text-sm;
+  }
+}
+
+/* --- Estrutura de página e listas (perfil, trilhas, cursos, ...) ---
+   Mesmo princípio: classes genéricas + cores via variáveis de tema e cards
+   translúcidos com hsl(var(--card)), reutilizáveis entre várias páginas. */
+@layer components {
+  .pageContainer {
+    @apply max-w-6xl mx-auto p-4 sm:p-8 min-h-[calc(100vh-80px)] relative z-10;
+  }
+
+  .pageHeader {
+    @apply flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10 mt-4;
+  }
+
+  .pageHeaderTitle {
+    color: hsl(var(--foreground));
+    @apply text-4xl md:text-5xl font-bold mb-2;
+  }
+
+  .pageHeaderText {
+    color: hsl(var(--foreground));
+    @apply text-lg opacity-80;
+  }
+
+  /* Alertas (feedback global de sucesso/erro) */
+  .alert {
+    @apply mb-6 p-4 rounded-lg flex items-center gap-3 font-medium shadow-md border;
+  }
+
+  .alertError {
+    color: #b91c1c;
+    background-color: rgba(254, 226, 226, 0.9);
+    border-color: rgba(239, 68, 68, 0.4);
+  }
+
+  .alertSuccess {
+    color: #15803d;
+    background-color: rgba(220, 252, 231, 0.9);
+    border-color: rgba(34, 197, 94, 0.4);
+  }
+
+  /* Formulário inline (barra de criação rápida) */
+  .inputBar {
+    @apply mb-8 flex gap-3;
+  }
+
+  .inputPlain {
+    background-color: hsl(var(--input));
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color-scheme: dark;
+    @apply flex-1 rounded-lg py-2 px-4 transition-all;
+  }
+
+  .inputPlain::placeholder {
+    color: rgba(171, 167, 167, 0.883);
+  }
+
+  .inputPlain:focus {
+    outline: none;
+    border-color: hsl(var(--button-2));
+    box-shadow: 0 0 0 1px hsl(var(--button-2));
+  }
+
+  /* Botões genéricos */
+  .btnPrimary {
+    background-color: hsl(var(--button-1));
+    @apply inline-flex items-center justify-center gap-2 font-bold text-white px-5 py-2 rounded-lg transition-all;
+  }
+
+  .btnPrimary:hover {
+    background-color: hsl(var(--button-1-foreground));
+  }
+
+  .btnPrimary:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+
+  .btnTextDanger {
+    color: #ea2320;
+    @apply inline-flex items-center gap-1 text-sm font-bold transition-colors;
+  }
+
+  .btnTextDanger:hover {
+    color: #fc4e4e;
+  }
+
+  .btnSpinner {
+    border: 2px solid #ffffff;
+    border-top-color: transparent;
+    @apply w-5 h-5 rounded-full animate-spin;
+  }
+
+  /* Cabeçalho de seção */
+  .sectionHeader {
+    border-bottom: 1px solid hsl(var(--border));
+    @apply flex items-center gap-3 mb-8 pb-4;
+  }
+
+  .sectionTitle {
+    color: hsl(var(--foreground));
+    @apply text-3xl font-bold;
+  }
+
+  .sectionIcon {
+    color: hsl(var(--button-2));
+    @apply w-8 h-8;
+  }
+
+  /* Grade de cards */
+  .cardGrid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+  }
+
+  /* Card translúcido de item (trilha/curso) */
+  .itemCard {
+    background-color: hsl(var(--card-foreground));
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    @apply rounded-2xl p-6 shadow-lg flex flex-col justify-between;
+  }
+/* hsl(var(--card-foreground)) */
+
+  .itemCardTop {
+    @apply flex justify-between items-start mb-2;
+  }
+
+  .itemCardTitle {
+    color: #ffffff;
+    @apply block text-xl font-bold mb-4 transition-colors;
+  }
+
+  .itemCardTitle:hover {
+    color: hsl(var(--button-3-hover));
+  }
+
+  .itemCardBody {
+    @apply mb-4;
+  }
+
+  .itemCardLabel {
+    color: rgba(255, 255, 255, 0.55);
+    @apply text-xs font-semibold mb-1;
+  }
+
+  .itemList {
+    @apply text-sm space-y-1;
+  }
+
+  .itemList li {
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  .itemCardEmpty {
+    color: rgba(255, 255, 255, 0.45);
+    @apply text-xs italic;
+  }
+
+  .itemCardFooter {
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    @apply mt-8 flex items-center justify-between pt-4;
+  }
+
+  .itemCardLink {
+    color: hsl(var(--button-3-hover));
+    @apply text-sm font-bold hover:underline;
+  }
+
+  /* Badges (tipo de trilha) */
+  .badge {
+    @apply inline-flex items-center text-xs px-2.5 py-1 rounded-full font-semibold;
+  }
+
+  .badgeSystem {
+    color: #e9d5ff;
+    background-color: rgba(88, 28, 135, 0.5);
+  }
+
+  .badgeCustom {
+    color: #a7f3d0;
+    background-color: rgba(6, 78, 59, 0.5);
+  }
+
+  /* Status da inscrição */
+  .statusBadge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border cursor-pointer focus:outline-none;
+  }
+
+  .statusBadge:disabled {
+    @apply opacity-50;
+  }
+
+  .statusInscrito {
+    color: #93c5fd;
+    background-color: rgba(30, 58, 138, 0.5);
+    border-color: rgba(59, 130, 246, 0.4);
+  }
+
+  .statusCursando {
+    color: #fde68a;
+    background-color: rgba(113, 63, 18, 0.5);
+    border-color: rgba(234, 179, 8, 0.4);
+  }
+
+  .statusSuspenso {
+    color: #d1d5db;
+    background-color: rgba(55, 65, 81, 0.6);
+    border-color: rgba(107, 114, 128, 0.4);
+  }
+
+  .statusConcluido {
+    color: #86efac;
+    background-color: rgba(6, 78, 59, 0.5);
+    border-color: rgba(34, 197, 94, 0.4);
+  }
+
+  /* Estados: vazio / carregando / erro */
+  .emptyState {
+    border: 1px dashed hsl(var(--border));
+    @apply text-center p-12 rounded-2xl;
+  }
+
+  .emptyStateTitle {
+    color: hsl(var(--foreground));
+    @apply text-xl font-bold mb-2;
+  }
+
+  .stateWrap {
+    @apply min-h-[calc(100vh-80px)] flex flex-col items-center justify-center p-4 gap-3;
+  }
+
+  .stateSpinner {
+    border: 4px solid hsl(var(--button-2));
+    border-top-color: transparent;
+    @apply w-16 h-16 rounded-full animate-spin;
+  }
+
+  .stateIcon {
+    color: #ef4444;
+    @apply w-16 h-16;
+  }
+
+  .stateTitle {
+    color: hsl(var(--foreground));
+    @apply text-3xl font-bold;
+  }
+
+  .stateText {
+    color: #dc2626;
+    @apply font-medium;
+  }
+}
+
+/* --- Página de aulas (classesPage) ---
+   Barra superior, hero com ícone, card de curso expansível e modal de seleção.
+   Mesmo princípio: classes genéricas + cores via variáveis de tema e cards
+   translúcidos com hsl(var(--card)). */
+@layer components {
+  .pageTopBar {
+    @apply mb-6 mt-4 flex justify-between items-center;
+  }
+
+  .navBackLink {
+    color: hsl(var(--button-2));
+    @apply inline-flex items-center gap-2 font-semibold transition-colors;
+  }
+
+  .navBackLink:hover {
+    color: hsl(var(--button-2-foreground));
+  }
+
+  .btnSecondary {
+    background-color: hsl(var(--button-2));
+    @apply inline-flex items-center justify-center gap-2 font-bold text-white px-4 py-2 rounded-xl transition-all;
+  }
+
+  .btnSecondary:hover {
+    background-color: hsl(var(--button-2-foreground));
+  }
+
+  .btnSecondary:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+
+  .btnGhost {
+    color: hsl(var(--foreground));
+    @apply inline-flex items-center justify-center px-4 py-2 rounded-lg opacity-80 transition-colors;
+  }
+
+  .btnGhost:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    @apply opacity-100;
+  }
+
+  .heroIconBox {
+    background-color: rgba(59, 130, 246, 0.15);
+    @apply p-4 rounded-2xl w-fit;
+  }
+
+  .courseList {
+    @apply flex flex-col gap-4;
+  }
+
+  /* Card de curso expansível */
+  .courseCard {
+    background-color: hsl(var(--card));
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    @apply rounded-2xl shadow-lg overflow-hidden transition-all duration-300;
+  }
+
+  .courseCardHead {
+    background-color: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    @apply flex items-center justify-between gap-4 p-5 cursor-pointer;
+  }
+
+  .courseCardHeadMain {
+    @apply flex items-center gap-3 flex-1;
+  }
+
+  .courseCardIcon {
+    color: hsl(var(--button-2));
+    background-color: rgba(59, 130, 246, 0.15);
+    @apply p-3 rounded-full transition-colors;
+  }
+
+  .courseCard:hover .courseCardIcon {
+    background-color: hsl(var(--button-2));
+    color: #ffffff;
+  }
+
+  .courseCardTitle {
+    color: hsl(var(--foreground));
+    @apply text-lg font-bold leading-tight transition-colors;
+  }
+
+  .courseCard:hover .courseCardTitle {
+    color: hsl(var(--button-2));
+  }
+
+  .courseLevel {
+    color: rgba(255, 255, 255, 0.7);
+    background-color: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider;
+  }
+
+  .courseCardToggle {
+    color: rgba(255, 255, 255, 0.5);
+    @apply p-2 rounded-lg transition-colors;
+  }
+
+  .courseCardToggle:hover {
+    color: hsl(var(--button-2));
+    background-color: rgba(255, 255, 255, 0.06);
+  }
+
+  .courseCardToggle.isOpen svg {
+    transform: rotate(180deg);
+  }
+
+  .courseCardBody {
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    @apply p-5 pt-4;
+  }
+
+  .courseCardActions {
+    @apply flex flex-col sm:flex-row sm:items-center justify-between gap-4;
+  }
+
+  .courseCardLink {
+    color: hsl(var(--button-2));
+    @apply flex items-center gap-2 w-full sm:w-auto font-bold px-4 py-2 rounded-lg transition-colors;
+  }
+
+  .courseCardLink:hover {
+    background-color: rgba(59, 130, 246, 0.15);
+  }
+
+  .iconBtnDanger {
+    color: #ef4444;
+    @apply p-2 rounded-lg transition-colors;
+  }
+
+  .iconBtnDanger:hover {
+    color: #b91c1c;
+    background-color: rgba(239, 68, 68, 0.12);
+  }
+
+  .courseCardExtra {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    @apply mt-5 pt-5 grid grid-cols-1 sm:grid-cols-2 gap-4;
+  }
+
+  .courseCardField {
+    @apply flex flex-col gap-2;
+  }
+
+  .courseCardFieldLabel {
+    color: rgba(255, 255, 255, 0.8);
+    @apply flex items-center gap-1 text-sm font-medium;
+  }
+
+  .iconGold {
+    color: #facc15;
+    fill: #facc15;
+  }
+
+  .iconInfo {
+    color: hsl(var(--button-2));
+  }
+
+  /* Estados vazios com ícone + texto secundário */
+  .emptyStateIcon {
+    color: hsl(var(--foreground));
+    opacity: 0.45;
+    @apply mb-4;
+  }
+
+  .emptyStateText {
+    color: hsl(var(--foreground));
+    opacity: 0.7;
+  }
+
+  /* Modal (seleção de cursos) */
+  .modalOverlay {
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    @apply fixed inset-0 z-50 flex items-center justify-center p-4;
+  }
+
+  .modalCard {
+    background-color: hsl(var(--popover));
+    border: 1px solid hsl(var(--border));
+    @apply w-full max-w-md rounded-2xl p-6 shadow-2xl;
+  }
+
+  .modalTitle {
+    color: hsl(var(--foreground));
+    @apply text-xl font-bold mb-4;
+  }
+
+  .modalForm {
+    @apply flex flex-col gap-4;
+  }
+
+  .modalField {
+    @apply flex flex-col gap-2;
+  }
+
+  .modalLabel {
+    color: hsl(var(--foreground));
+    @apply block text-sm font-medium;
+  }
+
+  .modalSelect {
+    background-color: hsl(var(--input));
+    border: 1px solid hsl(var(--border));
+    color: hsl(var(--foreground));
+    @apply w-full rounded-lg px-4 py-2;
+  }
+
+  .modalSelect:disabled {
+    @apply opacity-50;
+  }
+
+  .modalLoading {
+    color: hsl(var(--foreground));
+    @apply flex items-center gap-2 py-4 justify-center opacity-70;
+  }
+
+  .modalActions {
+    @apply flex justify-end gap-3 mt-4;
+  }
+
+  .inlineSpinner {
+    border: 2px solid hsl(var(--button-2));
+    border-top-color: transparent;
+    @apply w-5 h-5 rounded-full animate-spin;
+  }
+}
+
+/* --- Página de trilhas do sistema (trailsPage) ---
+   Hero centralizado, grade de cards de seleção com dropdown de cursos e barra
+   de inscrição. Texto/cores via variáveis de tema (foreground/muted/border),
+   para funcionar em tema claro e escuro. */
+@layer components {
+  .trailsPage {
+    @apply mx-auto w-full max-w-7xl p-4 sm:p-8 min-h-[calc(100vh-80px)] relative z-10 flex flex-col;
+  }
+
+  .trailsMain {
+    @apply flex-1 flex flex-col items-center;
+  }
+
+  /* Hero centralizado */
+  .trailsHero {
+    @apply text-center mb-12;
+  }
+
+  .trailsHeroTitleRow {
+    @apply flex items-center justify-center gap-3 mb-4;
+  }
+
+  .trailsHeroIcon {
+    color: #eab308;
+  }
+
+  .trailsHeroTitle {
+    color: hsl(var(--foreground));
+    @apply text-4xl md:text-5xl font-bold;
+  }
+
+  .trailsHeroText {
+    color: hsl(var(--foreground));
+    @apply text-lg max-w-2xl mx-auto opacity-80;
+  }
+
+  .trailsHeroName {
+    color: hsl(var(--button-2));
+  }
+
+  /* Formulário e grade */
+  .trailsForm {
+    @apply w-full flex flex-col items-center;
+  }
+
+  .trailsGrid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl;
+  }
+
+  .trailsLoader {
+    @apply flex justify-center items-center py-24;
+  }
+
+  .emptyStateNarrow {
+    @apply w-full max-w-md mx-auto;
+  }
+
+  /* Bloco de alertas + submit */
+  .trailsActions {
+    @apply mt-12 w-full max-w-md flex flex-col items-center gap-6;
+  }
+
+  .alertSlot {
+    @apply min-h-[60px] w-full flex justify-center;
+  }
+
+  .trailsAlertBase {
+    @apply w-full flex items-center justify-center gap-2 p-4 rounded-lg font-medium shadow-md border text-center;
+  }
+
+  .trailsSubmit {
+    background-color: hsl(var(--button-1));
+    @apply w-full py-4 rounded-xl font-bold text-lg text-white shadow-lg transition-all flex justify-center items-center;
+  }
+
+  .trailsSubmit:hover {
+    background-color: hsl(var(--button-1-foreground));
+    @apply scale-[1.02];
+  }
+
+  .trailsSubmit:active {
+    @apply scale-[0.98];
+  }
+
+  .trailsSubmit:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+
+  /* Cartão de trilha (seleção) */
+  .trailCard {
+    @apply relative flex flex-col items-center text-center gap-4 p-8 rounded-2xl cursor-pointer transition-all duration-300 backdrop-blur-md;
+  }
+
+  .trailCardMain {
+    @apply flex flex-col items-center gap-3 mb-4 select-none;
+  }
+
+  .trailCardIconWrap {
+    color: hsl(var(--button-2));
+    background-color: hsl(var(--muted));
+    @apply p-4 rounded-full transition-colors;
+  }
+
+  .trailCardIconWrap.isSelected {
+    background-color: hsl(var(--button-2));
+    color: #ffffff;
+  }
+
+  .trailCardName {
+    color: hsl(var(--foreground));
+    @apply text-xl font-bold transition-colors;
+  }
+
+  .trailCardName.isSelected {
+    color: hsl(var(--button-2));
+  }
+
+  /* Borda/sombra condicional (camada sobreposta) */
+  .trailCardOutline {
+    @apply absolute inset-0 rounded-2xl border-2 pointer-events-none transition-all;
+  }
+
+  .trailCardOutline.isSelected {
+    border-color: hsl(var(--button-2));
+    @apply shadow-xl;
+  }
+
+  .trailCardOutline.isIdle {
+    border-color: hsl(var(--border));
+    @apply shadow-md;
+  }
+
+  .trailCardOutline.isIdle:hover {
+    border-color: hsl(var(--foreground) / 0.35);
+    @apply shadow-lg;
+  }
+
+  /* Botão de expandir cursos (canto superior direito) */
+  .trailCardToggle {
+    color: hsl(var(--button-2));
+    background-color: hsl(var(--muted));
+    @apply absolute right-3 top-3 p-1.5 rounded-lg transition-all;
+  }
+
+  .trailCardToggle:hover {
+    background-color: hsl(var(--border));
+  }
+
+  .trailCardToggle.isOpen {
+    background-color: hsl(var(--button-2));
+    color: #ffffff;
+  }
+
+  .trailCardToggle svg {
+    transition: transform 0.2s;
+  }
+
+  .trailCardToggle.isOpen svg {
+    transform: rotate(90deg);
+  }
+
+  /* Dropdown de cursos */
+  .trailCardDropdown {
+    @apply flex flex-col items-center gap-2 w-full px-4 pt-2 pb-4 max-w-xs;
+  }
+
+  .trailCardDropdownTitle {
+    color: hsl(var(--muted-foreground));
+    border-bottom: 1px solid hsl(var(--border));
+    @apply text-xs font-semibold uppercase tracking-wider mb-1 w-full pb-1;
+  }
+
+  .trailCardCourseList {
+    @apply flex flex-col gap-1 w-full;
+  }
+
+  .trailCardCourse {
+    background-color: hsl(var(--muted));
+    border: 1px solid hsl(var(--border));
+    @apply flex items-center gap-2 px-2 py-1 rounded-lg text-left;
+  }
+
+  .trailCardCourseIcon {
+    color: hsl(var(--button-2));
+    @apply shrink-0;
+  }
+
+  .trailCardCourseName {
+    color: hsl(var(--foreground));
+    @apply text-sm leading-tight;
+  }
+
+  .trailCardCourseLevel {
+    color: hsl(var(--button-2));
+    background-color: rgba(59, 130, 246, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.4);
+    @apply ml-auto inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold uppercase;
+  }
+
+  .trailCardMore {
+    color: hsl(var(--muted-foreground));
+    @apply text-xs italic ml-2;
+  }
+
+  .trailCardEmpty {
+    color: hsl(var(--muted-foreground));
+    @apply flex items-center gap-2 px-4 py-2 text-xs italic;
+  }
+}
+
+/* --- Página de cursos parceiros (coursesPage) ---
+   Lista com cards de imagem + página de detalhes. Cores via variáveis de tema
+   (foreground/muted/border/popover) para funcionar em tema claro e escuro;
+   categorias usam classes dedicadas para não repetir cores no TSX. */
+@layer components {
+  .coursesPage {
+    @apply mx-auto w-full max-w-7xl p-4 sm:p-8 min-h-[calc(100vh-80px)] relative z-10 flex flex-col;
+  }
+
+  /* Cabeçalho da lista (ícone + título + descrição) */
+  .coursesHeader {
+    border-bottom: 1px solid hsl(var(--border));
+    @apply flex flex-col sm:flex-row sm:items-center gap-4 mb-10 pb-6;
+  }
+
+  .coursesHeaderIconBox {
+    color: #9333ea;
+    background-color: rgba(147, 51, 234, 0.15);
+    @apply p-4 rounded-2xl w-fit;
+  }
+
+  .coursesHeaderTitle {
+    color: hsl(var(--foreground));
+    @apply text-4xl md:text-5xl font-bold;
+  }
+
+  .coursesHeaderText {
+    color: hsl(var(--muted-foreground));
+    @apply text-lg mt-2;
+  }
+
+  .coursesGrid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+  }
+
+  /* Card do curso parceiro (lista) */
+  .partnerCard {
+    background-color: hsl(var(--popover));
+    border: 1px solid hsl(var(--border));
+    border-left: 4px solid transparent;
+    @apply rounded-2xl overflow-hidden flex flex-col shadow-sm transition-all duration-300;
+  }
+
+  .partnerCard:hover {
+    border-left-color: hsl(var(--button-2));
+    @apply shadow-md;
+  }
+
+  .partnerCardMedia {
+    @apply relative overflow-hidden h-44 md:h-52;
+  }
+
+  .partnerCardImg {
+    @apply w-full h-full object-cover transition-transform duration-500;
+  }
+
+  .partnerCard:hover .partnerCardImg {
+    transform: scale(1.05);
+  }
+
+  .partnerCardBadges {
+    @apply absolute top-3 left-3 flex gap-2;
+  }
+
+  .partnerCardBody {
+    @apply p-4 md:p-5 flex flex-col flex-1;
+  }
+
+  .partnerCardTitle {
+    color: hsl(var(--foreground));
+    @apply text-lg md:text-xl font-bold mb-2 line-clamp-2 transition-colors leading-snug;
+  }
+
+  .partnerCard:hover .partnerCardTitle {
+    color: hsl(var(--button-2));
+  }
+
+  .partnerCardDesc {
+    color: hsl(var(--muted-foreground));
+    @apply text-sm mb-4 line-clamp-3 flex-1;
+  }
+
+  .partnerCardMeta {
+    color: hsl(var(--foreground));
+    @apply flex flex-col gap-2 mt-auto mb-3 text-sm font-medium;
+  }
+
+  .partnerCardMetaRow {
+    @apply flex items-center gap-2;
+  }
+
+  .partnerCardMetaIcon {
+    color: hsl(var(--button-2));
+    @apply shrink-0;
+  }
+
+  .partnerCardMetaText {
+    @apply truncate;
+  }
+
+  .partnerCardAction {
+    background-color: hsl(var(--button-1));
+    @apply inline-flex items-center justify-center gap-2 w-auto px-5 py-2.5 rounded-lg font-bold text-white text-sm shadow-sm transition-all;
+  }
+
+  .partnerCardAction:hover {
+    background-color: hsl(var(--button-1-foreground));
+  }
+
+  /* Badges de categoria (cor de fundo por categoria) */
+  .catBadge {
+    @apply inline-flex text-white font-semibold px-2.5 py-1 rounded-full text-[11px] shadow-sm;
+  }
+
+  .catBadgeLg {
+    @apply inline-flex text-white font-bold px-4 py-1.5 rounded-full text-sm shadow-sm;
+  }
+
+  .catTecnologia {
+    background-color: #2563eb;
+  }
+
+  .catDataScience {
+    background-color: #9333ea;
+  }
+
+  .catIA {
+    background-color: #059669;
+  }
+
+  .catProgramacao {
+    background-color: #db2777;
+  }
+
+  /* Badge de nível (tema claro/escuro) */
+  .levelBadgeDark {
+    color: #ffffff;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    @apply inline-flex font-semibold px-2.5 py-1 rounded-full text-[11px] shadow-sm;
+  }
+
+  .levelBadge {
+    color: hsl(var(--foreground));
+    background-color: hsl(var(--muted));
+    border: 1px solid hsl(var(--border));
+    @apply inline-flex font-bold px-4 py-1.5 rounded-full text-sm shadow-sm;
+  }
+
+  /* Página de detalhes do curso */
+  .courseDetailPage {
+    @apply mx-auto w-full max-w-5xl p-4 sm:p-8 min-h-[calc(100vh-80px)] relative z-10 flex flex-col;
+  }
+
+  .courseDetailCard {
+    background-color: hsl(var(--popover));
+    border: 1px solid hsl(var(--border));
+    @apply rounded-3xl overflow-hidden shadow-2xl;
+  }
+
+  .courseDetailMedia {
+    @apply w-full h-64 sm:h-80 relative;
+  }
+
+  .courseDetailImg {
+    @apply w-full h-full object-cover;
+  }
+
+  .courseDetailOverlay {
+    background-image: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
+    @apply absolute inset-0;
+  }
+
+  .courseDetailBody {
+    @apply p-8 sm:p-12;
+  }
+
+  .courseDetailBadges {
+    @apply mb-6 flex flex-wrap gap-2;
+  }
+
+  .courseDetailTitle {
+    color: hsl(var(--foreground));
+    @apply text-3xl sm:text-4xl font-bold mb-6;
+  }
+
+  .courseDetailDesc {
+    color: hsl(var(--foreground));
+    @apply text-lg mb-10 leading-relaxed opacity-90;
+  }
+
+  .courseDetailInfoGrid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10;
+  }
+
+  .courseDetailInfoCard {
+    background-color: hsl(var(--muted));
+    border: 1px solid hsl(var(--border));
+    @apply flex flex-col gap-2 p-4 rounded-xl;
+  }
+
+  .courseDetailInfoHead {
+    color: hsl(var(--button-2));
+    @apply flex items-center gap-2 font-bold;
+  }
+
+  .courseDetailInfoValue {
+    color: hsl(var(--foreground));
+    @apply font-medium;
+  }
+
+  .courseDetailCta {
+    background-color: rgba(59, 130, 246, 0.12);
+    border: 1px solid rgba(59, 130, 246, 0.35);
+    @apply flex flex-col sm:flex-row items-center justify-between p-6 rounded-2xl gap-6;
+  }
+
+  .courseDetailCtaText {
+    color: hsl(var(--foreground));
+    @apply font-medium text-center sm:text-left;
+  }
 }
