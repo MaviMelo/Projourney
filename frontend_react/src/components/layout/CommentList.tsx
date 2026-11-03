@@ -117,7 +117,7 @@ export default function CommentList({ Courseid, currentUserId }: CommentListProp
                     value={content}
                     onChange={(event) => setContent(event.target.value)}
                     placeholder="Escreva um comentário..."
-                    className="w-full min-h-[100px] p-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 resize-none"
+                    className="w-full min-h-[100px] p-3 text-white rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-600 resize-none"
                     maxLength={1000}
                 />
                 <div className="flex justify-end mt-2">
@@ -134,7 +134,7 @@ export default function CommentList({ Courseid, currentUserId }: CommentListProp
             {loading ? (
                 <p>Carregando comentários...</p>
             ) : comments.length === 0 ? (
-                <p className="text-gray-500">Nenhum comentário ainda.</p>
+                <p>Nenhum comentário ainda.</p>
             ) : (
                 <div className="space-y-4">
                     {comments.map((comment) => (
@@ -171,7 +171,7 @@ export default function CommentList({ Courseid, currentUserId }: CommentListProp
                                     <textarea
                                         value={editContent}
                                         onChange={(e) => setEditContent(e.target.value)}
-                                        className="w-full p-2 border rounded dark:bg-gray-800 dark:border-gray-600"
+                                        className="w-full p-2 text-white border rounded dark:bg-gray-600 dark:border-gray-600"
                                     />
                                     <div className="flex justify-end space-x-2 mt-2">
                                         <button
