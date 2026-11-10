@@ -207,4 +207,3 @@ class TrailController extends Controller
     }
 }
 
-

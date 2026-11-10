@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 // Importa os componentes de página existentes
 import Layout from './components/layout/layout'
 import HomePage from './pages/homePage';
+import DashboardPage from './pages/dashboardPage';
 import CadastrarPage from './pages/registerPage';
 import LoginPage from './pages/loginPage';
 import TrilhasPage from './pages/trailsPage';
@@ -36,6 +37,7 @@ function MyRoutes() {
             <Route path="/perfil" element={<PerfilPage />} />
             <Route path="/aulas/:trailId" element={<AulasPage />} />
             <Route path="/sobre" element={<SobrePage />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
           </Route>
         </Routes>
 

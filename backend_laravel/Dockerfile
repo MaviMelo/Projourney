@@ -11,7 +11,7 @@ RUN composer install \
     --prefer-dist \
     --no-scripts \
     --optimize-autoloader
-    # --no-dev 
+    # --no-dev
 
 # --- Estágio 2: Produção (Aplicação) ---
 FROM php:8.4-fpm-alpine

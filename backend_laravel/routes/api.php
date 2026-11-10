@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\TrailController;
 use App\Http\Controllers\Api\V1\TrailUserController;
 use App\Http\Controllers\Api\V1\CourseController;
+use App\Http\Controllers\Api\V1\UserController;
 use Illuminate\Routing\ResolvesRouteDependencies;
 use App\Http\Controllers\RatingController;
 use App\Http\Controllers\CommentController;
@@ -28,6 +29,10 @@ Route::middleware('auth:sanctum')->name('api.')->group(function () {
         'comments' => CommentController::class,
         'trail-users'=> TrailUserController::class,
     ]);
+
+    Route::get('/user', [UserController::class, 'show']);
+    Route::put('/user', [UserController::class, 'update']);
+    Route::delete('/user', [UserController::class, 'destroy']);
 
     Route::post('/trail-courses', [TrailCourseController::class, 'store']);
     Route::delete('/trail-courses/{id}', [TrailCourseController::class, 'destroy']);

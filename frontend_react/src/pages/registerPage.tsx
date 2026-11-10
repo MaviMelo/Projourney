@@ -11,7 +11,7 @@ interface AlunoFormData {
     password: string;
     password_confirmation: string;
     birth_date: string;
-    phone_number: string; 
+    phone: string; 
 }
 
 export default function CadastrarAlunoPage(): JSX.Element {
@@ -22,7 +22,7 @@ export default function CadastrarAlunoPage(): JSX.Element {
         password: "",
         password_confirmation: "",
         birth_date: "",
-        phone_number: "", 
+        phone: "", 
     });
 
     const [loading, setLoading] = useState<boolean>(false);
@@ -58,7 +58,7 @@ export default function CadastrarAlunoPage(): JSX.Element {
                 formData.password,
                 formData.password_confirmation,
                 formData.birth_date,
-                formData.phone_number
+                formData.phone
             );
 
 
@@ -224,15 +224,15 @@ export default function CadastrarAlunoPage(): JSX.Element {
 
                             {/* Telefone */}
                             <div className="formField">
-                                <label htmlFor="phone_number" className="formLabel">
+                                <label htmlFor="phone" className="formLabel">
                                     Telefone (Opcional)
                                 </label>
                                 <div className="formFieldWrap">
                                     <Phone className="formFieldIcon" />
                                     <input
-                                        id="phone_number"
+                                        id="phone"
                                         type="tel"
-                                        value={formData.phone_number}
+                                        value={formData.phone}
                                         onChange={handleChange}
                                         placeholder="(11) 99999-9999"
                                         className="formInput"

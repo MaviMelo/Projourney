@@ -75,39 +75,55 @@ export default function Header() {
                 )}
             </div>
 
-            {isMenuOpen && (
-                <nav className="absolute top-20 right-0 w-64 bg-white dark:bg-[#1a1a1a] shadow-2xl border border-gray-200 dark:border-gray-800 rounded-bl-xl flex flex-col p-4 gap-2 z-50">
-                    
-                    <div className="sm:hidden mb-2 border-b border-gray-200 dark:border-gray-800 pb-4">
-                         {isAuthenticated ? (
-                            <button onClick={() => handleLogout(true)} className="w-full justify-center px-6 py-3 rounded-lg font-bold text-white bg-red-600 hover:bg-red-700 shadow-md transition-all flex items-center gap-2">
-                                <LogOut size={18} /> Sair em todos os dispositivos logados
-                            </button>
-                         ) : (
-                            <div onClick={closeMenu}>
-                                <SimpleLink to="/login" className="w-full justify-center px-6 py-3 rounded-lg font-bold text-white bg-[hsl(var(--button-1))] hover:bg-[hsl(var(--button-1-foreground))] shadow-md transition-all flex">
-                                    Entrar
-                                </SimpleLink>
-                            </div>
-                         )}
-                    </div>
-
-                    <div onClick={closeMenu}><SimpleLink to="/cursos" className="block p-3 rounded-lg font-medium hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Cursos</SimpleLink></div>
-                    <div onClick={closeMenu}><SimpleLink to="/sobre" className="block p-3 rounded-lg font-medium hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Sobre o projeto</SimpleLink></div>
-                    {isAuthenticated && (
-                    <div onClick={closeMenu}><SimpleLink to="/trilhas" className="block p-3 rounded-lg font-medium hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Trilhas</SimpleLink></div>
+        {isMenuOpen && (
+            <nav className="absolute top-20 right-0 w-64 bg-white dark:bg-[#1a1a1a] shadow-2xl border border-gray-200 dark:border-gray-800 rounded-bl-xl flex flex-col p-4 gap-2 z-50">
+                {/* Sessão de Auth Mobile */}
+                <div className="sm:hidden mb-2 border-b border-gray-200 dark:border-gray-800 pb-4">
+                    {isAuthenticated ? (
+                        <button 
+                            onClick={() => { closeMenu(); handleLogout(true); }} 
+                            className="w-full justify-center px-4 py-2.5 rounded-lg font-bold text-white bg-red-600 hover:bg-red-700 shadow-md transition-all flex items-center gap-2 text-sm"
+                        >
+                            <LogOut size={18} />
+                            Sair dos dispositivos
+                        </button>
+                    ) : (
+                        <SimpleLink 
+                            to="/login" 
+                            onClick={closeMenu}
+                            className="w-full justify-center px-6 py-3 rounded-lg font-bold text-white bg-[hsl(var(--button-1))] hover:opacity-90 shadow-md transition-all flex"
+                        >
+                            Entrar
+                        </SimpleLink>
                     )}
-                    {isAuthenticated && (
-                                            <button 
-                        onClick={() => handleLogout(true)}
-                        className="px-6 py-2 rounded-lg font-bold text-white bg-red-600 hover:bg-red-700 shadow-md transition-all hidden sm:flex items-center gap-2"
-                    >
-                        <LogOut size={18} />
-                        Sair em todos os dispositivos
-                    </button>
-                    )}
-                </nav>
-            )}
+                </div>
+                {/* Links Principais */}
+                <SimpleLink to="/cursos" onClick={closeMenu} className="block p-3 rounded-lg font-medium hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                    Cursos
+                </SimpleLink>
+                <SimpleLink to="/sobre" onClick={closeMenu} className="block p-3 rounded-lg font-medium hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                    Sobre o projeto
+                </SimpleLink>
+                {/* Links Autenticados */}
+                {isAuthenticated && (
+                    <>
+                        <SimpleLink to="/trilhas" onClick={closeMenu} className="block p-3 rounded-lg font-medium hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                            Trilhas
+                        </SimpleLink>
+                        <SimpleLink to="/dashboard" onClick={closeMenu} className="block p-3 rounded-lg font-medium hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                            Dashboard
+                        </SimpleLink>
+                        <button 
+                            onClick={() => { closeMenu(); handleLogout(true); }}
+                            className="hidden sm:flex w-full justify-center px-6 py-2 rounded-lg font-bold text-white bg-red-600 hover:bg-red-700 shadow-md transition-all items-center gap-2 mt-2"
+                        >
+                            <LogOut size={18} />
+                            Sair em todos os dispositivos
+                        </button>
+                    </>
+                )}
+            </nav>
+        )}
         </header>
     );
 }
