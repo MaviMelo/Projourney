@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { User, Mail, Calendar, Phone, Shield, Save, Trash2, AlertCircle, CheckCircle, Edit3, X } from 'lucide-react';
+import { User, Mail, Calendar, Phone, Shield, Save, Trash2, AlertCircle, CheckCircle, Edit3, X, Camera } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
 import ParticleBackground from "@/components/effects/particleBackground";
 import { useNavigate } from 'react-router-dom';
@@ -11,7 +11,12 @@ interface UserData {
     birth_date?: string;
     phone?: string;
     role?: string;
+    avatar?: string;
+    avatar_url?: string;
 }
+
+// Ajuste conforme a URL base do seu backend Laravel (sem o /api/v1)
+const STORAGE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
 
 export default function DashboardPage() {
     const navigate = useNavigate();
@@ -22,6 +27,10 @@ export default function DashboardPage() {
     const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
     const [modalError, setModalError] = useState<string | null>(null);
 
+    // Estados para o upload e preview do avatar
+    const [avatarFile, setAvatarFile] = useState<File | null>(null);
+    const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -30,6 +39,12 @@ export default function DashboardPage() {
         birth_date: '',
         phone: '',
     });
+
+    const getAvatarSrc = (userData: UserData | null) => {
+        if (userData?.avatar_url) return userData.avatar_url;
+        const path = userData?.avatar || 'perfis/imagemPerfil.png';
+        return `${STORAGE_URL}/storage/${path}`;
+    };
 
     const fetchUser = async () => {
         setLoading(true);
@@ -56,23 +71,55 @@ export default function DashboardPage() {
         fetchUser();
     }, []);
 
+    // Limpa a URL temporária da memória ao desmontar ou trocar de arquivo
+    useEffect(() => {
+        return () => {
+            if (avatarPreview) URL.revokeObjectURL(avatarPreview);
+        };
+    }, [avatarPreview]);
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
         if (modalError) setModalError(null);
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (!file.type.startsWith('image/')) {
+            setModalError('Selecione apenas arquivos de imagem (JPG, PNG, WEBP).');
+            return;
+        }
+
+        if (file.size > 2 * 1024 * 1024) {
+            setModalError('A imagem deve ter no máximo 2MB.');
+            return;
+        }
+
+        setAvatarFile(file);
+        setAvatarPreview(URL.createObjectURL(file));
+        if (modalError) setModalError(null);
+    };
+
+    const closeModal = () => {
+        setIsEditModalOpen(false);
+        setModalError(null);
+        setAvatarFile(null);
+        setAvatarPreview(null);
     };
 
     const handleUpdate = async (e: React.FormEvent) => {
         e.preventDefault();
         setModalError(null);
 
-        // Validação das senhas
         if (formData.password || formData.confirmPassword) {
             if (formData.password !== formData.confirmPassword) {
                 setModalError('As senhas digitadas não coincidem.');
                 return;
             }
-            if (formData.password.length < 6) {
-                setModalError('A nova senha deve ter no mínimo 6 caracteres.');
+            if (formData.password.length < 8) {
+                setModalError('A nova senha deve ter no mínimo 8 caracteres.');
                 return;
             }
         }
@@ -80,25 +127,28 @@ export default function DashboardPage() {
         setSaving(true);
         setMessage(null);
 
-        const payload: Record<string, string> = {};
-        if (formData.name) payload.name = formData.name;
-        if (formData.email) payload.email = formData.email;
-        if (formData.password) payload.password = formData.password;
-        if (formData.birth_date) payload.birth_date = formData.birth_date;
-        if (formData.phone) payload.phone = formData.phone;
+        // Uso de FormData + Method Spoofing (_method=PUT) para suportar arquivos no Laravel
+        const payload = new FormData();
+        payload.append('_method', 'PUT');
+        if (formData.name) payload.append('name', formData.name);
+        if (formData.email) payload.append('email', formData.email);
+        if (formData.password) payload.append('password', formData.password);
+        if (formData.birth_date) payload.append('birth_date', formData.birth_date);
+        if (formData.phone) payload.append('phone', formData.phone);
+        if (avatarFile) payload.append('avatar', avatarFile);
 
         const response = await apiFetch<{ data: UserData; message: string }>('/user', {
-            method: 'PUT',
-            body: JSON.stringify(payload),
+            method: 'POST',
+            body: payload,
         });
 
         if (response.status === 'success' && response.data) {
             setUser(response.data.data);
             setMessage({ type: 'success', text: response.data.message || 'Perfil atualizado com sucesso!' });
             setFormData(prev => ({ ...prev, password: '', confirmPassword: '' }));
-            setIsEditModalOpen(false);
+            closeModal();
         } else {
-            setMessage({ type: 'error', text: response.message || 'Erro ao atualizar perfil.' });
+            setModalError(response.message || 'Erro ao atualizar perfil.');
         }
         setSaving(false);
     };
@@ -136,12 +186,14 @@ export default function DashboardPage() {
             <ParticleBackground />
 
             <main className="max-w-4xl mx-auto px-4 py-8 relative z-10 text-slate-100">
-                {/* Header */}
+                {/* Header com Avatar */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                     <div className="flex items-center gap-4">
-                        <div className="p-3 bg-indigo-500/20 border border-indigo-500/30 rounded-xl text-indigo-400">
-                            <User size={32} />
-                        </div>
+                        <img
+                            src={getAvatarSrc(user)}
+                            alt={`Foto de ${user?.name}`}
+                            className="w-16 h-16 rounded-2xl object-cover border-2 border-indigo-500/40 bg-slate-800 shadow-lg"
+                        />
                         <div>
                             <h1 className="text-3xl font-bold tracking-tight text-white">Meu Perfil</h1>
                             <p className="text-slate-400 text-sm">Gerencie suas informações pessoais e credenciais da conta.</p>
@@ -220,12 +272,9 @@ export default function DashboardPage() {
             {/* Modal de Atualização */}
             {isEditModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-lg p-6 shadow-2xl relative">
+                    <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-lg p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
                         <button
-                            onClick={() => {
-                                setIsEditModalOpen(false);
-                                setModalError(null);
-                            }}
+                            onClick={closeModal}
                             className="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors"
                         >
                             <X size={20} />
@@ -244,6 +293,40 @@ export default function DashboardPage() {
                         )}
 
                         <form onSubmit={handleUpdate} className="space-y-4">
+                            {/* Upload e Preview do Avatar */}
+                            <div className="flex items-center gap-4 pb-2">
+                                <div className="relative group">
+                                    <img
+                                        src={avatarPreview || getAvatarSrc(user)}
+                                        alt="Preview do avatar"
+                                        className="w-20 h-20 rounded-2xl object-cover border border-slate-700 bg-slate-800"
+                                    />
+                                    <label
+                                        htmlFor="avatar-upload"
+                                        className="absolute inset-0 flex items-center justify-center bg-slate-950/60 opacity-0 group-hover:opacity-100 rounded-2xl cursor-pointer transition-opacity"
+                                    >
+                                        <Camera size={20} className="text-white" />
+                                    </label>
+                                </div>
+                                <div>
+                                    <label
+                                        htmlFor="avatar-upload"
+                                        className="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium rounded-lg cursor-pointer transition-colors border border-slate-700"
+                                    >
+                                        <Camera size={14} />
+                                        Alterar Foto
+                                    </label>
+                                    <input
+                                        id="avatar-upload"
+                                        type="file"
+                                        accept="image/jpeg,image/png,image/jpg,image/webp"
+                                        onChange={handleFileChange}
+                                        className="hidden"
+                                    />
+                                    <p className="text-[11px] text-slate-400 mt-1.5">JPG, PNG ou WEBP. Máximo de 2MB.</p>
+                                </div>
+                            </div>
+
                             <div>
                                 <label className="block text-xs font-medium text-slate-300 mb-1.5">Nome Completo</label>
                                 <div className="relative">
@@ -272,7 +355,6 @@ export default function DashboardPage() {
                                 </div>
                             </div>
 
-                            {/* Campos de Senha Lado a Lado */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-xs font-medium text-slate-300 mb-1.5">Nova Senha</label>
@@ -338,10 +420,7 @@ export default function DashboardPage() {
                             <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800 mt-6">
                                 <button
                                     type="button"
-                                    onClick={() => {
-                                        setIsEditModalOpen(false);
-                                        setModalError(null);
-                                    }}
+                                    onClick={closeModal}
                                     disabled={saving}
                                     className="px-4 py-2 text-slate-400 hover:text-white text-sm font-medium transition-colors"
                                 >

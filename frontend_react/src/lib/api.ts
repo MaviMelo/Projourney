@@ -51,9 +51,10 @@ export async function apiFetch<T = unknown>(
 ): Promise<ApiResponse<T>> {
     const method = (options.method || 'GET').toUpperCase();
     const needsCsrf = ['POST', 'PUT', 'DELETE', 'PATCH'].includes(method);
+    const isFormData = options.body instanceof FormData;
 
     const headers: HeadersInit = {
-        'Content-Type': 'application/json',
+        ...(!isFormData && { 'Content-Type': 'application/json' }),
         'Accept': 'application/json',
         ...(needsCsrf && { 'X-XSRF-TOKEN': getXsrfToken() ?? '' }),
         ...options.headers,
