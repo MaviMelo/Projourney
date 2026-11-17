@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use App\Models\User;
 
 class AuthController extends Controller
@@ -32,6 +33,7 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
             'birth_date' => $request->birth_date,
             'phone' => $request->phone,
+            'avatar'     => 'perfis/imagemPerfil.png',
         ]);
 
         Auth::login($user);
