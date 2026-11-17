@@ -14,7 +14,7 @@ use Laravel\Fortify\PasskeyAuthenticatable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable(['name', 'email', 'password', 'birth_date', 'phone', 'role'])]
+#[Fillable(['name', 'email', 'password', 'birth_date', 'phone', 'role', 'avatar'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token', 'created_at', 'updated_at'])]
 
 class User extends Authenticatable implements PasskeyUser
@@ -22,6 +22,7 @@ class User extends Authenticatable implements PasskeyUser
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable, HasApiTokens;
 
+    protected $appends = ['avatar_url'];
     /**
      * Boot do Model para registrar eventos automáticos (como a criação da trilha padrão).
      */
@@ -65,6 +66,11 @@ class User extends Authenticatable implements PasskeyUser
     public function courses()
     {
         return $this->hasMany(Course::class);
+    }
+
+    public function getAvatarUrlAttribute(): string
+    {
+        return asset('storage/' . ($this->avatar ?? 'perfis/imagemPerfil.png'));
     }
 }
 
